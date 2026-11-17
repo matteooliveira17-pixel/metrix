@@ -446,9 +446,15 @@
     <button class="rb tool" data-tool="rect" title="Surface rectangulaire (R)">
       <svg viewBox="0 0 32 32"><rect x="4" y="8" width="24" height="17" fill="#9fd89a" stroke="#1e7a1c" stroke-width="1.5"/><g fill="#fff" stroke="#1e7a1c"><rect x="2" y="6" width="4" height="4"/><rect x="26" y="23" width="4" height="4"/></g></svg>
       Rectangle</button>
+    <button class="rb tool" data-tool="circle" title="Cercle par son diamètre : cliquez les 2 extrémités (O)">
+      <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="12.5" fill="#9fd89a" stroke="#1e7a1c" stroke-width="1.6"/><path d="M5.2 22.2 26.8 9.8" stroke="#1e7a1c" stroke-width="1.6" stroke-dasharray="3 2"/><g fill="#fff" stroke="#1e7a1c" stroke-width="1.2"><rect x="3" y="20" width="4.4" height="4.4"/><rect x="24.6" y="7.6" width="4.4" height="4.4"/></g></svg>
+      Cercle</button>
     <button class="rb tool" data-tool="line" title="Longueur / périmètre (L)">
       <svg viewBox="0 0 32 32"><path d="M6 4v24h20" fill="none" stroke="#1f5fbf" stroke-width="2.5"/><g fill="#fff" stroke="#1f5fbf" stroke-width="1.5"><rect x="3" y="2" width="6" height="5"/><rect x="3" y="25" width="6" height="5"/><rect x="23" y="25" width="6" height="5"/></g><path d="M13 9h9M13 14h9M13 19h6" stroke="#1f5fbf" stroke-width="1.5"/></svg>
       Longueur</button>
+    <button class="rb tool" data-tool="arc" title="Arc : cliquez le départ, l'arrivée puis un point de la courbe (A)">
+      <svg viewBox="0 0 32 32"><path d="M4 26A14 14 0 0 1 28 26" fill="none" stroke="#1f5fbf" stroke-width="2.6"/><path d="M4 26h24" stroke="#1f5fbf" stroke-width="1" stroke-dasharray="2.5 2"/><g fill="#fff" stroke="#1f5fbf" stroke-width="1.4"><rect x="1.5" y="23.5" width="5" height="5"/><rect x="25.5" y="23.5" width="5" height="5"/><circle cx="16" cy="12" r="2.6"/></g></svg>
+      Arc</button>
     <button class="rb tool" data-tool="free" title="Main levée : trait ouvert = longueur (m), boucle refermée = surface (m²) (P)">
       <svg viewBox="0 0 32 32"><path d="M3 27C5 21 8.5 21 9.5 24.5S13.5 28 14.5 23.5 17 19.5 18.5 19.5" fill="none" stroke="#d6409f" stroke-width="2.4" stroke-linecap="round"/><g transform="translate(18.5 19.5) rotate(-45)"><path d="M0 0l6-3.2v6.4z" fill="#f3d9ae" stroke="#7a5a1a" stroke-width="1" stroke-linejoin="round"/><path d="M0 0l2.3-1.2v2.4z" fill="#2b2b2b"/><rect x="6" y="-3.2" width="10" height="6.4" fill="#f5c542" stroke="#8a6d12" stroke-width="1"/><path d="M6 0h10" stroke="#d9a516" stroke-width="1"/><rect x="16" y="-3.2" width="3.6" height="6.4" rx="1.2" fill="#ef8fae" stroke="#9f1239" stroke-width="1"/></g></svg>
       Main levée</button>
@@ -642,13 +648,15 @@ const PDF_RENDER = 2;            // résolution de rendu des PDF (px par point P
 const COLORS = ['#e5484d','#1f6feb','#30a46c','#f76b15','#8e4ec6','#0d9488','#d6409f','#a18072'];
 const TYPES = { line:'Longueur', area:'Surface', count:'Compteur', sketch:'Annotation' };
 const GROUPS = { area:'Surfaces', line:'Longueurs', count:'Compteurs', sketch:'Annotations' };
-const TOOL_NAMES = { pan:'Pointeur', calib:'Ajustement manuel de l\'échelle', line:'Longueur', area:'Surface', rect:'Rectangle', count:'Compteur', erase:'Gomme', voidrect:'Vide rectangle', void:'Vide libre' };
+const TOOL_NAMES = { pan:'Pointeur', calib:'Ajustement manuel de l\'échelle', line:'Longueur', area:'Surface', rect:'Rectangle', circle:'Cercle', arc:'Arc', count:'Compteur', erase:'Gomme', voidrect:'Vide rectangle', void:'Vide libre' };
 const HELP = {
   pan:   'Pointeur — cliquez un métré pour le sélectionner (touche effacer pour le supprimer) · 2 doigts pour déplacer le plan · pincer (ou ' + MOD + ' + molette) pour zoomer',
   calib: 'Ajustement manuel — cliquez les 2 extrémités d\'une cote connue',
   line:  'Longueur — clic pour chaque point · double-clic ou Entrée pour terminer · Retour arrière annule le dernier point · les tracés suivants s\'ajouteront à cette longueur (« Nouvelle longueur » ou N pour en changer)',
   area:  'Surface — clic pour chaque sommet · cliquez le 1er point, double-clic ou Entrée pour fermer · les tracés suivants s\'ajouteront à cette surface (« Nouvelle surface » ou N pour en changer)',
   rect:  'Rectangle — cliquez 2 coins opposés · les tracés suivants s\'ajouteront à cette surface (« Nouvelle surface » ou N pour en changer)',
+  circle: 'Cercle — cliquez les 2 extrémités d\'un diamètre : surface (m²) et diamètre · les cercles s\'ajoutent à la surface en cours (« Nouvelle surface » ou N pour en changer)',
+  arc:   'Arc — cliquez le départ, puis l\'arrivée, puis un point de la courbe : longueur de l\'arc · s\'ajoute à la longueur en cours (« Nouvelle longueur » ou N pour en changer)',
   count: 'Compteur — clic sur chaque élément · Entrée ou double-clic pour terminer le groupe',
   free: 'Main levée — maintenez le clic et dessinez : trait ouvert = longueur (m), boucle refermée sur son départ = surface (m²) · ' + MOD + ' + Z pour annuler le dernier tracé',
   erase: 'Gomme — maintenez le clic et passez sur un métré (n\'importe où dessus) pour le supprimer · ' + MOD + ' + Z pour annuler · Échap : retour au Pointeur',
@@ -666,7 +674,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '1.6';
+const METRIX_VERSION = '1.7';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -747,6 +755,16 @@ addTr([
   ["Abandonner et revenir au Pointeur", "Cancel and go back to the Pointer", "Abandonar e voltar ao Ponteiro", "Abandonar y volver al Puntero"],
   ["Propriétés et pages", "Properties and pages", "Propriedades e páginas", "Propiedades y páginas"],
   ["Liste des métrés", "Takeoff list", "Lista de medições", "Lista de mediciones"],
+  ["Cercle", "Circle", "Círculo", "Círculo"],
+  ["Arc", "Arc", "Arco", "Arco"],
+  ["Diamètre", "Diameter", "Diâmetro", "Diámetro"],
+  ["Diamètre (zone {n})", "Diameter (zone {n})", "Diâmetro (zona {n})", "Diámetro (zona {n})"],
+  ["Cercle par son diamètre : cliquez les 2 extrémités (O)", "Circle by its diameter: click both ends (O)", "Círculo pelo diâmetro: clique nas 2 extremidades (O)", "Círculo por su diámetro: haga clic en los 2 extremos (O)"],
+  ["Arc : cliquez le départ, l'arrivée puis un point de la courbe (A)", "Arc: click the start, the end, then a point on the curve (A)", "Arco: clique no início, no fim e depois num ponto da curva (A)", "Arco: haga clic en el inicio, el final y luego en un punto de la curva (A)"],
+  ["Cercle — cliquez les 2 extrémités d'un diamètre : surface (m²) et diamètre · les cercles s'ajoutent à la surface en cours (« Nouvelle surface » ou N pour en changer)", "Circle — click both ends of a diameter: area (m²) and diameter · circles are added to the current area (“New area” or N to change)", "Círculo — clique nas 2 extremidades de um diâmetro: área (m²) e diâmetro · os círculos somam-se à área em curso (« Nova área » ou N para mudar)", "Círculo — haga clic en los 2 extremos de un diámetro: superficie (m²) y diámetro · los círculos se suman a la superficie en curso (« Nueva superficie » o N para cambiar)"],
+  ["Arc — cliquez le départ, puis l'arrivée, puis un point de la courbe : longueur de l'arc · s'ajoute à la longueur en cours (« Nouvelle longueur » ou N pour en changer)", "Arc — click the start, then the end, then a point on the curve: arc length · added to the current length (“New length” or N to change)", "Arco — clique no início, depois no fim e depois num ponto da curva: comprimento do arco · soma-se ao comprimento em curso (« Novo comprimento » ou N para mudar)", "Arco — haga clic en el inicio, luego en el final y luego en un punto de la curva: longitud del arco · se suma a la longitud en curso (« Nueva longitud » o N para cambiar)"],
+  ["cliquez les 2 extrémités d'un diamètre", "click both ends of a diameter", "clique nas 2 extremidades de um diâmetro", "haga clic en los 2 extremos de un diámetro"],
+  ["cliquez le départ, l'arrivée puis un point de la courbe", "click the start, the end, then a point on the curve", "clique no início, no fim e depois num ponto da curva", "haga clic en el inicio, el final y luego en un punto de la curva"],
   ["Version en ligne : Métrix se met à jour tout seul à chaque ouverture (avec une connexion internet). Il fonctionne aussi hors connexion.", "Online version: Métrix updates itself every time it opens (with an internet connection). It also works offline.", "Versão online: o Métrix atualiza-se sozinho sempre que abre (com ligação à internet). Também funciona sem ligação.", "Versión en línea: Métrix se actualiza solo cada vez que se abre (con conexión a internet). También funciona sin conexión."],
   ["Projet", "Project", "Projeto", "Proyecto"],
   ["Affichage", "View", "Visualização", "Vista"],
@@ -874,7 +892,8 @@ addTr([
   ["Vide rectangle — cliquez 2 coins opposés à l'intérieur d'une surface : l'aire est déduite de cette surface", "Rectangular void — click 2 opposite corners inside an area: it is deducted from that area", "Vazio retangular — clique em 2 cantos opostos dentro de uma área: é deduzido dessa área", "Hueco rectangular — haga clic en 2 esquinas opuestas dentro de una superficie: se deduce de esa superficie"],
   ["Vide libre — clic pour chaque sommet à l'intérieur d'une surface · cliquez le 1er point, double-clic ou Entrée pour fermer", "Free-form void — click each vertex inside an area · click the 1st point, double-click or Enter to close", "Vazio livre — clique em cada vértice dentro de uma área · clique no 1.º ponto, duplo clique ou Enter para fechar", "Hueco libre — clic en cada vértice dentro de una superficie · haga clic en el 1.er punto, doble clic o Intro para cerrar"],
   ["Surface en cours : « {n} » ({c} zone{s}) — {how} · le tracé s'ajoute à cette surface · « Nouvelle surface » (N) pour en commencer une autre", "Current area: “{n}” ({c} zone{s}) — {how} · the drawing is added to this area · “New area” (N) to start another", "Área atual: « {n} » ({c} zona{s}) — {how} · o traçado é adicionado a esta área · « Nova área » (N) para começar outra", "Superficie actual: « {n} » ({c} zona{s}) — {how} · el trazado se añade a esta superficie · « Nueva superficie » (N) para empezar otra"],
-  ["Longueur en cours : « {n} » ({c} tronçon{s}) — clic pour chaque point, double-clic ou Entrée pour terminer · le tracé s'ajoute à cette longueur · « Nouvelle longueur » (N) pour en commencer une autre", "Current length: “{n}” ({c} segment{s}) — click each point, double-click or Enter to finish · the drawing is added to this length · “New length” (N) to start another", "Comprimento atual: « {n} » ({c} troço{s}) — clique em cada ponto, duplo clique ou Enter para terminar · o traçado é adicionado a este comprimento · « Novo comprimento » (N) para começar outro", "Longitud actual: « {n} » ({c} tramo{s}) — clic en cada punto, doble clic o Intro para terminar · el trazado se añade a esta longitud · « Nueva longitud » (N) para empezar otra"],
+  ["Longueur en cours : « {n} » ({c} tronçon{s}) — {how} · le tracé s'ajoute à cette longueur · « Nouvelle longueur » (N) pour en commencer une autre", "Current length: “{n}” ({c} segment{s}) — {how} · the drawing is added to this length · “New length” (N) to start another", "Comprimento atual: « {n} » ({c} troço{s}) — {how} · o traçado é adicionado a este comprimento · « Novo comprimento » (N) para começar outro", "Longitud actual: « {n} » ({c} tramo{s}) — {how} · el trazado se añade a esta longitud · « Nueva longitud » (N) para empezar otra"],
+  ["clic pour chaque point, double-clic ou Entrée pour terminer", "click each point, double-click or Enter to finish", "clique em cada ponto, duplo clique ou Enter para terminar", "clic en cada punto, doble clic o Intro para terminar"],
   ["cliquez 2 coins opposés", "click 2 opposite corners", "clique em 2 cantos opostos", "haga clic en 2 esquinas opuestas"],
   ["clic pour chaque sommet, double-clic ou Entrée pour fermer", "click each vertex, double-click or Enter to close", "clique em cada vértice, duplo clique ou Enter para fechar", "clic en cada vértice, doble clic o Intro para cerrar"],
   // messages
@@ -1501,8 +1520,10 @@ function draw() {
       if ((st.cur.type === 'rect' || st.cur.type === 'voidrect') && pts.length === 1) pts.push({x:mp.x,y:pts[0].y}, mp, {x:pts[0].x,y:mp.y});
       else pts.push(mp);
     }
+    if (st.cur.type === 'circle' && pts.length >= 2) pts.splice(0, pts.length, ...circlePts(pts[0], pts[1]));
+    if (st.cur.type === 'arc' && pts.length >= 3) pts.splice(0, pts.length, ...arcPts(pts[0], pts[2], pts[1]));   // départ, arrivée, point de courbe
     const isVoid = st.cur.type === 'void' || st.cur.type === 'voidrect';
-    const t = st.cur.type === 'rect' || isVoid ? 'area' : st.cur.type === 'calib' ? 'line' : st.cur.type;
+    const t = st.cur.type === 'rect' || st.cur.type === 'circle' || isVoid ? 'area' : st.cur.type === 'calib' || st.cur.type === 'arc' ? 'line' : st.cur.type;
     drawMeasure({ type:t, points:pts, color: st.cur.type === 'calib' ? '#d4a017' : st.cur.color, preview:true, isVoid }, true, px);
     if (mp && pts.length > 1) liveLabel(pts, t, mp, px);
     // longueur : à partir du 2e point, recliquer sur le dernier point termine la longueur
@@ -1553,6 +1574,34 @@ function draw() {
 }
 
 // surface enregistrée : chaque zone avec ses vides, puis les étiquettes
+// ---------- cercles et arcs ----------
+// Un cercle est enregistré comme une zone de surface (polygone de 360 côtés : écart < 0,01 % sur l'aire)
+// avec ses deux extrémités de diamètre ; un arc comme un tronçon de longueur (1 segment par degré).
+const CIRCLE_SIDES = 360;
+function circlePts(a, b) {
+  const c = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }, r = dist(a, b) / 2, a0 = Math.atan2(a.y - c.y, a.x - c.x);
+  return Array.from({ length: CIRCLE_SIDES }, (_, i) => { const t = a0 + 2 * Math.PI * i / CIRCLE_SIDES; return { x: c.x + r * Math.cos(t), y: c.y + r * Math.sin(t) }; });
+}
+// arc passant par 3 points : départ, un point sur l'arc, arrivée (alignés : segment droit)
+function arcPts(p0, p1, p2) {
+  const d = 2 * (p0.x * (p1.y - p2.y) + p1.x * (p2.y - p0.y) + p2.x * (p0.y - p1.y));
+  if (Math.abs(d) < 1e-9) return [p0, p2];
+  const s0 = p0.x * p0.x + p0.y * p0.y, s1 = p1.x * p1.x + p1.y * p1.y, s2 = p2.x * p2.x + p2.y * p2.y;
+  const c = { x: (s0 * (p1.y - p2.y) + s1 * (p2.y - p0.y) + s2 * (p0.y - p1.y)) / d, y: (s0 * (p2.x - p1.x) + s1 * (p0.x - p2.x) + s2 * (p1.x - p0.x)) / d };
+  const r = dist(c, p0), ang = q => Math.atan2(q.y - c.y, q.x - c.x), norm = a => ((a % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+  const a0 = ang(p0), sweepCCW = norm(ang(p2) - a0), via = norm(ang(p1) - a0);
+  const sweep = via <= sweepCCW ? sweepCCW : sweepCCW - 2 * Math.PI;   // sens qui passe par le point du milieu
+  const n = Math.max(8, Math.ceil(Math.abs(sweep) / (Math.PI / 180)));
+  const pts = Array.from({ length: n + 1 }, (_, i) => { const t = a0 + sweep * i / n; return { x: c.x + r * Math.cos(t), y: c.y + r * Math.sin(t) }; });
+  pts[0] = { x: p0.x, y: p0.y }; pts[n] = { x: p2.x, y: p2.y };
+  return pts;
+}
+// poignées affichées aux sommets : pas sur les cercles, arcs et traits à main levée (trop de points)
+function handlesOf(p, closedShape, zone) {
+  if (zone && zone.circle) return [zone.circle.a, zone.circle.b];
+  if (p.length <= 40) return p;
+  return closedShape ? [] : [p[0], p[p.length - 1]];
+}
 function drawArea(m, hi, px) {
   const zones = zonesOf(m), parts = areaParts(m);
   const poly = q => q.forEach((pt,i) => i ? ctx.lineTo(pt.x,pt.y) : ctx.moveTo(pt.x,pt.y));
@@ -1566,7 +1615,7 @@ function drawArea(m, hi, px) {
     (z.voids || []).forEach((v, i) => { const inf = infos[zi][i]; if (!inf || inf.deducted) { poly(v.points); ctx.closePath(); } });   // vides « troués »
     ctx.fillStyle = m.color; ctx.globalAlpha = .25; ctx.fill('evenodd'); ctx.globalAlpha = 1;
     ctx.beginPath(); poly(p); ctx.closePath(); ctx.strokeStyle = m.color; ctx.lineWidth = 2*px; ctx.stroke();
-    for (const q of p) { ctx.beginPath(); ctx.rect(q.x-3*px, q.y-3*px, 6*px, 6*px); ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 1.2*px; ctx.stroke(); }
+    for (const q of handlesOf(p, true, z)) { ctx.beginPath(); ctx.rect(q.x-3*px, q.y-3*px, 6*px, 6*px); ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 1.2*px; ctx.stroke(); }
     (z.voids || []).forEach((v, i) => drawVoid(m, v, infos[zi][i], px));
   });
   const live = zones.filter(z => z.points.length > 2);
@@ -1577,8 +1626,9 @@ function drawArea(m, hi, px) {
     const c = centroid(z.points);
     text(trText(`zone ${zi + 1} : ${fmt(parts.zoneNet[zi])} m²`), c.x, c.y + (z === big ? 18*px : 0), px, m.color, 10);
   });
-  const c = centroid(big.points);
-  text(`${m.name} : ${totalText(m)}`, c.x, c.y, px, m.color, 12);
+  const c = centroid(big.points), kC = scale(m.page);
+  const dia = zones.length === 1 && zones[0].circle && kC ? ` · Ø ${fmt(dist(zones[0].circle.a, zones[0].circle.b) * kC)} m` : '';
+  text(`${m.name} : ${totalText(m)}${dia}`, c.x, c.y, px, m.color, 12);
 }
 
 // longueur enregistrée : chaque tronçon, puis les étiquettes
@@ -1590,7 +1640,7 @@ function drawLine(m, hi, px) {
     const path = () => { ctx.beginPath(); p.forEach((q,i) => i ? ctx.lineTo(q.x,q.y) : ctx.moveTo(q.x,q.y)); };
     if (hi) { path(); ctx.strokeStyle = 'rgba(250,204,21,.7)'; ctx.lineWidth = 9*px; ctx.stroke(); }
     path(); ctx.strokeStyle = m.color; ctx.lineWidth = 2*px; ctx.stroke();
-    for (const q of p) { ctx.beginPath(); ctx.rect(q.x-3*px, q.y-3*px, 6*px, 6*px); ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 1.2*px; ctx.stroke(); }
+    for (const q of handlesOf(p, false)) { ctx.beginPath(); ctx.rect(q.x-3*px, q.y-3*px, 6*px, 6*px); ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 1.2*px; ctx.stroke(); }
   }
   const mid = p => p[Math.floor((p.length - 1) / 2)];
   const big = paths.reduce((a, p) => polyLen(p) > polyLen(a) ? p : a);
@@ -1681,7 +1731,7 @@ function drawMeasure(m, hi, px) {
     }
     if (m.isVoid) ctx.setLineDash([7*px, 4*px]);
     ctx.stroke(); ctx.setLineDash([]);
-    for (const q of p) { ctx.beginPath(); ctx.rect(q.x-3*px, q.y-3*px, 6*px, 6*px); ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 1.2*px; ctx.stroke(); }
+    for (const q of handlesOf(p, m.type === 'area')) { ctx.beginPath(); ctx.rect(q.x-3*px, q.y-3*px, 6*px, 6*px); ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 1.2*px; ctx.stroke(); }
     if (m.type === 'area' && m.voids && !m.preview) m.voids.forEach((v, i) => drawVoid(m, v, parts ? parts.list[i] : null, px));
   }
   if (!m.preview && m.name) {
@@ -1717,8 +1767,12 @@ function liveLabel(pts, t, mp, px) {
   let s;
   if (t === 'area') s = k ? `${fmt(polyArea(pts)*k*k)} m²` : `${fmt(polyArea(pts),0)} px²`;
   else s = k ? `${fmt(polyLen(pts)*k)} m` : `${fmt(polyLen(pts),0)} px`;
+  if (st.cur.type === 'circle' && st.cur.points.length) {   // cercle : diamètre et surface
+    const dp = dist(st.cur.points[0], mp);
+    s = k ? `Ø ${fmt(dp*k)} m · ${fmt(Math.PI * (dp/2) ** 2 * k * k)} m²` : `Ø ${fmt(dp,0)} px`;
+  }
   // tronçon ajouté à la longueur en cours : on affiche aussi le total
-  const curL = st.cur.type === 'line' && k ? currentLine() : null;
+  const curL = (st.cur.type === 'line' || st.cur.type === 'arc') && k ? currentLine() : null;
   if (curL) s += ` · total ${fmt((lineLen(curL) + polyLen(pts)) * k)} m`;
   text(s, mp.x + 14*px, mp.y - 14*px, px, '#111', 12, false, 'left');
 }
@@ -2213,7 +2267,9 @@ function renderProps() {
   const { unit, total, wall } = rowValues(m);
   const ap = m.type === 'area' ? areaParts(m) : null, nVoids = m.type === 'area' ? allVoids(m).length : 0;
   const zones = m.type === 'area' ? zonesOf(m) : [], adding = st.addZone === m.id;
+  const kZ = scale(m.page);
   const zoneRows = m.type === 'area' ? `<tr class="grp-row"><th colspan="2">Zones (${zones.length})</th></tr>
+    ${zones.map((z, i) => z.circle ? `<tr><th>Diamètre${zones.length > 1 ? ' (zone ' + (i + 1) + ')' : ''}</th><td>Ø ${kZ ? fmt(dist(z.circle.a, z.circle.b) * kZ) + ' m' : '—'}</td></tr>` : '').join('')}
     ${zones.length > 1 ? zones.map((z, i) => `<tr><th>Zone ${i + 1}</th><td><span style="display:flex;justify-content:space-between;align-items:center">${ap ? fmt(ap.zoneNet[i]) + ' m²' : '—'}<button class="zdel" data-z="${i}" title="Retirer cette zone">✕</button></span></td></tr>`).join('') : ''}
     <tr><td colspan="2" style="padding:5px 6px">
       <button class="pbtn" id="pZoneRect" style="margin:0 4px 0 0">＋ Zone rectangle</button><button class="pbtn" id="pZonePoly" style="margin:0">＋ Zone libre</button>
@@ -2359,29 +2415,29 @@ const currentLine = () => st.addLine ? st.measures.find(x => x.id === st.addLine
 function updateHelp() {
   const t = st.tool, cur = currentSurface(), curL = currentLine();
   const nz = cur ? zonesOf(cur).length : 0, np = curL ? pathsOf(curL).length : 0;
-  $('help').textContent = cur && (t === 'area' || t === 'rect')
-    ? `Surface en cours : « ${cur.name} » (${nz} zone${nz > 1 ? 's' : ''}) — ${t === 'rect' ? 'cliquez 2 coins opposés' : 'clic pour chaque sommet, double-clic ou Entrée pour fermer'} · le tracé s'ajoute à cette surface · « Nouvelle surface » (N) pour en commencer une autre`
-    : curL && t === 'line'
-    ? `Longueur en cours : « ${curL.name} » (${np} tronçon${np > 1 ? 's' : ''}) — clic pour chaque point, double-clic ou Entrée pour terminer · le tracé s'ajoute à cette longueur · « Nouvelle longueur » (N) pour en commencer une autre`
+  $('help').textContent = cur && (t === 'area' || t === 'rect' || t === 'circle')
+    ? `Surface en cours : « ${cur.name} » (${nz} zone${nz > 1 ? 's' : ''}) — ${t === 'rect' ? 'cliquez 2 coins opposés' : t === 'circle' ? 'cliquez les 2 extrémités d\'un diamètre' : 'clic pour chaque sommet, double-clic ou Entrée pour fermer'} · le tracé s'ajoute à cette surface · « Nouvelle surface » (N) pour en commencer une autre`
+    : curL && (t === 'line' || t === 'arc')
+    ? `Longueur en cours : « ${curL.name} » (${np} tronçon${np > 1 ? 's' : ''}) — ${t === 'arc' ? 'cliquez le départ, l\'arrivée puis un point de la courbe' : 'clic pour chaque point, double-clic ou Entrée pour terminer'} · le tracé s'ajoute à cette longueur · « Nouvelle longueur » (N) pour en commencer une autre`
     : HELP[t];
   $('help').title = $('help').textContent;   // texte complet au survol s'il est raccourci
   // le bouton du ruban s'adapte à l'outil : « Nouvelle longueur » avec l'outil Longueur
-  const lbl = $('newSurfLabel'); if (lbl) lbl.textContent = t === 'line' ? 'Nouvelle longueur' : t === 'free' ? 'Nouveau métré' : 'Nouvelle surface';
+  const lbl = $('newSurfLabel'); if (lbl) lbl.textContent = t === 'line' || t === 'arc' ? 'Nouvelle longueur' : t === 'free' ? 'Nouveau métré' : 'Nouvelle surface';
 }
 // « Nouvelle surface » / « Nouvelle longueur » (N) : le prochain tracé démarre un nouveau métré
 function newSurface() {
   if (st.cur) finish();
-  if (st.tool === 'line') { st.addLine = null; updateHelp(); }
+  if (st.tool === 'line' || st.tool === 'arc') { st.addLine = null; updateHelp(); }
   else if (st.tool === 'free') { st.addLine = null; st.addZone = null; updateHelp(); }
-  else { st.addZone = null; if (st.tool !== 'area' && st.tool !== 'rect') setTool('area'); else updateHelp(); }
+  else { st.addZone = null; if (st.tool !== 'area' && st.tool !== 'rect' && st.tool !== 'circle') setTool('area'); else updateHelp(); }
   renderTree(); renderProps(); draw();
-  toast(st.tool === 'line' ? 'Le prochain tracé commence une nouvelle longueur' : st.tool === 'free' ? 'Le prochain tracé commence un nouveau métré' : 'Le prochain tracé commence une nouvelle surface');
+  toast(st.tool === 'line' || st.tool === 'arc' ? 'Le prochain tracé commence une nouvelle longueur' : st.tool === 'free' ? 'Le prochain tracé commence un nouveau métré' : 'Le prochain tracé commence une nouvelle surface');
 }
 
 // Aimant (case à cocher de la barre d'état) : le curseur se colle aux points des métrés existants
 // (coins, extrémités, sommets), sinon à leurs traits. Il passe avant Ortho, comme dans les logiciels de DAO.
 const SNAP_PT = 12, SNAP_EDGE = 8;                       // rayons en pixels à l'écran
-const SNAP_TOOLS = ['area', 'rect', 'line', 'void', 'voidrect', 'calib'];
+const SNAP_TOOLS = ['area', 'rect', 'line', 'void', 'voidrect', 'calib', 'circle', 'arc'];
 function objectSnap(p) {
   const shapes = [];                                     // [points, fermé ?]
   for (const m of st.measures) {
@@ -2417,7 +2473,7 @@ function snapPoint(p) {
   }
   if (st.snap && SNAP_TOOLS.includes(st.tool)) { const s = objectSnap(p); if (s) return s; }
   if (!has) return p;
-  if ((st.shift || st.ortho) && st.cur.type !== 'count' && st.cur.type !== 'rect' && st.cur.type !== 'voidrect') {
+  if ((st.shift || st.ortho) && st.cur.type !== 'count' && st.cur.type !== 'rect' && st.cur.type !== 'voidrect' && !(st.cur.type === 'arc' && st.cur.points.length > 1)) {
     const step = st.ortho && !st.shift ? Math.PI/2 : Math.PI/4;
     const dx = p.x - last.x, dy = p.y - last.y;
     const a = Math.round(Math.atan2(dy, dx) / step) * step, r = Math.hypot(dx, dy);
@@ -2429,12 +2485,13 @@ function snapPoint(p) {
 function addPoint(raw) {
   if (!st.img) return;
   const t = st.tool;
-  const zoneTarget = st.addZone && (t === 'area' || t === 'rect') ? st.measures.find(x => x.id === st.addZone) : t === 'line' ? currentLine() : null;
+  const zoneTarget = st.addZone && (t === 'area' || t === 'rect' || t === 'circle') ? st.measures.find(x => x.id === st.addZone) : t === 'line' || t === 'arc' ? currentLine() : null;
   if (!st.cur) st.cur = { type: t, points: [], color: zoneTarget ? zoneTarget.color : t === 'void' || t === 'voidrect' ? '#334155' : COLORS[st.measures.length % COLORS.length] };
   const p = snapPoint(raw);
   if (p.close || p.end) return finish();   // clic sur le 1er point (surface) ou sur le dernier (longueur) : on valide
   st.cur.points.push({ x: p.x, y: p.y });
-  if ((t === 'calib' || t === 'rect' || t === 'voidrect') && st.cur.points.length === 2) finish();
+  if ((t === 'calib' || t === 'rect' || t === 'voidrect' || t === 'circle') && st.cur.points.length === 2) finish();
+  else if (t === 'arc' && st.cur.points.length === 3) finish();
   draw();
 }
 
@@ -2456,7 +2513,15 @@ function finish() {
       });
     return draw();
   }
-  let type = c.type;
+  let type = c.type, circ = null;
+  if (type === 'circle') {   // cercle : 2 extrémités du diamètre -> zone de surface ronde
+    if (p.length < 2 || !(dist(p[0], p[1]) > 0)) return draw();
+    circ = { a: { ...p[0] }, b: { ...p[1] } }; p = circlePts(p[0], p[1]); type = 'area';
+  }
+  if (type === 'arc') {      // arc : départ, arrivée, point de courbe -> tronçon de longueur (2 points seulement : segment droit)
+    if (p.length < 2) return draw();
+    p = p.length >= 3 ? arcPts(p[0], p[2], p[1]) : p.slice(0, 2); type = 'line';
+  }
   if (type === 'rect' || type === 'voidrect') {
     if (p.length < 2) return draw();
     const [a, b] = p; p = [a, {x:b.x,y:a.y}, b, {x:a.x,y:b.y}];
@@ -2476,7 +2541,7 @@ function finish() {
   // mode « ajouter une zone » : le tracé s'ajoute à la surface choisie au lieu d'en créer une nouvelle
   const target = type === 'area' && st.addZone ? st.measures.find(x => x.id === st.addZone && x.page === st.page) : null;
   if (target) {
-    normalizeMeasures([target]); target.zones.push({ points: p, voids: [] });
+    normalizeMeasures([target]); target.zones.push({ points: p, voids: [], ...(circ ? { circle: circ } : {}) });
     st.sel = target.id; persist(); refresh(); return;
   }
   // de même, une longueur s'ajoute comme tronçon à la longueur en cours
@@ -2487,7 +2552,7 @@ function finish() {
   }
   const n = st.measures.filter(m => m.type === type).length + 1;
   const m = { id: st.nextId++, type, page: st.page, color: c.color, name: `${trText(TYPES[type])} ${n}`, height: null, qty: 1 };
-  if (type === 'area') { m.zones = [{ points: p, voids: [] }]; st.addZone = m.id; }        // nouvelle surface = surface en cours
+  if (type === 'area') { m.zones = [{ points: p, voids: [], ...(circ ? { circle: circ } : {}) }]; st.addZone = m.id; }        // nouvelle surface = surface en cours
   else if (type === 'line') { m.paths = [p]; st.addLine = m.id; }                          // nouvelle longueur = longueur en cours
   else m.points = p;
   st.measures.push(m); st.sel = m.id;
@@ -2675,7 +2740,7 @@ window.addEventListener('keydown', e => {
   }
   else if (e.key === 'Delete' && st.sel) deleteSelected();   // touche Suppr (Windows)
   else if (!e.metaKey && !e.ctrlKey) {
-    const map = { v:'pan', e:'calib', l:'line', s:'area', r:'rect', c:'count', g:'erase', d:'voidrect', p:'free' };
+    const map = { v:'pan', e:'calib', l:'line', s:'area', r:'rect', c:'count', g:'erase', d:'voidrect', p:'free', o:'circle', a:'arc' };
     const k = e.key.toLowerCase();
     if (k === 'n') newSurface();
     if (map[k]) setTool(map[k]);
