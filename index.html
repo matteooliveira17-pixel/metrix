@@ -253,10 +253,11 @@
   .tab#tabSet { cursor:pointer; }
   .tab#tabLib, .tab#tabHome { cursor:pointer; }
   .navbtns { display:flex; gap:2px; align-self:center; margin:0 0 3px 8px; }
-  .navbtns button { width:24px; height:22px; display:grid; place-items:center; padding:0; border:1px solid transparent; border-radius:5px; background:none; color:var(--txt); cursor:pointer; }
+  .navbtns button { width:28px; height:24px; display:grid; place-items:center; padding:0; border:1px solid transparent; border-radius:4px; background:none; color:#2b579a; cursor:pointer; }
   .navbtns button:hover:not(:disabled) { background:rgba(20,30,50,.08); border-color:var(--rline); }
   .navbtns button:disabled { opacity:.3; cursor:default; }
-  .navbtns svg { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .navbtns svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+  html.dark .navbtns button { color:#8ab4f8; }
   html.dark .navbtns button:hover:not(:disabled) { background:rgba(255,255,255,.08); }
   /* ---------- écran de chargement (5 s au lancement) ---------- */
   #splash { position:fixed; inset:0; z-index:10000; display:grid; place-items:center; background:radial-gradient(circle at 50% 42%, #2a2f38 0%, #15181d 55%, #0b0d10 100%); color:#fff; transition:opacity .45s ease, visibility .45s; -webkit-user-select:none; user-select:none; }
@@ -459,7 +460,7 @@
   <span class="tab active" id="tabHome">Accueil</span>
   <span class="tab" id="tabLib" title="Bibliothèque d'ouvrages : béton, coffrage, aciers… calculés à partir des métrés">Ouvrages</span>
   <span class="tab" id="tabSet" title="Réglages : langue, thème">Paramètres</span>
-  <span class="navbtns"><button id="navBack" title="Précédent" disabled><svg viewBox="0 0 16 16"><path d="M10 3 5 8l5 5"/></svg></button><button id="navFwd" title="Suivant" disabled><svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5"/></svg></button></span>
+  <span class="navbtns"><button id="undoBtn" title="Annuler (Ctrl+Z)" disabled><svg viewBox="0 0 20 20"><path class="ar" d="M7.5 4.5 3.5 8.5l4 4"/><path d="M4 8.5h7.5a4.5 4.5 0 0 1 0 9H9"/></svg></button><button id="redoBtn" title="Rétablir (Ctrl+Maj+Z)" disabled><svg viewBox="0 0 20 20"><path class="ar" d="m12.5 4.5 4 4-4 4"/><path d="M16 8.5H8.5a4.5 4.5 0 0 0 0 9H11"/></svg></button></span>
   <span class="doc"><span id="docName">Métrix</span></span>
   <div class="filemenu" id="fileMenu" hidden>
     <div data-click="#file">Ouvrir un plan…<kbd>Ctrl+O</kbd></div>
@@ -725,7 +726,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '2.0';
+const METRIX_VERSION = '2.1';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -806,6 +807,10 @@ addTr([
   ["Abandonner et revenir au Pointeur", "Cancel and go back to the Pointer", "Abandonar e voltar ao Ponteiro", "Abandonar y volver al Puntero"],
   ["Propriétés et pages", "Properties and pages", "Propriedades e páginas", "Propiedades y páginas"],
   ["Liste des métrés", "Takeoff list", "Lista de medições", "Lista de mediciones"],
+  ["Annuler ({k})", "Undo ({k})", "Anular ({k})", "Deshacer ({k})"],
+  ["Rétablir ({k})", "Redo ({k})", "Refazer ({k})", "Rehacer ({k})"],
+  ["Ouvrages : modification annulée", "Assemblies: change undone", "Elementos: alteração anulada", "Unidades: cambio deshecho"],
+  ["Ouvrages : modification rétablie", "Assemblies: change redone", "Elementos: alteração refeita", "Unidades: cambio rehecho"],
   ["Chargement…", "Loading…", "A carregar…", "Cargando…"],
   ["Initialisation…", "Initializing…", "A inicializar…", "Inicializando…"],
   ["Chargement du moteur PDF…", "Loading the PDF engine…", "A carregar o motor PDF…", "Cargando el motor PDF…"],
@@ -1441,6 +1446,7 @@ async function openFile(f) {
   docs.push(d);
   showDoc(d);
   restore();   // métrés déjà enregistrés pour ce plan
+  histBase(d);
   saveDoc();
   try {
     if (isPdf) {
@@ -1526,7 +1532,68 @@ function updateZoomUi() {
 function snapshot() {   // les ouvrages utilisés voyagent avec le projet
   return { fileName: st.fileName, scales: st.scales, measures: st.measures, nextId: st.nextId, ouvrages: library.filter(o => st.measures.some(m => m.ouvrage === o.id)) };
 }
-function persist() { if (st.fileKey) try { localStorage.setItem(st.fileKey, JSON.stringify(snapshot())); } catch {} }
+function persist() { if (st.fileKey) try { localStorage.setItem(st.fileKey, JSON.stringify(snapshot())); } catch {} histNoteDoc(); }
+/* ---------- Annuler / Rétablir (comme Word) : métrés et valeurs des ouvrages ----------
+   Chaque enregistrement d'un plan (persist) ou de la bibliothèque (saveLibrary) qui change quelque chose
+   devient une étape d'historique. Les changements rapprochés (frappe, couleur qu'on fait glisser) sont regroupés. */
+var H = { undo: [], redo: [], lock: false, lib: null };
+const docSnap = () => JSON.stringify([st.measures, st.scales, st.nextId]);
+function histBase(d) { if (d && d.histSnap === undefined) d.histSnap = docSnap(); }
+function histPush(kind, doc, before, after) {
+  const now = Date.now(), last = H.undo[H.undo.length - 1];
+  if (last && !H.redo.length && last.kind === kind && last.doc === doc && now - last.t < 900) { last.after = after; last.t = now; }
+  else { H.undo.push({ kind, doc, before, after, t: now }); if (H.undo.length > 100) H.undo.shift(); }
+  H.redo.length = 0; histUi();
+}
+function histNoteDoc() {
+  const d = activeDoc; if (!H || H.lock || !d) return;
+  const s = docSnap();
+  if (d.histSnap === undefined) { d.histSnap = s; return; }
+  if (s !== d.histSnap) { histPush('doc', d, d.histSnap, s); d.histSnap = s; }
+}
+function histNoteLib() {
+  if (!H || H.lock || H.lib === null) return;
+  const s = JSON.stringify(library);
+  if (s !== H.lib) { histPush('lib', null, H.lib, s); H.lib = s; }
+}
+const histLive = e => e.kind === 'lib' || docs.includes(e.doc);
+function histApply(e, which) {
+  const s = e[which];
+  H.lock = true;
+  try {
+    if (e.kind === 'lib') {
+      library = JSON.parse(s); H.lib = s; saveLibrary();
+      if (document.body.classList.contains('lib-mode')) renderLibrary();
+      toast(which === 'before' ? 'Ouvrages : modification annulée' : 'Ouvrages : modification rétablie');
+    } else {
+      if (e.doc !== activeDoc) switchDoc(e.doc);
+      const [m, sc, n] = JSON.parse(s);
+      st.measures = m; st.scales = sc; st.nextId = n; st.cur = null;
+      if (!st.measures.some(x => x.id === st.sel)) st.sel = null;
+      if (!st.measures.some(x => x.id === st.addZone)) st.addZone = null;
+      if (!st.measures.some(x => x.id === st.addLine)) st.addLine = null;
+      e.doc.histSnap = s; persist();
+    }
+    refresh();
+  } finally { H.lock = false; }
+}
+function histUndo() {
+  while (H.undo.length) { const e = H.undo.pop(); if (!histLive(e)) continue; histApply(e, 'before'); H.redo.push(e); break; }
+  histUi();
+}
+function histRedo() {
+  while (H.redo.length) { const e = H.redo.pop(); if (!histLive(e)) continue; histApply(e, 'after'); H.undo.push(e); break; }
+  histUi();
+}
+function histUi() {
+  const u = $('undoBtn'), r = $('redoBtn'); if (!u) return;
+  u.disabled = !H.undo.some(histLive); r.disabled = !H.redo.some(histLive);
+  if (IS_TOUCH && $('tbUndo')) $('tbUndo').disabled = !(st.cur || !u.disabled);
+}
+$('undoBtn').onclick = () => histUndo();
+$('redoBtn').onclick = () => histRedo();
+$('undoBtn').title = 'Annuler (' + (IS_MAC ? '⌘Z' : 'Ctrl+Z') + ')';
+$('redoBtn').title = 'Rétablir (' + (IS_MAC ? '⇧⌘Z' : 'Ctrl+Y') + ')';
 function apply(d) {
   // ouvrages venant du projet et absents de la bibliothèque : on les ajoute (sans écraser les vôtres)
   for (const o of d.ouvrages || []) if (o && o.id && !library.some(x => x.id === o.id)) { library.push(o); saveLibrary(); }
@@ -1557,7 +1624,7 @@ function resize() {
 }
 
 function draw() {
-  if (IS_TOUCH) { $('tbUndo').disabled = !(st.cur || st.undo.length); $('tbDone').disabled = !st.cur; $('tbCancel').disabled = !st.cur && st.tool === 'pan'; $('tbDel').disabled = !st.sel || !!st.cur; }
+  if (IS_TOUCH) { $('tbUndo').disabled = !(st.cur || H.undo.some(histLive)); $('tbDone').disabled = !st.cur; $('tbCancel').disabled = !st.cur && st.tool === 'pan'; $('tbDel').disabled = !st.sel || !!st.cur; }
   const d = devicePixelRatio || 1, { x, y, z } = st.view;
   ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,cv.width,cv.height);
   if (!st.img) return;
@@ -2015,7 +2082,8 @@ const DEFAULT_OUVRAGES = () => [
     results: [{ label: 'Béton', u: 'm³', f: 'L * b * h' }, { label: 'Coffrage 2 faces', u: 'm²', f: '2 * L * h' }, { label: 'Aciers', u: 'kg', f: 'beton * ratio' }] },
 ];
 let library = (() => { try { const l = JSON.parse(localStorage.getItem('metrix:ouvrages')); if (Array.isArray(l) && l.length) return l; } catch {} return DEFAULT_OUVRAGES(); })();
-function saveLibrary() { try { localStorage.setItem('metrix:ouvrages', JSON.stringify(library)); } catch {} }
+function saveLibrary() { try { localStorage.setItem('metrix:ouvrages', JSON.stringify(library)); } catch {} histNoteLib(); }
+H.lib = JSON.stringify(library);   // point de départ de l'historique des ouvrages
 // Ouvrages types : leurs noms suivent la langue choisie tant que vous ne les avez pas renommés.
 // Si une quantité change de nom (Béton → Concrete), les formules qui la réutilisent sont mises à jour.
 function relabelDefaults() {
@@ -2096,37 +2164,7 @@ const fmtQ = (v, u) => v == null ? '—' : `${fmt(v, u === 'kg' ? 0 : 2)} ${u}`;
 let libSel = library[0] ? library[0].id : null;
 function allMeasures() { return docs.length ? docs.flatMap(d => d === activeDoc ? st.measures : d.measures || []) : st.measures; }
 const usesOf = o => allMeasures().filter(m => m.ouvrage === o.id).length;
-// flèches Précédent / Suivant (à côté de Paramètres) : historique des onglets et des rubriques des Paramètres
 let setSection = null, setSecIdx = 0;          // renseignés par la barre latérale des Paramètres
-const navHist = [{ tab: 'home' }]; let navIdx = 0, navLock = false;
-const curTab = () => document.body.classList.contains('lib-mode') ? 'lib' : document.body.classList.contains('set-mode') ? 'set' : 'home';
-function navUpdate() { $('navBack').disabled = navIdx <= 0; $('navFwd').disabled = navIdx >= navHist.length - 1; }
-function navRecord() {
-  if (navLock) return;
-  const e = { tab: curTab() }; if (e.tab === 'set') e.sec = setSecIdx;
-  const c = navHist[navIdx]; if (c && c.tab === e.tab && c.sec === e.sec) return;
-  navHist.splice(navIdx + 1); navHist.push(e);
-  if (navHist.length > 60) navHist.shift();
-  navIdx = navHist.length - 1; navUpdate();
-}
-function navGo(d) {
-  const i = navIdx + d; if (i < 0 || i >= navHist.length) return;
-  navIdx = i; const e = navHist[i];
-  navLock = true;
-  try { showTab(e.tab); if (e.tab === 'set' && setSection && e.sec != null) setSection(e.sec); }
-  finally { navLock = false; }
-  navUpdate();
-}
-$('navBack').onclick = () => navGo(-1);
-$('navFwd').onclick = () => navGo(1);
-// raccourcis : ⌘[ / ⌘] (Mac), Alt+← / Alt+→ (Windows), et les boutons latéraux de la souris
-addEventListener('keydown', e => {
-  if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable]')) return;
-  const back = (e.metaKey && e.key === '[') || (e.altKey && e.key === 'ArrowLeft');
-  const fwd = (e.metaKey && e.key === ']') || (e.altKey && e.key === 'ArrowRight');
-  if (back || fwd) { e.preventDefault(); navGo(back ? -1 : 1); }
-});
-addEventListener('mouseup', e => { if (e.button === 3 || e.button === 4) { e.preventDefault(); navGo(e.button === 3 ? -1 : 1); } });
 // onglets du haut : Accueil (plan), Ouvrages (bibliothèque), Paramètres (langue, thème)
 function showTab(name, selId) {
   if (selId) libSel = selId;
@@ -2138,7 +2176,6 @@ function showTab(name, selId) {
   if (name === 'lib') renderLibrary();
   else if (name === 'set') renderSettings();
   else { resize(); refresh(); }
-  navRecord();
 }
 function showLibrary(on, selId) { showTab(on ? 'lib' : 'home', selId); }
 function renderSettings() {
@@ -2165,7 +2202,7 @@ function setLang(l) {
   if (!LANGS[l]) return;
   LANG = l; try { localStorage.setItem('metrix:lang', l); } catch {}
   document.documentElement.lang = l;
-  relabelDefaults();                                // ouvrages types dans la nouvelle langue
+  H.lock = true; try { relabelDefaults(); } finally { H.lock = false; H.lib = JSON.stringify(library); }   // ouvrages types dans la nouvelle langue
   translateNode(document.body);                     // textes déjà affichés
   updateHelp(); renderTabs(); refresh();            // textes et nombres recalculés
   if (document.body.classList.contains('lib-mode')) renderLibrary();
@@ -2768,7 +2805,7 @@ cv.addEventListener('touchend', e => touchEnd(e, false), { passive: false });
 cv.addEventListener('touchcancel', e => touchEnd(e, true), { passive: false });
 // barre de boutons tactile : remplace Entrée, Retour arrière, Échap et Suppr
 const pressKey = (key, meta) => window.dispatchEvent(new KeyboardEvent('keydown', { key, metaKey: !!meta, bubbles: true }));
-$('tbUndo').onclick = () => st.cur ? pressKey('Backspace') : pressKey('z', true);
+$('tbUndo').onclick = () => st.cur ? pressKey('Backspace') : histUndo();
 $('tbDone').onclick = () => finish();
 $('tbCancel').onclick = () => pressKey('Escape');
 $('tbDel').onclick = () => pressKey('Delete');
@@ -2787,15 +2824,12 @@ window.addEventListener('keydown', e => {
     st.cur = null; st.drawing = null; $('fileMenu').hidden = true;
     setTool('pan');
   }
-  else if (e.key === 'Backspace' || (e.key === 'z' && (e.metaKey || e.ctrlKey))) {
+  else if ((e.metaKey || e.ctrlKey) && ((e.key.toLowerCase() === 'z' && e.shiftKey) || e.key.toLowerCase() === 'y')) { e.preventDefault(); histRedo(); }
+  else if (e.key === 'Backspace' || (e.key.toLowerCase() === 'z' && (e.metaKey || e.ctrlKey))) {
     e.preventDefault();
     if (st.cur) { st.cur.points.pop(); if (!st.cur.points.length) st.cur = null; draw(); }
     else if (e.key === 'Backspace' && st.sel) deleteSelected();   // touche « effacer » du Mac
-    else if (e.key === 'z' && st.undo.length) {   // annule la dernière suppression (gomme ou touche effacer)
-      st.measures = JSON.parse(st.undo.pop());
-      if (!st.measures.some(m => m.id === st.sel)) st.sel = null;
-      persist(); refresh();
-    }
+    else if (e.key.toLowerCase() === 'z') histUndo();             // ⌘Z / Ctrl+Z : annule la dernière modification
   }
   else if (e.key === 'Delete' && st.sel) deleteSelected();   // touche Suppr (Windows)
   else if (!e.metaKey && !e.ctrlKey) {
@@ -2903,7 +2937,7 @@ $('setUpdate').onclick = installUpdate;
   cards.forEach((c, i) => {
     const b = document.createElement('button');
     b.append(c.querySelector('.set-card-h .ci').cloneNode(true), Object.assign(document.createElement('span'), { textContent: c.querySelector('h3').textContent }));
-    b.onclick = () => { show(i); navRecord(); }; nav.appendChild(b);
+    b.onclick = () => show(i); nav.appendChild(b);
   });
   $('settings').insertBefore(side, wrap);
   setSection = show;
@@ -3031,6 +3065,7 @@ setTool('pan'); refresh();
 // langue choisie (Paramètres) : on traduit toute la page dès l'ouverture
 document.documentElement.lang = LANG;
 relabelDefaults(); translateNode(document.body); updateHelp();
+H.lib = JSON.stringify(library); H.undo.length = 0; H.redo.length = 0; histUi();
 // recherche automatique des mises à jour (si une adresse est réglée), au plus une fois toutes les 20 h
 (() => {
   let last = 0; try { last = +localStorage.getItem('metrix:updateLast') || 0; } catch {}
