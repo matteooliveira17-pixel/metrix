@@ -337,10 +337,10 @@
   /* ---------- personnalisation du ruban ---------- */
   .ribbon .rb-off { display:none !important; }
   .grp .cap { position:relative; padding-left:12px; padding-right:12px; }
-  .grp-more { position:absolute; right:0; bottom:3px; width:13px; height:13px; padding:0; display:grid; place-items:center; border:1px solid transparent; border-radius:2px; background:none; color:var(--cap); opacity:.6; cursor:pointer; }
+  .grp-more { position:absolute; right:1px; bottom:4px; width:11px; height:11px; padding:0; display:grid; place-items:center; border:1px solid transparent; border-radius:2px; background:none; color:var(--cap); opacity:.6; cursor:pointer; }
   .grp-more:hover { opacity:1; background:linear-gradient(#fff8dd,#ffe8a6); border-color:#e5c365; }
   html.dark .grp-more:hover { background:linear-gradient(#463d26,#55461d); border-color:#8a7330; }
-  .grp-more svg { width:9px; height:9px; fill:none; stroke:currentColor; stroke-width:1.2; stroke-linecap:round; stroke-linejoin:round; }
+  .grp-more svg { width:8px; height:8px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
   .rbd-hint { margin:10px 14px 6px; text-align:left; }
   .rbd-list { display:flex; flex-direction:column; gap:2px; margin:0 10px; max-height:52vh; overflow:auto; text-align:left; }
   .rbd-i { display:grid; grid-template-columns:auto 28px minmax(0,1fr); align-items:center; gap:10px; padding:5px 8px; border-radius:6px; cursor:pointer; }
@@ -830,7 +830,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '2.7';
+const METRIX_VERSION = '2.8';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -3205,7 +3205,7 @@ function ribbonDialog(grp) {
 document.querySelectorAll('.ribbon .grp').forEach(g => {
   const b = document.createElement('button');
   b.className = 'grp-more'; b.title = 'Choisir les boutons affichés';
-  b.innerHTML = '<svg viewBox="0 0 10 10"><path d="M1.5 5.5V1.5h4"/><path d="M3.6 3.6 8.5 8.5M8.5 4.6v3.9H4.6"/></svg>';
+  b.innerHTML = '<svg viewBox="0 0 10 10"><path d="M2.5 6.5 5 4l2.5 2.5"/></svg>';
   b.onclick = e => { e.stopPropagation(); ribbonDialog(g); };
   g.querySelector('.cap').appendChild(b);
 });
