@@ -230,8 +230,8 @@
   body.set-mode #settings { display:flex; overflow:hidden; }
   .set-side { width:220px; flex:none; overflow:auto; padding:16px 10px; background:#e9ecf1; border-right:1px solid var(--line); }
   .set-side-h { display:flex; align-items:center; gap:9px; margin:0 6px 14px; }
-  .set-side-h .set-ico { width:30px; height:30px; border-radius:9px; box-shadow:none; }
-  .set-side-h .set-ico svg { width:18px; height:18px; }
+  .set-side-h .set-ico { width:34px; height:34px; border-radius:8px; background:linear-gradient(180deg, #a3a8b0 0%, #70757e 100%); box-shadow:inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 0 rgba(0,0,0,.18), 0 1px 3px rgba(0,0,0,.28); }
+  .set-side-h .set-ico svg { width:29px; height:29px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.3)); }
   .set-side-h b { font-size:15px; color:var(--txt); }
   .set-nav { display:flex; flex-direction:column; gap:2px; }
   .set-nav button { display:flex; align-items:center; gap:10px; width:100%; padding:6px 8px; border:0; border-radius:7px; background:none; font:inherit; font-size:13px; color:var(--txt); cursor:pointer; text-align:left; }
@@ -647,7 +647,7 @@
 <section id="settings">
   <div class="set-wrap">
     <div class="set-head">
-      <div class="set-ico"><svg viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm8.2 4.6 1.8 1.4-2 3.5-2.2-.8a7 7 0 0 1-1.8 1l-.3 2.3h-4l-.3-2.3a7 7 0 0 1-1.8-1l-2.2.8-2-3.5 1.8-1.4a7 7 0 0 1 0-2.2L1.4 9.5l2-3.5 2.2.8a7 7 0 0 1 1.8-1L7.7 3.5h4l.3 2.3a7 7 0 0 1 1.8 1l2.2-.8 2 3.5-1.8 1.4a7 7 0 0 1 0 2.2z" fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+      <div class="set-ico"><svg viewBox="0 0 64 64"><defs><linearGradient id="gSil" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#dcdfe4"/><stop offset="1" stop-color="#a7acb4"/></linearGradient><linearGradient id="gHole" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3f444c"/><stop offset="1" stop-color="#787d86"/></linearGradient></defs><path d="M58.93 30.02L58.93 33.98L54.44 34.66L53.37 39.34L57.12 41.90L55.40 45.47L51.07 44.13L48.07 47.89L50.34 51.82L47.24 54.29L43.92 51.20L39.58 53.29L39.93 57.81L36.06 58.69L34.40 54.47L29.60 54.47L27.94 58.69L24.07 57.81L24.42 53.29L20.08 51.20L16.76 54.29L13.66 51.82L15.93 47.89L12.93 44.13L8.60 45.47L6.88 41.90L10.63 39.34L9.56 34.66L5.07 33.98L5.07 30.02L9.56 29.34L10.63 24.66L6.88 22.10L8.60 18.53L12.93 19.87L15.93 16.11L13.66 12.18L16.76 9.71L20.08 12.80L24.42 10.71L24.07 6.19L27.94 5.31L29.60 9.53L34.40 9.53L36.06 5.31L39.93 6.19L39.58 10.71L43.92 12.80L47.24 9.71L50.34 12.18L48.07 16.11L51.07 19.87L55.40 18.53L57.12 22.10L53.37 24.66L54.44 29.34Z" fill="url(#gSil)" stroke="rgba(36,40,47,.5)" stroke-width="1" stroke-linejoin="round"/><circle cx="32" cy="32" r="16" fill="none" stroke="rgba(60,66,76,.28)" stroke-width="1.4"/><circle cx="32" cy="32" r="10" fill="url(#gHole)"/><circle cx="32" cy="32" r="5.2" fill="url(#gSil)" stroke="rgba(36,40,47,.45)" stroke-width=".8"/></svg></div>
       <div><h2>Paramètres</h2><p>Personnalisez Métrix : langue, apparence et raccourcis.</p></div>
     </div>
 
@@ -760,7 +760,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '2.2';
+const METRIX_VERSION = '2.3';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -2959,7 +2959,7 @@ $('setUpdate').onclick = installUpdate;
   const side = document.createElement('nav'); side.className = 'set-side';
   side.innerHTML = '<div class="set-side-h"></div><div class="set-nav"></div>';
   const head = side.firstChild;
-  head.append(wrap.querySelector('.set-head .set-ico').cloneNode(true), Object.assign(document.createElement('b'), { textContent: 'Paramètres' }));
+  head.append(wrap.querySelector('.set-head .set-ico'), Object.assign(document.createElement('b'), { textContent: 'Paramètres' }));
   cards[0].appendChild(wrap.querySelector('.set-foot'));   // la remarque sur la langue va avec la rubrique Langue
   const nav = side.lastChild;
   const show = i => {
