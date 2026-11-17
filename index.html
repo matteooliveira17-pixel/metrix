@@ -343,6 +343,12 @@
   .grp-more:hover { opacity:1; background:linear-gradient(#fff8dd,#ffe8a6); border-color:#e5c365; }
   html.dark .grp-more:hover { background:linear-gradient(#463d26,#55461d); border-color:#8a7330; }
   .grp-more svg { width:8px; height:8px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+  body.no-grp-more .grp-more { display:none; }
+  .set-check { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding-top:14px; border-top:1px solid var(--line); cursor:pointer; }
+  .set-check input { margin:2px 0 0; width:16px; height:16px; accent-color:#2b6fd6; flex:none; cursor:pointer; }
+  .set-check span { display:flex; flex-direction:column; gap:3px; }
+  .set-check b { font-weight:600; color:var(--txt); }
+  .set-check small { color:var(--muted); font-size:11.5px; line-height:1.4; }
   .rbd-hint { margin:10px 14px 6px; text-align:left; }
   .rbd-list { display:flex; flex-direction:column; gap:2px; margin:0 10px; max-height:52vh; overflow:auto; text-align:left; }
   .rbd-i { display:grid; grid-template-columns:auto 28px minmax(0,1fr); align-items:center; gap:10px; padding:5px 8px; border-radius:6px; cursor:pointer; }
@@ -752,6 +758,7 @@
         <button class="theme-opt" data-theme="light"><div class="tprev light"><i class="bar"></i><i class="side"></i><i class="main"></i></div><span class="tn">Clair</span><small>toujours clair</small></button>
         <button class="theme-opt" data-theme="dark"><div class="tprev dark"><i class="bar"></i><i class="side"></i><i class="main"></i></div><span class="tn">Sombre</span><small>toujours sombre</small></button>
       </div>
+      <label class="set-check"><input type="checkbox" id="grpArrowsChk"> <span><b>Micro-flèches du ruban</b><small>Affiche la petite flèche à droite du nom de chaque groupe (Plan, Sélection, Mesurer…), qui sert à choisir les boutons affichés.</small></span></label>
     </div>
 
     <div class="set-card">
@@ -838,7 +845,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '2.9';
+const METRIX_VERSION = '3.0';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -924,6 +931,8 @@ addTr([
   ["Abandonner et revenir au Pointeur", "Cancel and go back to the Pointer", "Abandonar e voltar ao Ponteiro", "Abandonar y volver al Puntero"],
   ["Propriétés et pages", "Properties and pages", "Propriedades e páginas", "Propiedades y páginas"],
   ["Liste des métrés", "Takeoff list", "Lista de medições", "Lista de mediciones"],
+  ["Micro-flèches du ruban", "Ribbon micro-arrows", "Micro-setas da faixa", "Microflechas de la cinta"],
+  ["Affiche la petite flèche à droite du nom de chaque groupe (Plan, Sélection, Mesurer…), qui sert à choisir les boutons affichés.", "Shows the small arrow to the right of each group name (Plan, Selection, Measure…), used to choose the buttons shown.", "Mostra a pequena seta à direita do nome de cada grupo (Planta, Seleção, Medir…), que serve para escolher os botões mostrados.", "Muestra la pequeña flecha a la derecha del nombre de cada grupo (Plano, Selección, Medir…), que sirve para elegir los botones mostrados."],
   ["Personnaliser « {g} »", "Customize “{g}”", "Personalizar « {g} »", "Personalizar « {g} »"],
   ["Cochez les boutons à afficher dans le ruban.", "Tick the buttons to show in the ribbon.", "Marque os botões a mostrar na faixa.", "Marque los botones que se muestran en la cinta."],
   ["Tout cocher", "Tick all", "Marcar todos", "Marcar todos"],
@@ -1356,6 +1365,8 @@ addTr2([
   ["Abandonner et revenir au Pointeur","Abbrechen und zum Zeiger zurück","Annuleren en terug naar de aanwijzer","取消并返回指针","إلغاء والعودة إلى المؤشر","Annulla e torna al puntatore","Отменить и вернуться к указателю"],
   ["Propriétés et pages","Eigenschaften und Seiten","Eigenschappen en pagina's","属性和页面","الخصائص والصفحات","Proprietà e pagine","Свойства и страницы"],
   ["Liste des métrés","Aufmaßliste","Lijst met metingen","测量列表","قائمة القياسات","Elenco delle misure","Список замеров"],
+  ["Micro-flèches du ruban","Mini-Pfeile im Menüband","Mini-pijltjes in het lint","功能区小箭头","الأسهم الصغيرة في الشريط","Mini-frecce della barra","Мини-стрелки на ленте"],
+  ["Affiche la petite flèche à droite du nom de chaque groupe (Plan, Sélection, Mesurer…), qui sert à choisir les boutons affichés.","Zeigt den kleinen Pfeil rechts neben dem Namen jeder Gruppe (Plan, Auswahl, Messen…), mit dem Sie die angezeigten Schaltflächen wählen.","Toont het kleine pijltje rechts van de naam van elke groep (Tekening, Selectie, Meten…), waarmee u de getoonde knoppen kiest.","在每个分组名称（图纸、选择、测量…）右侧显示小箭头，用于选择要显示的按钮。","يعرض السهم الصغير على يمين اسم كل مجموعة (المخطط، التحديد، القياس…)، ويُستخدم لاختيار الأزرار المعروضة.","Mostra la piccola freccia a destra del nome di ogni gruppo (Disegno, Selezione, Misura…), che serve a scegliere i pulsanti mostrati.","Показывает маленькую стрелку справа от названия каждой группы (Чертёж, Выбор, Замеры…), с помощью которой выбираются показываемые кнопки."],
   ["Personnaliser « {g} »","„{g}“ anpassen","„{g}” aanpassen","自定义“{g}”","تخصيص «{g}»","Personalizza «{g}»","Настроить «{g}»"],
   ["Cochez les boutons à afficher dans le ruban.","Haken Sie die Schaltflächen an, die im Menüband erscheinen sollen.","Vink de knoppen aan die in het lint moeten verschijnen.","勾选要在功能区中显示的按钮。","حدّد الأزرار التي تظهر في الشريط.","Seleziona i pulsanti da mostrare nella barra.","Отметьте кнопки, которые нужно показывать на ленте."],
   ["Tout cocher","Alle anhaken","Alles aanvinken","全选","تحديد الكل","Seleziona tutto","Отметить все"],
@@ -3644,6 +3655,11 @@ document.querySelectorAll('.ribbon .grp').forEach(g => {
   g.querySelector('.cap').appendChild(b);
 });
 applyRibbon();
+// micro-flèches des groupes : visibles ou non (Paramètres → Apparence)
+const grpArrowsOn = () => { try { return localStorage.getItem('metrix:grpArrows') !== '0'; } catch { return true; } };
+document.body.classList.toggle('no-grp-more', !grpArrowsOn());
+$('grpArrowsChk').checked = grpArrowsOn();
+$('grpArrowsChk').onchange = e => { try { localStorage.setItem('metrix:grpArrows', e.target.checked ? '1' : '0'); } catch {} document.body.classList.toggle('no-grp-more', !e.target.checked); };
 $('scaleBtn').onclick = scaleDialog;
 $('newSurfBtn').onclick = newSurface;
 $('fit').onclick = fit;
