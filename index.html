@@ -230,7 +230,7 @@
   body.set-mode #settings { display:flex; overflow:hidden; }
   .set-side { width:220px; flex:none; overflow:auto; padding:16px 10px; background:#e9ecf1; border-right:1px solid var(--line); }
   .set-side-h { display:flex; align-items:center; gap:9px; margin:0 6px 14px; }
-  .set-side-h .set-ico { width:34px; height:34px; border-radius:8px; background:linear-gradient(180deg, #a3a8b0 0%, #70757e 100%); box-shadow:inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 0 rgba(0,0,0,.18), 0 1px 3px rgba(0,0,0,.28); }
+  .set-side-h .set-ico { width:34px; height:34px; border-radius:23%; background:linear-gradient(180deg, #9fa4ac 0%, #5f646c 100%); box-shadow:inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 0 rgba(0,0,0,.18), 0 1px 2.5px rgba(0,0,0,.28); }
   .set-side-h .set-ico svg { width:29px; height:29px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.3)); }
   .set-side-h b { font-size:15px; color:var(--txt); }
   .set-nav { display:flex; flex-direction:column; gap:2px; }
@@ -239,6 +239,17 @@
   .set-nav button.on { background:#2b6fd6; color:#fff; }
   .set-nav .ci { width:24px; height:24px; border-radius:7px; display:grid; place-items:center; flex:none; }
   .set-nav .ci svg { width:15px; height:15px; }
+  /* icônes des Paramètres, façon Réglages Système du Mac */
+  .ci.ic { border-radius:23%; box-shadow:inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 0 rgba(0,0,0,.18), 0 1px 2.5px rgba(0,0,0,.28); }
+  .ci.ic svg { fill:none; stroke:#fff; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 .6px .6px rgba(0,0,0,.28)); }
+  .ci.ic svg .fill { fill:#fff; stroke:none; }
+  .ci.ic svg .dot { stroke-width:2.1; }
+  .ic-lang { background:linear-gradient(180deg, #5eaaff 0%, #1b6fe0 100%); }
+  .ic-look { background:linear-gradient(180deg, #55555b 0%, #1c1c1f 100%); }
+  .ic-keys { background:linear-gradient(180deg, #a6abb3 0%, #6b7079 100%); }
+  .ic-upd  { background:linear-gradient(180deg, #ae86ff 0%, #6e45d8 100%); }
+  .set-card-h .ci.ic svg { width:22px; height:22px; }
+  .set-nav .ci.ic svg { width:17px; height:17px; }
   .set-nav button.on .ci { box-shadow:0 0 0 1.5px rgba(255,255,255,.75); }
   #settings .set-wrap { flex:1; min-width:0; overflow:auto; max-width:none; margin:0; padding:24px 32px 40px; }
   #settings .set-wrap > .set-head { display:none; }
@@ -674,7 +685,7 @@
 
     <div class="set-card">
       <div class="set-card-h">
-        <div class="ci" style="background:#1f6feb"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="#fff" stroke-width="1.6"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18" fill="none" stroke="#fff" stroke-width="1.6"/></svg></div>
+        <div class="ci ic ic-lang"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><ellipse cx="12" cy="12" rx="3.6" ry="8.2"/><path d="M3.8 12h16.4M5 8h14M5 16h14"/></svg></div>
         <div><h3>Langue</h3><p>Langue de l'interface</p></div>
       </div>
       <div class="lang-grid">
@@ -687,7 +698,7 @@
 
     <div class="set-card">
       <div class="set-card-h">
-        <div class="ci" style="background:#8e4ec6"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18V3z" fill="#fff"/><circle cx="12" cy="12" r="9" fill="none" stroke="#fff" stroke-width="1.6"/></svg></div>
+        <div class="ci ic ic-look"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.6"/><path class="fill" d="M12 4.4a7.6 7.6 0 0 1 0 15.2z"/></svg></div>
         <div><h3>Apparence</h3><p>Thème de l'interface</p></div>
       </div>
       <div class="theme-grid">
@@ -699,7 +710,7 @@
 
     <div class="set-card">
       <div class="set-card-h">
-        <div class="ci" style="background:#30a46c"><svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2" fill="none" stroke="#fff" stroke-width="1.6"/><path d="M6 10h1M9 10h1M12 10h1M15 10h1M18 10h0M7 14h10" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+        <div class="ci ic ic-keys"><svg viewBox="0 0 24 24"><rect x="2.8" y="6.2" width="18.4" height="11.6" rx="2.2"/><path class="dot" d="M6 9.6h.01M9 9.6h.01M12 9.6h.01M15 9.6h.01M18 9.6h.01M7.5 12.4h.01M10.5 12.4h.01M13.5 12.4h.01M16.5 12.4h.01"/><path d="M8.2 15.1h7.6"/></svg></div>
         <div><h3>Raccourcis clavier</h3><p>Pour travailler plus vite</p></div>
       </div>
       <div class="keys" id="setKeys"></div>
@@ -707,7 +718,7 @@
 
     <div class="set-card">
       <div class="set-card-h">
-        <div class="ci" style="background:#f76b15"><svg viewBox="0 0 24 24"><path d="M12 3v11m-4.5-4.5L12 14l4.5-4.5M5 17v2.5h14V17" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="ci ic ic-upd"><svg viewBox="0 0 24 24"><path d="M19 12.2a7 7 0 1 1-2.1-5"/><path d="M17.6 3.6v3.9h-3.9"/><path d="M12 8.6v6.2M9.4 12.4 12 15l2.6-2.6"/></svg></div>
         <div><h3>Mise à jour</h3><p id="setVersion">Version installée</p></div>
       </div>
       <p class="hint" id="updHint" style="margin:0 0 12px">Installez un fichier de mise à jour Métrix (Metrix-mise-a-jour-….cmd) reçu par e-mail ou sur une clé USB. Vos métrés, ouvrages et réglages sont conservés.</p>
@@ -781,7 +792,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '2.4';
+const METRIX_VERSION = '2.5';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
