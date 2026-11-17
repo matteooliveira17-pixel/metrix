@@ -314,6 +314,26 @@
   .rc-clear:hover { text-decoration:underline; }
   .rc-empty { padding:14px 10px; color:var(--muted); line-height:1.5; text-align:center; }
   html.dark .rc-item:hover { background:rgba(138,180,248,.1); }
+  /* ---------- échelle trouvée sur le plan ---------- */
+  .scalehint { position:absolute; top:10px; left:50%; transform:translateX(-50%); z-index:6; display:flex; align-items:center; gap:10px; max-width:calc(100% - 120px); padding:7px 8px 7px 12px; border-radius:10px; background:rgba(255,255,255,.97); border:1px solid #e0a800; box-shadow:0 6px 22px rgba(20,30,50,.22); font-size:12.5px; }
+  .scalehint[hidden] { display:none; }
+  .scalehint svg { width:16px; height:16px; flex:none; fill:#e0a800; }
+  .scalehint span { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .scalehint i { color:var(--muted); font-style:normal; }
+  .scalehint small { color:var(--muted); }
+  .scalehint button { flex:none; height:26px; padding:0 10px; border-radius:6px; border:1px solid var(--line); background:#fff; font:inherit; cursor:pointer; color:var(--txt); }
+  .scalehint .sh-ok { background:#2b6fd6; border-color:#2b6fd6; color:#fff; font-weight:600; }
+  .scalehint .sh-x { border:0; background:none; color:var(--muted); padding:0 6px; }
+  html.dark .scalehint { background:rgba(36,41,49,.97); }
+  html.dark .scalehint button:not(.sh-ok) { background:#2c323b; }
+  .dfound { margin:4px 0 10px; line-height:1.5; text-align:left; width:100%; max-width:300px; margin-left:auto; margin-right:auto; }
+  .dfound:empty { display:none; }
+  .dfound-t { font-weight:600; margin-bottom:3px; }
+  .dfound-i { display:grid; grid-template-columns:auto auto minmax(0, 1fr); align-items:center; column-gap:8px; padding:3px 4px; border-radius:5px; cursor:pointer; }
+  .dfound-i:hover { background:rgba(43,111,214,.08); }
+  .dfound-i input { margin:0; width:auto !important; height:auto; }
+  .dfound-i b { text-align:left; }
+  .dfound-i span { color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11.5px; }
   /* ---------- écran tactile et petits écrans (iPhone, iPad) ---------- */
   html { -webkit-text-size-adjust:100%; touch-action:manipulation; }
   body { height:100dvh; padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); box-sizing:border-box; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent; }
@@ -638,6 +658,7 @@
   <div id="docTabs" hidden></div>
   <div id="stage">
     <canvas id="cv"></canvas>
+    <div class="scalehint" id="scaleHint" hidden></div>
     <button class="sidebtn" id="openLeft" title="Propriétés et pages"><svg viewBox="0 0 16 16"><path d="M2 3h12M2 8h12M2 13h12"/></svg></button>
     <button class="sidebtn" id="openRight" title="Liste des métrés"><svg viewBox="0 0 16 16"><path d="M5 3h9M5 8h9M5 13h9"/><circle cx="2" cy="3" r="1"/><circle cx="2" cy="8" r="1"/><circle cx="2" cy="13" r="1"/></svg></button>
     <div class="touchbar" id="touchbar">
@@ -792,7 +813,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '2.5';
+const METRIX_VERSION = '2.6';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -873,6 +894,19 @@ addTr([
   ["Abandonner et revenir au Pointeur", "Cancel and go back to the Pointer", "Abandonar e voltar ao Ponteiro", "Abandonar y volver al Puntero"],
   ["Propriétés et pages", "Properties and pages", "Propriedades e páginas", "Propiedades y páginas"],
   ["Liste des métrés", "Takeoff list", "Lista de medições", "Lista de mediciones"],
+  ["Échelle trouvée sur le plan : 1:{r}", "Scale found on the plan: 1:{r}", "Escala encontrada na planta: 1:{r}", "Escala encontrada en el plano: 1:{r}"],
+  ["({n} autre{s} échelle{s} sur la page)", "({n} other scale{s} on the page)", "({n} outra{s} escala{s} na página)", "({n} otra{s} escala{s} en la página)"],
+  ["Appliquer", "Apply", "Aplicar", "Aplicar"],
+  ["Voir les autres…", "See the others…", "Ver as outras…", "Ver las otras…"],
+  ["Modifier…", "Change…", "Alterar…", "Cambiar…"],
+  ["Ignorer", "Dismiss", "Ignorar", "Ignorar"],
+  ["Échelle 1:{r} appliquée", "Scale 1:{r} applied", "Escala 1:{r} aplicada", "Escala 1:{r} aplicada"],
+  ["✦ Détecter l'échelle sur le plan", "✦ Detect the scale on the plan", "✦ Detetar a escala na planta", "✦ Detectar la escala en el plano"],
+  ["Recherche sur la page…", "Searching the page…", "A procurar na página…", "Buscando en la página…"],
+  ["Aucune échelle écrite sur cette page (plan scanné, image, ou échelle absente du cartouche). Utilisez l'ajustement manuel sur une cote connue.", "No scale written on this page (scanned plan, image, or no scale in the title block). Use manual adjustment on a known dimension.", "Nenhuma escala escrita nesta página (planta digitalizada, imagem ou escala ausente da legenda). Use o ajuste manual numa cota conhecida.", "Ninguna escala escrita en esta página (plano escaneado, imagen o escala ausente del cajetín). Use el ajuste manual sobre una cota conocida."],
+  ["Échelles trouvées sur la page :", "Scales found on the page:", "Escalas encontradas na página:", "Escalas encontradas en la página:"],
+  ["Échelle trouvée sur la page :", "Scale found on the page:", "Escala encontrada na página:", "Escala encontrada en la página:"],
+  ["(sans le mot « échelle »)", "(without the word “scale”)", "(sem a palavra « escala »)", "(sin la palabra « escala »)"],
   ["Plans récents", "Recent plans", "Plantas recentes", "Planos recientes"],
   ["Aujourd'hui à {t}", "Today at {t}", "Hoje às {t}", "Hoy a las {t}"],
   ["Hier à {t}", "Yesterday at {t}", "Ontem às {t}", "Ayer a las {t}"],
@@ -1426,7 +1460,7 @@ if (NATIVE) {
   window.__nativeOpened = readNativeFile;
 }
 
-function scaleDialog() {
+function scaleDialog(autoDetect) {
   if (!st.img) return notify('Ouvrez d\'abord un plan.');
   const k = scale();
   const cur = k ? (st.isPdf ? Math.round(k / (0.0254/72/PDF_RENDER)) : '') : '';
@@ -1435,16 +1469,104 @@ function scaleDialog() {
       <div class="row"><label>Système :</label><select disabled><option>Métrique</option></select></div>
       <div class="row"><label class="blue">Échelle :</label><span class="scale">1 : <input id="dN" value="${cur}" style="width:100px"></span></div>
       ${st.isPdf ? '' : '<div class="row"><label>Résolution de l\'image (ppp) :</label><input id="dDpi" value="150"></div>'}
+      ${st.isPdf ? `<div class="row"><button class="btn" id="dDetect" type="button" style="width:auto;padding:0 12px">✦ Détecter l'échelle sur le plan</button></div>
+      <div id="dFound" class="dfound"></div>` : ''}
       <p>Pour ajuster manuellement l'échelle en utilisant une référence linéaire sur le plan, cliquez ici :</p>
       <div class="row"><button class="btn" id="dManual" type="button" style="width:150px">Ajustement manuel</button></div>
     </fieldset>`, () => {
       const n = num($('dN').value);
       if (!(n > 0)) { notify('Saisissez l\'échelle du plan (par exemple 100 pour 1:100), ou utilisez l\'ajustement manuel.'); return false; }
       const pxSize = st.isPdf ? 0.0254/72/PDF_RENDER : 0.0254/(num($('dDpi').value) || 150);
-      st.scales[st.page] = pxSize * n; persist(); refresh();
+      st.scales[st.page] = pxSize * n; st.scaleHint = null; $('scaleHint').hidden = true; persist(); refresh();
     });
   $('dManual').onclick = () => { closeDialog(); setTool('calib'); };
+  if (!st.isPdf) return;
+  const run = async () => {
+    const box = $('dFound'); box.textContent = trText('Recherche sur la page…');
+    let list = [];
+    try { list = await detectScales(activeDoc, st.page); } catch {}
+    if (!list.length) { box.innerHTML = `<span class="neg">${trText('Aucune échelle écrite sur cette page (plan scanné, image, ou échelle absente du cartouche). Utilisez l\'ajustement manuel sur une cote connue.')}</span>`; return; }
+    box.innerHTML = `<div class="dfound-t">${trText(list.length > 1 ? 'Échelles trouvées sur la page :' : 'Échelle trouvée sur la page :')}</div>` +
+      list.map((f, i) => `<label class="dfound-i"><input type="radio" name="dSc" value="${f.ratio}"${i ? '' : ' checked'}><b>1:${fmtRatio(f.ratio)}</b><span>« ${esc(f.text)} »${f.labelled ? '' : ' ' + trText('(sans le mot « échelle »)')}</span></label>`).join('');
+    $('dN').value = fmtRatio(list[0].ratio);
+    box.querySelectorAll('input[name=dSc]').forEach(r => r.onchange = () => { $('dN').value = fmtRatio(+r.value); });
+  };
+  $('dDetect').onclick = run;
+  if (autoDetect === true) run();
 }
+
+/* ---------- reconnaissance automatique de l'échelle (dans le texte du PDF, sans internet) ----------
+   Cherche les mentions d'échelle écrites sur la page : « Échelle 1:100 », « ECH. 1/50 », « Scale 1:200 »,
+   « au 1/100e »… Les mentions précédées d'un mot « échelle » comptent davantage ; une fraction seule (1/50)
+   n'est retenue que si c'est une échelle courante. Les plans scannés et les images n'ont pas de texte : rien n'est trouvé. */
+const STD_SCALES = [1, 2, 2.5, 5, 10, 20, 25, 33, 50, 75, 100, 125, 150, 200, 250, 300, 400, 500, 750, 1000, 1250, 1500, 2000, 2500, 5000, 10000];
+const RE_LABEL = /(?:[ée]chelle|[ée]ch\.?|scale|escala|esc\.|ma[ßs]stab|\bau)\s*[:=]?\s*1\s*[:\/]\s*(\d{1,5}(?:[.,]\d)?)\s*(?:e|ème|eme)?(?![\d\/])/gi;
+const RE_RATIO = /(^|[^\d.,\/])1\s?[:\/]\s?(\d{1,5}(?:[.,]\d)?)(?![\d\/.,]\d)/g;
+async function detectScales(d, n) {
+  if (!d || !d.isPdf || !d.pdf) return [];
+  const page = await d.pdf.getPage(n), vp = page.getViewport({ scale: PDF_RENDER }), tc = await page.getTextContent();
+  // regroupe les morceaux de texte par ligne (une mention « 1 : 100 » peut être découpée en plusieurs morceaux)
+  const items = tc.items.filter(i => i.str && i.str.trim()).map(i => {
+    const t = pdfjsLib.Util.transform(vp.transform, i.transform), h = Math.hypot(t[2], t[3]) || 10;
+    return { s: i.str, x: t[4], y: t[5], w: (i.width || 0) * vp.scale, h };
+  }).sort((a, b) => a.y - b.y || a.x - b.x);
+  const lines = [];
+  for (const it of items) {
+    const l = lines.find(l => Math.abs(l.y - it.y) < Math.max(l.h, it.h) * .5);
+    if (l) l.parts.push(it); else lines.push({ y: it.y, h: it.h, parts: [it] });
+  }
+  const found = new Map();
+  const add = (ratio, labelled, text, box) => {
+    if (!(ratio > 0) || ratio > 100000) return;
+    if (!labelled && !STD_SCALES.includes(ratio)) return;
+    const f = found.get(ratio) || { ratio, score: 0, text, box, labelled: false };
+    f.score += labelled ? 3 : 1;
+    if (labelled && !f.labelled) { f.labelled = true; f.text = text; f.box = box; }
+    found.set(ratio, f);
+  };
+  for (const l of lines) {
+    l.parts.sort((a, b) => a.x - b.x);
+    let s = '';
+    for (const p of l.parts) { p.at = s.length; s += (s && !/\s$/.test(s) ? ' ' : '') + p.s; }
+    const boxOf = (i0, i1) => {   // rectangle (coordonnées du plan) du texte entre les caractères i0 et i1
+      const ps = l.parts.filter(p => p.at <= i1 && p.at + p.s.length + 1 >= i0);
+      const use = ps.length ? ps : l.parts;
+      const x0 = Math.min(...use.map(p => p.x)), x1 = Math.max(...use.map(p => p.x + p.w)), h = Math.max(...use.map(p => p.h));
+      return { x: x0, y: l.y - h, w: Math.max(x1 - x0, h), h: h * 1.25 };
+    };
+    const seen = new Set();
+    for (const m of s.matchAll(RE_LABEL)) {
+      const r = num(m[1]); seen.add(m.index + m[0].length);
+      add(r, true, m[0].trim(), boxOf(m.index, m.index + m[0].length));
+    }
+    for (const m of s.matchAll(RE_RATIO)) {
+      const end = m.index + m[0].length; if (seen.has(end)) continue;
+      add(num(m[2]), false, m[0].replace(/^[^1]*/, '').trim(), boxOf(m.index + m[1].length, end));
+    }
+  }
+  return [...found.values()].sort((a, b) => b.score - a.score || a.ratio - b.ratio);
+}
+const ratioScale = r => 0.0254 / 72 / PDF_RENDER * r;   // m par pixel du plan pour une échelle 1:r (PDF)
+function applyScale(r) { st.scales[st.page] = ratioScale(r); st.scaleHint = null; $('scaleHint').hidden = true; persist(); refresh(); }
+// à l'ouverture d'une page sans échelle : on propose l'échelle trouvée, en l'encadrant sur le plan
+async function scaleSuggest(d, n) {
+  $('scaleHint').hidden = true; st.scaleHint = null;
+  if (!d.isPdf || (d.scales || {})[n]) return;
+  let list = [];
+  try { list = await detectScales(d, n); } catch { return; }
+  if (!list.length || d !== activeDoc || st.page !== n || scale()) return;
+  const best = list[0], others = list.length - 1;
+  st.scaleHint = { page: n, box: best.box };
+  $('scaleHint').innerHTML = `<svg viewBox="0 0 16 16"><path d="M8 1.5l1.6 3.9 4.2.3-3.2 2.7 1 4.1L8 10.3 4.4 12.5l1-4.1L2.2 5.7l4.2-.3z"/></svg>
+    <span><b>${trText(`Échelle trouvée sur le plan : 1:${fmtRatio(best.ratio)}`)}</b>${best.text ? ` <i>« ${esc(best.text)} »</i>` : ''}${others ? ` <small>${trText(`(${others} autre${others > 1 ? 's' : ''} échelle${others > 1 ? 's' : ''} sur la page)`)}</small>` : ''}</span>
+    <button class="sh-ok">Appliquer</button><button class="sh-more">${others ? 'Voir les autres…' : 'Modifier…'}</button><button class="sh-x" title="Ignorer">✕</button>`;
+  $('scaleHint').hidden = false;
+  $('scaleHint').querySelector('.sh-ok').onclick = () => { applyScale(best.ratio); toast(trText(`Échelle 1:${fmtRatio(best.ratio)} appliquée`)); };
+  $('scaleHint').querySelector('.sh-more').onclick = () => scaleDialog(true);
+  $('scaleHint').querySelector('.sh-x').onclick = () => { $('scaleHint').hidden = true; st.scaleHint = null; draw(); };
+  draw();
+}
+const fmtRatio = r => String(r).replace('.', ',');
 
 /* ---------- Plans récents (à la place de Navigation / Propriétés quand aucun plan n'est ouvert) ----------
    Mac : on rouvre le fichier à son emplacement d'origine. Windows / iPhone / iPad : le navigateur ne peut pas
@@ -1547,6 +1669,7 @@ let docs = [], activeDoc = null, docSeq = 0;
 function saveDoc() { if (activeDoc) for (const k of DOC_FIELDS) activeDoc[k] = st[k]; }
 
 function showDoc(d) {   // affiche l'onglet d (sans sauvegarder l'onglet précédent)
+  st.scaleHint = null; $('scaleHint').hidden = true;
   activeDoc = d;
   for (const k of DOC_FIELDS) st[k] = d[k];
   st.cur = null; st.hover = null; st.erasing = null; st.addZone = null; st.addLine = null; st.addSketch = null;
@@ -1654,6 +1777,7 @@ async function showPage(n, d = activeDoc) {
   d.nav.querySelectorAll('.thumb').forEach(t => t.classList.toggle('active', +t.dataset.page === n));
   fit(); if (first) d.view = st.view;
   refresh();
+  scaleSuggest(d, n);
 }
 
 async function buildNav(d) {
@@ -1794,6 +1918,7 @@ function resize() {
 }
 
 function draw() {
+  if ((st.scaleHint && scale()) || (!st.img && st.scaleHint)) { st.scaleHint = null; $('scaleHint').hidden = true; }
   if (IS_TOUCH) { $('tbUndo').disabled = !(st.cur || H.undo.some(histLive)); $('tbDone').disabled = !st.cur; $('tbCancel').disabled = !st.cur && st.tool === 'pan'; $('tbDel').disabled = !st.sel || !!st.cur; }
   const d = devicePixelRatio || 1, { x, y, z } = st.view;
   ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,cv.width,cv.height);
@@ -1806,6 +1931,11 @@ function draw() {
   ctx.strokeStyle = '#b8bec8'; ctx.lineWidth = px; ctx.strokeRect(0, 0, imgW(), imgH());
 
   for (const m of st.measures) if (m.page === st.page) drawMeasure(m, m.id === st.sel, px);
+  if (st.scaleHint && st.scaleHint.page === st.page && st.scaleHint.box) {
+    const b = st.scaleHint.box, m = 6 * px;
+    ctx.save(); ctx.fillStyle = 'rgba(245,197,66,.25)'; ctx.fillRect(b.x - m, b.y - m, b.w + 2*m, b.h + 2*m);
+    ctx.strokeStyle = '#e0a800'; ctx.lineWidth = 2.5 * px; ctx.setLineDash([6*px, 4*px]); ctx.strokeRect(b.x - m, b.y - m, b.w + 2*m, b.h + 2*m); ctx.restore();
+  }
   if (st.tool === 'pan' && st.hover && st.hover.page === st.page && st.measures.includes(st.hover)) drawHover(st.hover, px);
   if (st.tool === 'erase' && st.mouse && !st.erasing) { const h = eraseTargets(st.mouse); for (const t of h) drawDoomed(t, px); }
 
