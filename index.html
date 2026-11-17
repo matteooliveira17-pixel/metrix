@@ -284,6 +284,25 @@
   @keyframes spPop { from { opacity:0; transform:scale(.7); } to { opacity:1; transform:none; } }
   @keyframes spUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
   @media (prefers-reduced-motion: reduce) { #splash * { animation-duration:.01s !important; } }
+  /* ---------- Plans récents ---------- */
+  .pane[hidden] { display:none; }
+  #recentList { padding:4px; }
+  .rc-item { display:flex; align-items:center; gap:9px; padding:6px; border-radius:6px; cursor:pointer; position:relative; }
+  .rc-item:hover { background:rgba(43,111,214,.09); }
+  .rc-thumb { width:46px; height:46px; flex:none; display:grid; place-items:center; background:#fff; border:1px solid var(--line); border-radius:4px; overflow:hidden; }
+  .rc-thumb img { max-width:100%; max-height:100%; display:block; }
+  .rc-thumb span { font-size:9px; font-weight:700; color:#fff; background:#c0392b; padding:2px 4px; border-radius:2px; }
+  .rc-txt { min-width:0; flex:1; display:flex; flex-direction:column; gap:2px; }
+  .rc-txt b { font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--txt); }
+  .rc-txt small { color:var(--muted); font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .rc-x { visibility:hidden; border:0; background:none; color:var(--muted); cursor:pointer; padding:2px 5px; border-radius:4px; font-size:11px; }
+  .rc-item:hover .rc-x { visibility:visible; }
+  .rc-x:hover { background:rgba(192,32,42,.12); color:#c0202a; }
+  body.touch .rc-x { visibility:visible; }
+  .rc-clear { display:block; margin:8px auto 4px; border:0; background:none; color:var(--blue); cursor:pointer; font:inherit; font-size:11.5px; }
+  .rc-clear:hover { text-decoration:underline; }
+  .rc-empty { padding:14px 10px; color:var(--muted); line-height:1.5; text-align:center; }
+  html.dark .rc-item:hover { background:rgba(138,180,248,.1); }
   /* ---------- écran tactile et petits écrans (iPhone, iPad) ---------- */
   html { -webkit-text-size-adjust:100%; touch-action:manipulation; }
   body { height:100dvh; padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); box-sizing:border-box; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent; }
@@ -594,6 +613,8 @@
 
 <div class="work">
   <div class="col">
+    <section class="pane recent-pane" id="recentPane" style="flex:1" hidden><h3>Plans récents</h3>
+      <div class="body" id="recentList"></div></section>
     <section class="pane" style="flex:0 0 200px"><h3>Navigation <svg viewBox="0 0 10 10"><path d="M3 1h4v4l1 1H2l1-1zM5 6v4" stroke="#333" fill="none"/></svg></h3>
       <div class="body" id="nav"></div></section>
     <section class="pane" style="flex:1"><h3>Propriétés <svg viewBox="0 0 10 10"><path d="M3 1h4v4l1 1H2l1-1zM5 6v4" stroke="#333" fill="none"/></svg></h3>
@@ -760,7 +781,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '2.3';
+const METRIX_VERSION = '2.4';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -841,6 +862,15 @@ addTr([
   ["Abandonner et revenir au Pointeur", "Cancel and go back to the Pointer", "Abandonar e voltar ao Ponteiro", "Abandonar y volver al Puntero"],
   ["Propriétés et pages", "Properties and pages", "Propriedades e páginas", "Propiedades y páginas"],
   ["Liste des métrés", "Takeoff list", "Lista de medições", "Lista de mediciones"],
+  ["Plans récents", "Recent plans", "Plantas recentes", "Planos recientes"],
+  ["Aujourd'hui à {t}", "Today at {t}", "Hoje às {t}", "Hoy a las {t}"],
+  ["Hier à {t}", "Yesterday at {t}", "Ontem às {t}", "Ayer a las {t}"],
+  ["Retirer de la liste", "Remove from the list", "Remover da lista", "Quitar de la lista"],
+  ["Effacer la liste", "Clear the list", "Limpar a lista", "Borrar la lista"],
+  ["Les plans que vous ouvrez apparaîtront ici.", "The plans you open will appear here.", "As plantas que abrir aparecerão aqui.", "Los planos que abra aparecerán aquí."],
+  ["Plan introuvable", "Plan not found", "Planta não encontrada", "Plano no encontrado"],
+  ["« {n} » n'est plus à son emplacement (déplacé, renommé ou supprimé). Choisissez-le de nouveau : vos métrés seront retrouvés.", "“{n}” is no longer where it was (moved, renamed or deleted). Choose it again: your takeoffs will be restored.", "« {n} » já não está no seu local (movida, renomeada ou eliminada). Escolha-a de novo: as suas medições serão recuperadas.", "« {n} » ya no está en su ubicación (movido, renombrado o eliminado). Elíjalo de nuevo: sus mediciones se recuperarán."],
+  ["Choisir le fichier…", "Choose the file…", "Escolher o ficheiro…", "Elegir el archivo…"],
   ["Annuler ({k})", "Undo ({k})", "Anular ({k})", "Deshacer ({k})"],
   ["Rétablir ({k})", "Redo ({k})", "Refazer ({k})", "Rehacer ({k})"],
   ["Ouvrages : modification annulée", "Assemblies: change undone", "Elementos: alteração anulada", "Unidades: cambio deshecho"],
@@ -1356,14 +1386,14 @@ function nativeCall(msg) {
     setTimeout(poll, 50);
   });
 }
-function readNativeFile(kind, path, name) {
+function readNativeFile(kind, path, name, src) {
   const x = new XMLHttpRequest();
   x.open('GET', fileUrl(path));
   x.responseType = 'blob';
   x.onload = () => {
     const type = /\.pdf$/i.test(name) ? 'application/pdf' : /\.json$/i.test(name) ? 'application/json' : '';
     const f = new File([x.response], name, { type: type || x.response.type });
-    kind === 'load' ? loadProject(f) : openFile(f);
+    kind === 'load' ? loadProject(f) : openFile(f, src || path);   // ancienne appli Mac : la copie temporaire sert d'emplacement
   };
   x.onerror = () => notify('Impossible de lire le fichier « ' + name + ' ».');
   x.timeout = 60000; x.ontimeout = () => notify('Le fichier « ' + name + ' » met trop de temps à s\'ouvrir. Réessayez, ou glissez-le directement sur la fenêtre.');
@@ -1379,7 +1409,7 @@ if (NATIVE) {
     try {
       const r = await nativeCall({ cmd: 'open', kind: id });
       if (r.error) notify(r.error);
-      else if (r.path) readNativeFile(r.kind, r.path, r.name);
+      else if (r.path) readNativeFile(r.kind, r.path, r.name, r.src);
     } finally { picking = false; }
   }));
   window.__nativeOpened = readNativeFile;
@@ -1403,6 +1433,99 @@ function scaleDialog() {
       st.scales[st.page] = pxSize * n; persist(); refresh();
     });
   $('dManual').onclick = () => { closeDialog(); setTool('calib'); };
+}
+
+/* ---------- Plans récents (à la place de Navigation / Propriétés quand aucun plan n'est ouvert) ----------
+   Mac : on rouvre le fichier à son emplacement d'origine. Windows / iPhone / iPad : le navigateur ne peut pas
+   rouvrir un fichier tout seul, on garde donc une copie des derniers plans dans la base locale (IndexedDB). */
+const RECENT_MAX = 8;
+const recentList = () => { try { const l = JSON.parse(localStorage.getItem('metrix:recents')); return Array.isArray(l) ? l : []; } catch { return []; } };
+const recentSave = l => { try { localStorage.setItem('metrix:recents', JSON.stringify(l)); } catch { try { localStorage.setItem('metrix:recents', JSON.stringify(l.map(r => ({ ...r, thumb: null })))); } catch {} } };
+let recentDbP = null;
+function recentDb() {
+  if (!recentDbP) recentDbP = new Promise((ok, ko) => {
+    if (!window.indexedDB) return ko(new Error('indisponible'));
+    const q = indexedDB.open('metrix', 1);
+    q.onupgradeneeded = () => q.result.createObjectStore('plans');
+    q.onsuccess = () => ok(q.result); q.onerror = () => ko(q.error);
+  });
+  return recentDbP;
+}
+async function recentDbDo(mode, fn) {
+  const db = await recentDb();
+  return new Promise((ok, ko) => { const t = db.transaction('plans', mode), s = t.objectStore('plans'), r = fn(s); t.oncomplete = () => ok(r && r.result); t.onerror = () => ko(t.error); });
+}
+function recentThumb(img) {
+  try {
+    const W = imgW(img), H = imgH(img), k = 120 / Math.max(W, H), c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(W * k)); c.height = Math.max(1, Math.round(H * k));
+    const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', .7);
+  } catch { return null; }
+}
+// appelé quand un plan vient de s'ouvrir
+async function recentAdd(d, f, src) {
+  const l = recentList().filter(r => r.key !== d.fileKey);
+  l.unshift({ key: d.fileKey, name: d.fileName, size: f.size, type: f.type, date: Date.now(), src: src || null, pages: d.pdf ? d.pdf.numPages : 1, thumb: d.img ? recentThumb(d.img) : null });
+  const gone = l.splice(RECENT_MAX);
+  recentSave(l); renderRecent();
+  if (!NATIVE) {
+    try {
+      if (f.size < 200e6) await recentDbDo('readwrite', s => s.put(f, d.fileKey));
+      for (const r of gone) await recentDbDo('readwrite', s => s.delete(r.key));
+    } catch {}
+  }
+}
+function recentRemove(key) {
+  recentSave(recentList().filter(r => r.key !== key)); renderRecent();
+  if (!NATIVE) recentDbDo('readwrite', s => s.delete(key)).catch(() => {});
+}
+async function recentOpen(key) {
+  const r = recentList().find(x => x.key === key); if (!r) return;
+  const already = docs.find(d => d.fileKey === key); if (already) return switchDoc(already);
+  if (NATIVE && r.src) {
+    const res = await nativeCall({ cmd: 'openPath', kind: 'file', path: r.src });
+    if (res.path) return readNativeFile('file', res.path, res.name, r.src);
+  } else if (!NATIVE) {
+    try { const b = await recentDbDo('readonly', s => s.get(key)); if (b) return openFile(new File([b], r.name, { type: r.type || b.type })); } catch {}
+  }
+  dialog('Plan introuvable', `<p style="margin:14px 16px;text-align:left">« ${esc(r.name)} » n'est plus à son emplacement (déplacé, renommé ou supprimé). Choisissez-le de nouveau : vos métrés seront retrouvés.</p>`,
+    () => { recentRemove(key); setTimeout(() => $('file').click(), 0); });
+  $('dlgOk').textContent = 'Choisir le fichier…';
+}
+function recentWhen(t) {
+  const d = new Date(t), now = new Date(), loc = LOCALES[LANG];
+  const hm = d.toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit' });
+  if (d.toDateString() === now.toDateString()) return trText(`Aujourd'hui à ${hm}`);
+  const y = new Date(now); y.setDate(now.getDate() - 1);
+  if (d.toDateString() === y.toDateString()) return trText(`Hier à ${hm}`);
+  return d.toLocaleDateString(loc, { day: 'numeric', month: 'short', year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric' });
+}
+function recentCount(key) { try { const d = JSON.parse(localStorage.getItem(key)); return (d && d.measures || []).length; } catch { return 0; } }
+function renderRecent() {
+  const box = $('recentList'); if (!box) return;
+  const l = recentList();
+  box.innerHTML = l.length ? l.map(r => {
+    const n = recentCount(r.key), pdf = /\.pdf$/i.test(r.name);
+    return `<div class="rc-item" data-key="${esc(r.key)}" title="${esc(r.name)}">
+      <div class="rc-thumb">${r.thumb ? `<img src="${r.thumb}" alt="">` : `<span>${pdf ? 'PDF' : 'IMG'}</span>`}</div>
+      <div class="rc-txt"><b>${esc(r.name)}</b><small>${recentWhen(r.date)}${pdf && r.pages > 1 ? ' · ' + r.pages + ' p.' : ''}${n ? ' · ' + trText(`${n} métré${n > 1 ? 's' : ''}`) : ''}</small></div>
+      <button class="rc-x" title="Retirer de la liste">✕</button></div>`;
+  }).join('') + '<button class="rc-clear" id="recentClear">Effacer la liste</button>'
+  : '<div class="rc-empty">Les plans que vous ouvrez apparaîtront ici.</div>';
+  box.querySelectorAll('.rc-item').forEach(el => {
+    el.onclick = () => recentOpen(el.dataset.key);
+    el.querySelector('.rc-x').onclick = e => { e.stopPropagation(); recentRemove(el.dataset.key); };
+  });
+  if ($('recentClear')) $('recentClear').onclick = () => { for (const r of recentList()) recentRemove(r.key); };
+}
+// sans plan ouvert : « Plans récents » remplace Navigation et Propriétés
+function updateRecentPane() {
+  const none = !docs.length;
+  $('recentPane').hidden = !none;
+  $('nav').closest('.pane').hidden = none;
+  $('props').closest('.pane').hidden = none;
+  if (none) renderRecent();
 }
 
 /* ---------- onglets : un plan par onglet ---------- */
@@ -1448,6 +1571,7 @@ function closeDoc(d) {
 
 function renderTabs() {
   const bar = $('docTabs');
+  updateRecentPane();
   bar.hidden = !docs.length;
   bar.innerHTML = docs.map(d => `<div class="dtab${d === activeDoc ? ' active' : ''}" data-id="${d.id}" title="${esc(d.fileName)}">
       <span class="ic ${d.isPdf ? 'pdf' : 'img'}">${d.isPdf ? 'PDF' : 'IMG'}</span><span class="nm">${esc(shortName(d.fileName, 24))}</span>
@@ -1464,7 +1588,7 @@ function renderTabs() {
 }
 
 /* ---------- chargement ---------- */
-async function openFile(f) {
+async function openFile(f, src) {
   if (!f) return;
   const key = 'metre:' + f.name + ':' + f.size;
   const already = docs.find(d => d.fileKey === key);
@@ -1490,6 +1614,7 @@ async function openFile(f) {
     }
     await showPage(1, d);
     buildNav(d);
+    recentAdd(d, f, src);
   } catch (e) {
     closeDoc(d);
     notify('Impossible d\'ouvrir « ' + f.name + ' » : ' + (e.message || e));
@@ -3099,6 +3224,7 @@ setTool('pan'); refresh();
 // langue choisie (Paramètres) : on traduit toute la page dès l'ouverture
 document.documentElement.lang = LANG;
 relabelDefaults(); translateNode(document.body); updateHelp();
+updateRecentPane();   // aucun plan au lancement : « Plans récents »
 H.lib = JSON.stringify(library); H.undo.length = 0; H.redo.length = 0; histUi();
 // recherche automatique des mises à jour (si une adresse est réglée), au plus une fois toutes les 20 h
 (() => {
