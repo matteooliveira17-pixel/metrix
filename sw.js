@@ -1,7 +1,7 @@
-// Métrix 2.8 — fonctionnement hors connexion de la version web (iPhone / iPad).
+// Métrix 2.9 — fonctionnement hors connexion de la version web (iPhone / iPad).
 // La page est toujours demandée au réseau d'abord : la nouvelle version arrive dès qu'internet est là ;
 // sans réseau, on sert la copie gardée. pdf.js et les icônes sont servis depuis la copie gardée.
-const CACHE = 'metrix-2.8';
+const CACHE = 'metrix-2.9';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'lib/pdf.min.js', 'lib/pdf.worker.min.js',
   'icons/apple-touch-icon.png', 'icons/icon-192.png', 'icons/icon-512.png'];
 
