@@ -2032,7 +2032,7 @@ function renderSettings() {
   $('updUrlIn').value = updUrl(); $('updAutoIn').checked = updAuto(); renderUpdState();
   $('setVersion').textContent = 'Version installée : ' + METRIX_VERSION;
   if (IS_WEB) { $('updHint').textContent = 'Version en ligne : Métrix se met à jour tout seul à chaque ouverture (avec une connexion internet). Il fonctionne aussi hors connexion.'; document.querySelector('.upd-actions').style.display = 'none'; document.querySelector('.upd-net').style.display = 'none'; $('updStatus').hidden = true; }
-  if (!NATIVE) $('updHint').textContent = 'Sur Windows, extrayez le zip de mise à jour (Metrix-mise-a-jour-….zip) puis double-cliquez sur « Mettre a jour Metrix » : il met Métrix à jour tout seul. Vos métrés, ouvrages et réglages sont conservés.';
+  if (!NATIVE && !IS_WEB) $('updHint').textContent = 'Sur Windows, extrayez le zip de mise à jour (Metrix-mise-a-jour-….zip) puis double-cliquez sur « Mettre a jour Metrix » : il met Métrix à jour tout seul. Vos métrés, ouvrages et réglages sont conservés.';
   document.querySelectorAll('.lang-opt').forEach(b => b.classList.toggle('on', b.dataset.lang === LANG));
   let t = null; try { t = localStorage.getItem('metrix:theme'); } catch {}
   const theme = t === 'dark' || t === 'light' ? t : 'auto';
