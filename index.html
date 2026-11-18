@@ -175,6 +175,62 @@
   body.set-mode { grid-template-rows:auto 1fr auto; }
   body.set-mode .ribbon, body.set-mode .work { display:none; }
   body.set-mode #settings { display:block; }
+  /* onglet « Temps unitaires » : bibliothèque Excel, quantités, heures, formule à copier */
+  #tuPage { display:none; min-height:0; flex-direction:column; background:var(--frame); }
+  body.tu-mode { grid-template-rows:auto 1fr auto; }
+  body.tu-mode .ribbon, body.tu-mode .work { display:none; }
+  body.tu-mode #tuPage { display:flex; }
+  .tu-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px 16px; border-bottom:1px solid var(--line); background:var(--pane, #fff); }
+  .tu-bar h2 { margin:0; font-size:15px; color:var(--txt); }
+  .tu-bar .src { color:var(--muted); font-size:11.5px; }
+  .tu-bar input[type=search] { font:inherit; padding:5px 9px; border:1px solid var(--line); border-radius:6px; min-width:220px; background:#fff; color:var(--txt); }
+  .tu-bar .sp { flex:1; }
+  .tu-bar .tot { font-weight:700; color:var(--blue); font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .tu-bar button { font:inherit; padding:5px 11px; border:1px solid #b5bcc7; background:linear-gradient(#fff,#ebedf0); border-radius:5px; cursor:pointer; color:#223; }
+  .tu-bar button:hover { border-color:#7fb0f0; }
+  .tu-scroll { flex:1; min-height:0; overflow:auto; padding:0 16px 30px; }
+  table.tu { width:100%; max-width:1180px; border-collapse:collapse; margin:8px auto 0; background:#fff; border:1px solid var(--line); }
+  .tu th { position:sticky; top:0; z-index:1; background:#f3f5f8; text-align:left; font-weight:600; color:var(--muted); padding:6px 8px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  .tu td { padding:3px 8px; border-bottom:1px solid #edf0f4; vertical-align:middle; }
+  .tu td.n, .tu th.n { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .tu td.u { color:var(--muted); white-space:nowrap; }
+  .tu tr.h td { font-weight:700; color:var(--txt); background:#f7f8fa; padding-top:7px; padding-bottom:5px; }
+  .tu tr.h1 td { background:#2b579a; color:#fff; font-size:13px; letter-spacing:.2px; }
+  .tu tr.h2 td { background:#e3ebf7; color:#1d3f73; }
+  .tu tr.h3 td { background:#f1f4f9; padding-left:18px; }
+  .tu tr.h4 td { background:none; font-style:italic; padding-left:26px; font-weight:600; }
+  .tu tr.h5 td { background:none; font-weight:500; text-decoration:underline; padding-left:34px; }
+  .tu tr.it td.l { padding-left:22px; }
+  .tu tr.it.on td { background:rgba(43,87,154,.07); }
+  .tu .q { display:flex; align-items:center; gap:3px; }
+  .tu .q input { font:inherit; width:110px; padding:3px 6px; border:1px solid var(--line); border-radius:4px; text-align:right; background:#fff; color:var(--txt); }
+  .tu .q input:focus { outline:none; border-color:#3c7fd6; box-shadow:0 0 0 1px #3c7fd6; }
+  .tu .q input.bad { border-color:#d13438; box-shadow:0 0 0 1px #d13438; }
+  .tu .qu { color:var(--muted); font-size:11.5px; width:58px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tu .hrs { font-weight:600; }
+  .tu .ib { width:26px; height:24px; display:inline-grid; place-items:center; border:1px solid transparent; background:none; border-radius:4px; cursor:pointer; color:#4a5568; padding:0; }
+  .tu .ib:hover { background:var(--hover); border-color:#a9c6ea; color:var(--blue); }
+  .tu .ib svg { width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+  .tu .ib.ok { color:#107c10; }
+  .tu .tag { display:inline-block; font-size:11px; padding:1px 7px; border-radius:9px; background:#fff4ce; color:#7a5b00; white-space:nowrap; }
+  .tu-pick { position:fixed; z-index:60; min-width:260px; max-width:420px; max-height:320px; overflow:auto; background:#fff; border:1px solid #c5cbd5; border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.18); padding:4px; }
+  .tu-pick .ph { font-size:11px; color:var(--muted); padding:5px 8px 3px; }
+  .tu-pick .po { display:flex; gap:10px; padding:6px 8px; border-radius:5px; cursor:pointer; }
+  .tu-pick .po:hover { background:var(--hover); }
+  .tu-pick .po .nm { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tu-pick .po .v { font-variant-numeric:tabular-nums; white-space:nowrap; font-weight:600; }
+  .tu-pick .po.dim { opacity:.55; }
+  html.dark .tu-bar { background:#1e2228; border-color:#3a414c; }
+  html.dark .tu-bar input[type=search], html.dark .tu .q input { background:#15181d; border-color:#4a5260; }
+  html.dark table.tu, html.dark .tu-pick { background:#1e2228; border-color:#3a414c; }
+  html.dark .tu th { background:#262b33; }
+  html.dark .tu td { border-color:#2d333d; }
+  html.dark .tu tr.h td { background:#262b33; }
+  html.dark .tu tr.h1 td { background:#2b579a; }
+  html.dark .tu tr.h2 td { background:#24344d; color:#cfe0fa; }
+  html.dark .tu tr.h4 td, html.dark .tu tr.h5 td { background:none; }
+  html.dark .tu-bar button { background:#2a2f37; color:#e6e6e6; border-color:#4a5260; }
+  html.dark .tu .ib { color:#b8c0cc; }
   .set-wrap { max-width:900px; margin:0 auto; padding:26px 28px 40px; }
   .set-head { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
   .set-ico { width:50px; height:50px; border-radius:14px; background:linear-gradient(135deg, #2b579a, #4c86d8); display:grid; place-items:center; box-shadow:0 4px 12px rgba(43,87,154,.35); flex:none; }
@@ -264,7 +320,7 @@
   html.dark .keys kbd { background:#2a2f38; }
   html.dark .lang-opt.on, html.dark .theme-opt.on { background:rgba(76,134,216,.14); }
   .tab#tabSet { cursor:pointer; }
-  .tab#tabLib, .tab#tabHome { cursor:pointer; }
+  .tab#tabLib, .tab#tabHome, .tab#tabTu { cursor:pointer; }
   .navbtns { display:flex; gap:2px; align-self:center; margin:0 0 3px 8px; }
   .navbtns button { width:28px; height:24px; display:grid; place-items:center; padding:0; border:1px solid transparent; border-radius:4px; background:none; color:#2b579a; cursor:pointer; }
   .navbtns button:hover:not(:disabled) { background:rgba(20,30,50,.08); border-color:var(--rline); }
@@ -588,6 +644,7 @@
   <span class="tab file" id="fileTab">Fichier</span>
   <span class="tab active" id="tabHome">Accueil</span>
   <span class="tab" id="tabLib" title="Bibliothèque d'ouvrages : béton, coffrage, aciers… calculés à partir des métrés">Ouvrages</span>
+  <span class="tab" id="tabTu" title="Temps unitaires du service méthodes : quantités, heures et formule Excel">Temps unitaires</span>
   <span class="tab" id="tabSet" title="Réglages : langue, thème">Paramètres</span>
   <span class="navbtns"><button id="undoBtn" title="Annuler (Ctrl+Z)" disabled><svg viewBox="0 0 20 20"><path class="ar" d="M7.5 4.5 3.5 8.5l4 4"/><path d="M4 8.5h7.5a4.5 4.5 0 0 1 0 9H9"/></svg></button><button id="redoBtn" title="Rétablir (Ctrl+Maj+Z)" disabled><svg viewBox="0 0 20 20"><path class="ar" d="m12.5 4.5 4 4-4 4"/><path d="M16 8.5H8.5a4.5 4.5 0 0 0 0 9H11"/></svg></button></span>
   <span class="doc"><span id="docName">Métrix</span></span>
@@ -752,6 +809,18 @@
     <div class="body" id="libEdit"></div>
   </div>
 </section>
+<!-- onglet « Temps unitaires » : temps du service méthodes × quantités, formule Excel à copier -->
+<section id="tuPage">
+  <div class="tu-bar">
+    <div><h2>Temps unitaires</h2><div class="src" id="tuSrc"></div></div>
+    <input type="search" id="tuSearch" placeholder="Rechercher un ouvrage…">
+    <span class="sp"></span>
+    <span class="tot" id="tuTot"></span>
+    <button id="tuCopyAll" title="Copie les lignes renseignées (désignation, quantité, unité, TU, formule des heures) pour les coller dans Excel">Copier pour Excel</button>
+    <button id="tuClear" title="Vider toutes les quantités saisies">Effacer les quantités</button>
+  </div>
+  <div class="tu-scroll"><table class="tu" id="tuTable"></table></div>
+</section>
 <!-- onglet « Paramètres » : langue et thème -->
 <section id="settings">
   <div class="set-wrap">
@@ -878,7 +947,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.2';
+const METRIX_VERSION = '3.3';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -1380,6 +1449,27 @@ addTr([
   ["Coffrage (2 joues + fond)", "Formwork (2 sides + soffit)", "Cofragem (2 faces + fundo)", "Encofrado (2 caras + fondo)"],
   ["Coffrage", "Formwork", "Cofragem", "Encofrado"],
   ["Aciers", "Rebar", "Armaduras", "Acero"],
+  // onglet Temps unitaires
+  ["Temps unitaires","Unit times","Tempos unitários","Tiempos unitarios"],
+  ["Temps unitaires du service méthodes : quantités, heures et formule Excel","Methods department unit times: quantities, hours and Excel formula","Tempos unitários do serviço de métodos: quantidades, horas e fórmula Excel","Tiempos unitarios del departamento de métodos: cantidades, horas y fórmula Excel"],
+  ["Rechercher un ouvrage…","Search for an item…","Procurar um elemento…","Buscar una partida…"],
+  ["Copier pour Excel","Copy for Excel","Copiar para Excel","Copiar para Excel"],
+  ["Copie les lignes renseignées (désignation, quantité, unité, TU, formule des heures) pour les coller dans Excel","Copies the filled-in rows (name, quantity, unit, unit time, hours formula) to paste into Excel","Copia as linhas preenchidas (designação, quantidade, unidade, TU, fórmula das horas) para colar no Excel","Copia las filas rellenadas (designación, cantidad, unidad, TU, fórmula de horas) para pegarlas en Excel"],
+  ["Effacer les quantités","Clear quantities","Apagar quantidades","Borrar cantidades"],
+  ["Vider toutes les quantités saisies","Clear all entered quantities","Apagar todas as quantidades introduzidas","Borrar todas las cantidades introducidas"],
+  ["Heures","Hours","Horas","Horas"],
+  ["Quantité : un nombre ou un calcul (ex. 12,5+3*2)","Quantity: a number or a calculation (e.g. 12.5+3*2)","Quantidade: um número ou um cálculo (ex. 12,5+3*2)","Cantidad: un número o un cálculo (ej. 12,5+3*2)"],
+  ["Prendre la quantité d'un métré du plan","Use the quantity of a takeoff from the plan","Usar a quantidade de uma medição da planta","Usar la cantidad de una medición del plano"],
+  ["Copier la formule pour Excel","Copy the formula for Excel","Copiar a fórmula para Excel","Copiar la fórmula para Excel"],
+  ["Total : {t} h ({n} ligne{s})","Total: {t} h ({n} row{s})","Total: {t} h ({n} linha{s})","Total: {t} h ({n} fila{s})"],
+  ["Saisissez d’abord une quantité sur cette ligne.","First enter a quantity on this row.","Introduza primeiro uma quantidade nesta linha.","Introduzca primero una cantidad en esta fila."],
+  ["Formule copiée","Formula copied","Fórmula copiada","Fórmula copiada"],
+  ["surface de mur","wall area","área de parede","superficie de muro"],
+  ["Quantités du plan ouvert","Quantities from the open plan","Quantidades da planta aberta","Cantidades del plano abierto"],
+  ["Aucun métré dans le plan ouvert. Mesurez d’abord dans l’onglet Accueil.","No takeoff in the open plan. Measure first in the Home tab.","Nenhuma medição na planta aberta. Meça primeiro no separador Início.","Ninguna medición en el plano abierto. Mida primero en la pestaña Inicio."],
+  ["Vider toutes les quantités saisies ?","Clear all entered quantities?","Apagar todas as quantidades introduzidas?","¿Borrar todas las cantidades introducidas?"],
+  ["Aucune quantité saisie.","No quantity entered.","Nenhuma quantidade introduzida.","Ninguna cantidad introducida."],
+  ["Lignes copiées : collez-les dans Excel.","Rows copied: paste them into Excel.","Linhas copiadas: cole-as no Excel.","Filas copiadas: péguelas en Excel."],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -1826,6 +1916,26 @@ addTr2([
   ["Coffrage (2 joues + fond)","Schalung (2 Seiten + Unterseite)","Bekisting (2 zijden + onderzijde)","模板（两侧 + 底面）","قوالب (جانبان + السفلي)","Casseratura (2 lati + fondo)","Опалубка (2 стороны + низ)"],
   ["Coffrage","Schalung","Bekisting","模板","القوالب","Casseratura","Опалубка"],
   ["Aciers","Bewehrung","Wapening","钢筋","حديد التسليح","Armatura","Арматура"],
+  ["Temps unitaires","Einheitszeiten","Eenheidstijden","单位工时","الأزمنة الوحدوية","Tempi unitari","Нормы времени"],
+  ["Temps unitaires du service méthodes : quantités, heures et formule Excel","Einheitszeiten der Arbeitsvorbereitung: Mengen, Stunden und Excel-Formel","Eenheidstijden van de werkvoorbereiding: hoeveelheden, uren en Excel-formule","方法部门单位工时：工程量、工时和 Excel 公式","الأزمنة الوحدوية لقسم الأساليب: الكميات والساعات وصيغة Excel","Tempi unitari dell'ufficio metodi: quantità, ore e formula Excel","Нормы времени технологического отдела: объёмы, часы и формула Excel"],
+  ["Rechercher un ouvrage…","Position suchen…","Post zoeken…","搜索项目…","ابحث عن بند…","Cerca una voce…","Найти позицию…"],
+  ["Copier pour Excel","Für Excel kopieren","Kopiëren voor Excel","复制到 Excel","نسخ إلى Excel","Copia per Excel","Копировать для Excel"],
+  ["Copie les lignes renseignées (désignation, quantité, unité, TU, formule des heures) pour les coller dans Excel","Kopiert die ausgefüllten Zeilen (Bezeichnung, Menge, Einheit, EZ, Stundenformel) zum Einfügen in Excel","Kopieert de ingevulde regels (omschrijving, hoeveelheid, eenheid, ET, urenformule) om in Excel te plakken","复制已填写的行（名称、工程量、单位、单位工时、工时公式），以便粘贴到 Excel","ينسخ الأسطر المعبّأة (الاسم، الكمية، الوحدة، الزمن الوحدوي، صيغة الساعات) للصقها في Excel","Copia le righe compilate (descrizione, quantità, unità, TU, formula delle ore) da incollare in Excel","Копирует заполненные строки (название, объём, единица, норма, формула часов) для вставки в Excel"],
+  ["Effacer les quantités","Mengen löschen","Hoeveelheden wissen","清除工程量","مسح الكميات","Cancella le quantità","Очистить объёмы"],
+  ["Vider toutes les quantités saisies","Alle eingegebenen Mengen löschen","Alle ingevoerde hoeveelheden wissen","清除所有已输入的工程量","مسح كل الكميات المُدخلة","Cancella tutte le quantità inserite","Очистить все введённые объёмы"],
+  ["Heures","Stunden","Uren","工时","الساعات","Ore","Часы"],
+  ["Quantité : un nombre ou un calcul (ex. 12,5+3*2)","Menge: eine Zahl oder eine Rechnung (z. B. 12,5+3*2)","Hoeveelheid: een getal of een berekening (bijv. 12,5+3*2)","工程量：数字或算式（例如 12.5+3*2）","الكمية: رقم أو عملية حسابية (مثال 12.5+3*2)","Quantità: un numero o un calcolo (es. 12,5+3*2)","Объём: число или выражение (напр. 12,5+3*2)"],
+  ["Prendre la quantité d'un métré du plan","Menge aus einem Aufmaß des Plans übernehmen","Hoeveelheid van een meting op de tekening overnemen","使用图纸上某个测量的工程量","استخدم كمية قياس من المخطط","Usa la quantità di una misura della tavola","Взять объём из замера на чертеже"],
+  ["Copier la formule pour Excel","Formel für Excel kopieren","Formule kopiëren voor Excel","复制 Excel 公式","نسخ الصيغة إلى Excel","Copia la formula per Excel","Копировать формулу для Excel"],
+  ["Total : {t} h ({n} ligne{s})","Summe: {t} h ({n} Zeilen)","Totaal: {t} u ({n} regels)","合计：{t} 小时（{n} 行）","الإجمالي: {t} ساعة ({n} سطر)","Totale: {t} h ({n} righe)","Итого: {t} ч ({n} строк)"],
+  ["Saisissez d’abord une quantité sur cette ligne.","Geben Sie zuerst eine Menge in dieser Zeile ein.","Voer eerst een hoeveelheid in op deze regel.","请先在此行输入工程量。","أدخل أولًا كمية في هذا السطر.","Inserisci prima una quantità in questa riga.","Сначала введите объём в этой строке."],
+  ["Formule copiée","Formel kopiert","Formule gekopieerd","公式已复制","تم نسخ الصيغة","Formula copiata","Формула скопирована"],
+  ["surface de mur","Wandfläche","wandoppervlak","墙面面积","مساحة الجدار","superficie del muro","площадь стены"],
+  ["Quantités du plan ouvert","Mengen des geöffneten Plans","Hoeveelheden van de geopende tekening","当前图纸的工程量","كميات المخطط المفتوح","Quantità della tavola aperta","Объёмы открытого чертежа"],
+  ["Aucun métré dans le plan ouvert. Mesurez d’abord dans l’onglet Accueil.","Kein Aufmaß im geöffneten Plan. Messen Sie zuerst im Reiter Start.","Geen meting op de geopende tekening. Meet eerst in het tabblad Start.","当前图纸没有测量。请先在“开始”选项卡中测量。","لا يوجد قياس في المخطط المفتوح. قِس أولًا في تبويب الرئيسية.","Nessuna misura nella tavola aperta. Misura prima nella scheda Home.","На открытом чертеже нет замеров. Сначала выполните замер на вкладке «Главная»."],
+  ["Vider toutes les quantités saisies ?","Alle eingegebenen Mengen löschen?","Alle ingevoerde hoeveelheden wissen?","清除所有已输入的工程量？","مسح كل الكميات المُدخلة؟","Cancellare tutte le quantità inserite?","Очистить все введённые объёмы?"],
+  ["Aucune quantité saisie.","Keine Menge eingegeben.","Geen hoeveelheid ingevoerd.","未输入工程量。","لم تُدخل أي كمية.","Nessuna quantità inserita.","Объёмы не введены."],
+  ["Lignes copiées : collez-les dans Excel.","Zeilen kopiert: fügen Sie sie in Excel ein.","Regels gekopieerd: plak ze in Excel.","已复制行：请粘贴到 Excel。","تم نسخ الأسطر: الصقها في Excel.","Righe copiate: incollale in Excel.","Строки скопированы: вставьте их в Excel."],
 ]);
 // --- fin des langues ajoutées ---
 
@@ -3194,14 +3304,342 @@ function showTab(name, selId) {
   if (selId) libSel = selId;
   document.body.classList.toggle('lib-mode', name === 'lib');
   document.body.classList.toggle('set-mode', name === 'set');
+  document.body.classList.toggle('tu-mode', name === 'tu');
   $('tabHome').classList.toggle('active', name === 'home');
   $('tabLib').classList.toggle('active', name === 'lib');
   $('tabSet').classList.toggle('active', name === 'set');
+  $('tabTu').classList.toggle('active', name === 'tu');
   if (name === 'lib') renderLibrary();
   else if (name === 'set') renderSettings();
+  else if (name === 'tu') renderTu();
   else { resize(); refresh(); }
 }
 function showLibrary(on, selId) { showTab(on ? 'lib' : 'home', selId); }
+/* ---------- onglet « Temps unitaires » (bibliothèque TU du service méthodes, IND A - 22/02/24) ---------- */
+// ["#", niveau, titre] = titre de rubrique ; [désignation, TU en heures (null : pas de TU), unité]
+const TU_LIB = [["#",1,"Travaux préliminaires"],
+  ["#",2,"Implantation du projet"],
+  ["Implantation générale",8.0,"h/bâtiment"],
+  ["Implantation pieux",1.0,"h/u"],
+  ["#",2,"Terrassement"],
+  ["Protection des talus",0.2,"h/ml"],
+  ["Remblais des talus",0.05,"h/ml"],
+  ["Reprofillage sous dalle basse",0.05,"h/m²"],
+  ["#",2,"Préfabrication foraine"],
+  ["Préfabrication longrines / poutres / poteaux avec banc",4.0,"h/u"],
+  ["Préfabrication dalle de fermeture (ascenseur, escalier,…)",8.0,"h/u"],
+  ["#",1,"Gros œuvre"],
+  ["#",2,"Fondations"],
+  ["Recépage têtes de pieux",2.0,"h/u"],
+  ["Semelles filantes (terrassement / ferraillage / coulage)",3.0,"h/m3"],
+  ["Massifs isolés (terrassement / ferraillage / coulage)",3.0,"h/m3"],
+  ["Massifs têtes de pieux simples (terrassement / ferraillage / coulage)",3.0,"h/u"],
+  ["Massifs têtes de pieux doubles (terrassement / ferraillage / coulage)",5.0,"h/u"],
+  ["Massifs têtes de pieux triples (terrassement / ferraillage / coulage)",7.0,"h/u"],
+  ["Fosse ascenseur (cis terrassement et double dalle)",45.0,"h/ens"],
+  ["Libages parpaings creux (cis planelles)",1.0,"h/m²"],
+  ["Libages parpaings pleins (cis planelles)",1.2,"h/m²"],
+  ["Libages stépoc (cis planelles et coulage)",1.2,"h/m²"],
+  ["Coffrage rive de dalle",0.3,"h/ml"],
+  ["Pose longrines préfabriquées",4.0,"h/u"],
+  ["Longrines CSP",1.5,"h/ml"],
+  ["Amorces poteaux",2.0,"h/u"],
+  ["Réseaux sous dalle",0.6,"h/ml"],
+  ["#",4,"Dalle basse"],
+  ["Couche de sable",0.05,"h/m²"],
+  ["Isolant sous dalle",0.1,"h/m²"],
+  ["Ferraillage (dalle standard)",0.2,"h/m²"],
+  ["Ferraillage (Radier/champignon/tranfert/Epaisseur>30cm)",0.3,"h/m²"],
+  ["Coulage",1.0,"h/m3"],
+  ["Rampe coulée sur terre plein (finition balayée)",1.5,"h/m²"],
+  ["Rampe chevrons",null,"Voir méthodes"],
+  ["Rampe coffrée en sous face",null,"Voir méthodes"],
+  ["Réalisation des platelages de protections des trémies de fosse ascenseur",16.0,"h/cage"],
+  ["#",2,"Sous-sol"],
+  ["Voiles de soutènement (Attention au ferraillage)",null,"Voir méthodes"],
+  ["#",4,"Débutonnage"],
+  ["Dépose butons",2.0,"h/buton"],
+  ["Reprises en dalle et en voiles",5.0,"h/buton"],
+  ["Bouchement des trémies de butons/grue",null,"Voir méthodes"],
+  ["#",2,"Superstructure"],
+  ["#",3,"Voiles (surfaces vide pour plein) hors finitions"],
+  ["Voiles façades Ht <3,30m (cis sécurité)",0.9,"h/m²"],
+  ["Voiles façades 3,30< Ht <4,30m (cis sécurité)",1.0,"h/m²"],
+  ["Mannequins pour voiles de façade",1.0,"h/U"],
+  ["Mannutention des PTE pour voiles de façade",0.25,"h/ml (hors balcons)"],
+  ["Voiles intérieurs Ht <3,30m",0.7,"h/m²"],
+  ["Voiles intérieurs 3,30< Ht <4,30m",0.8,"h/m²"],
+  ["Voiles intérieurs type P.V. Ht <3,30m",1.0,"h/m²"],
+  ["Voiles intérieurs type P.V. 3,30< Ht <4,30m",1.1,"h/m²"],
+  ["Voiles matricés",null,"Voir méthodes"],
+  ["#",3,"Prémurs (surfaces vide pour plein)"],
+  ["Prémurs Ht standard <3,80m",0.65,"h/m²"],
+  ["Prémurs Ht standard <3,80m en façade",0.7,"h/m²"],
+  ["#",3,"Poteaux"],
+  ["Poteaux",4.0,"h/u"],
+  ["Poteaux grande Ht (>5,00m)",7.0,"h/u"],
+  ["#",3,"Poutres (cis clavetages)"],
+  ["Pose poutres préfabriquées clavetage standard",4.0,"h/u"],
+  ["Pose poutres préfabriquées clavetage complexe (3 poutres ou plus en un point)",8.0,"h/u"],
+  ["Pose poutres préfabriquées (étaiement Ht: 3,50m ou plus)",8.0,"h/u"],
+  ["Poutres CSP",5.0,"h/ml"],
+  ["Poutre retroussée CSP (+4h/u si retombée préfa sous dalle)",1.0,"h/ml"],
+  ["Pose poutres allège préfa",6.0,"h/u"],
+  ["Poutre forme ou dimension spéciale",null,"Voir méthodes"],
+  ["#",3,"Maçonneries (surfaces vides déduits)"],
+  ["Relevés béton sous maçonneries",1.0,"h/ml"],
+  ["Maçonneries parpaings creux (cis planelles / chaînages / sécurité)",1.0,"h/m²"],
+  ["Maçonneries parpaings pleins (cis planelles / chaînages / sécurité)",1.2,"h/m²"],
+  ["Linteaux parpaings CSP",1.5,"h/ml"],
+  ["Maçonneries porotherm (cis planelles / chaînages / sécurité)",1.2,"h/m²"],
+  ["Linteaux porotherm CSP",1.5,"h/ml"],
+  ["Maçonneries maxibriques (cis planelles / chaînages / sécurité)",2.5,"h/m²"],
+  ["Linteaux briques préfa (hors éventuelle brique mulot)",1.0,"h/u"],
+  ["Maçonneries pointes pignon (cis chaînages rampants)",null,"+20% TU base"],
+  ["Maçonneries briques de 11 (pour mur de 22cm)",3.5,"h/m²"],
+  ["Maçonneries briques façon Moucharabieh",5.0,"h/m²"],
+  ["Maçonneries briques de 11",2.5,"h/m²"],
+  ["Maçonneries blocs à bancher (cis chaînages & remplissage)",1.5,"h/m²"],
+  ["Maçonneries béton cellulaire (Ytong) (cis planelles / chaînages / sécurité)",1.2,"h/m²"],
+  ["#",4,"Parements briques"],
+  ["Cornières",0.75,"h/ml"],
+  ["Isolant (cis attaches)",0.35,"h/m²"],
+  ["Briques 11",2.5,"h/m²"],
+  ["Habillage mulots briques",2.5,"h/m²"],
+  ["Habillage plaquettes briques",4.0,"h/m²"],
+  ["#",3,"Verticaux divers - Escaliers"],
+  ["Escalier hélicoÏdal",8.0,"h/u"],
+  ["Escalier volée droite",4.0,"h/u"],
+  ["Escalier balancé",10.0,"h/u"],
+  ["Palier escalier",3.5,"h/m²"],
+  ["#",3,"Planchers hors finitions"],
+  ["#",4,"Plancher CSP"],
+  ["#",5,"Coffrage + Décoffrage"],
+  ["HSP: 2,50 à 3,00m",0.4,"h/m²"],
+  ["HSP: 3,00 à 3,50m",0.45,"h/m²"],
+  ["HSP: 3,50 à 4,00m",0.5,"h/m²"],
+  ["HSP: 4,00 à 4,50m",0.55,"h/m²"],
+  ["HSP: 4,50 à 5,00m",0.6,"h/m²"],
+  ["HSP: 5,00 à 5,50m",0.65,"h/m²"],
+  ["HSP: 5,50 à 6,00m",0.7,"h/m²"],
+  ["Ferraillage (dalle standard)",0.2,"h/m²"],
+  ["Ferraillage (Radier/champignon/tranfert/Epaisseur>30cm)",0.3,"h/m²"],
+  ["Coulage à la grue",1.0,"h/m3"],
+  ["Coulage à la pompe",0.5,"h/m3"],
+  ["#",4,"Plancher prédalle"],
+  ["#",5,"étaiement + désétaiement"],
+  ["HSP: 2,50 à 3,00m",0.2,"h/m²"],
+  ["HSP: 3,00 à 3,50m",0.25,"h/m²"],
+  ["HSP: 3,50 à 4,00m",0.3,"h/m²"],
+  ["HSP: 4,00 à 4,50m",0.35,"h/m²"],
+  ["HSP: 4,50 à 5,00m",0.4,"h/m²"],
+  ["HSP: 5,00 à 5,50m",0.45,"h/m²"],
+  ["HSP: 5,50 à 6,00m",0.5,"h/m²"],
+  ["Pose prédalle",0.1,"h/m²"],
+  ["Ferraillage",0.05,"h/m²"],
+  ["Coulage",1.0,"h/m3"],
+  ["Coulage à la pompe",0.5,"h/m3"],
+  ["#",4,"Plancher poutrelles/entrevous"],
+  ["étaiement + désétaiement (si poutrelles non autoportées)",0.2,"h/m²"],
+  ["Pose poutrelle standard (dalle basse)",0.15,"h/m²"],
+  ["Pose poutrelle autoportée (dalle basse)",0.2,"h/m²"],
+  ["Pose poutrelle standard (plancher haut)",0.3,"h/m²"],
+  ["Pose poutrelle autoportée (plancher haut)",0.4,"h/m²"],
+  ["Pose entrevous PVC/polystyrène",0.15,"h/m²"],
+  ["Pose entrevous béton",0.3,"h/m²"],
+  ["Ferraillage",0.1,"h/m²"],
+  ["PV ferraillage et poutrelles pour chevêtres et trémies",8.0,"h/u"],
+  ["Coulage chape",0.1,"h/m²"],
+  ["#",3,"Horizontaux divers"],
+  ["Fibrastyrène",0.15,"h/m²"],
+  ["Coffrage tradi rive de dalle/trémies",0.3,"h/ml"],
+  ["Débord de plancher tradi",null,"Voir méthodes"],
+  ["Balcons préfabriqués (cis étaiement sur 1 niveau et seuil préfa)",4.0,"h/u"],
+  ["Finitions sur balcons",2.0,"h/u"],
+  ["Etaiement de balcons plusieurs niveaux/grande hauteur",null,"Voir méthodes"],
+  ["#",3,"Ouvrages en toiture"],
+  ["Edicule ascenseur (cis pose dalle)",30.0,"h/u"],
+  ["Relevés acrotères béton",1.5,"h/ml"],
+  ["Relevés acrotères briques",3.0,"h/m²"],
+  ["Relevés acrotères blocs à bancher (cis coulage) (+enduit ST)",1.5,"h/m²"],
+  ["#",1,"Ouvrages divers et finitions"],
+  ["#",2,"Ouvrages divers"],
+  ["Pose rupteurs thermique",0.25,"h/ml"],
+  ["Réalisation décaissé bac à douche",1.0,"h/u"],
+  ["Dés béton en toiture",2.0,"h/u"],
+  ["Bouchements parpaings (ex. trou d'homme)",2.5,"h/u"],
+  ["Pose appuis préfa",1.0,"h/u"],
+  ["Pose appuis encastrés",1.5,"h/u"],
+  ["Seuils CSP",1.5,"h/ml"],
+  ["Dressement des tableaux",0.25,"h/ml"],
+  ["Scellements et calfeutrements",0.05,"h/m²"],
+  ["#",2,"Finitions"],
+  ["Ragréage voiles",0.05,"h/m² - par face"],
+  ["Finitions planchers (sous face)",0.1,"h/m²"],
+  ["Finitions sur façade briques + nettoyage",0.1,"h/m²"],
+  ["Finitions sur façade porotherm",0.05,"h/m²"],
+  ["#",1,"Frais et installation de chantier"],
+  ["#",2,"Amenée matériel (par grue)"],
+  ["Conditionnement banches",16.0,"h"],
+  ["Reconditionnement banches en cycle (type sous hausse ou double banche)",8.0,"h"],
+  ["Conditionnement planchers",32.0,"h"],
+  ["Conditionnement PTE",32.0,"h"],
+  ["Conditionnement moule poutres (hors dalle de propreté)",16.0,"h/u"],
+  ["Déchargement tables à maçons & protections grimpantes",16.0,"h"],
+  ["Divers (Etais, garde-corps, …)",40.0,"h"],
+  ["#",2,"Repli de matériel (par grue)"],
+  ["Repli banches",32.0,"h"],
+  ["Repli planchers",32.0,"h"],
+  ["Repli PTE",48.0,"h"],
+  ["Repli moule poutres",16.0,"h/u"],
+  ["Repli tables à maçons & protections grimpantes",48.0,"h"],
+  ["Divers (Etais, garde-corps, …)",40.0,"h"],
+  ["#",2,"Personnel"],
+  ["Grutier",8.0,"h/j"],
+  ["#",2,"Installation de chantier"],
+  ["Installation générale",40.0,"h"],
+  ["#",2,"Repli de chantier"],
+  ["Repli général",40.0,"h"],
+  ["#",2,"Grue"],
+  ["Réalisation fondations grue",32.0,"h/grue"]];
+const TU_SRC = 'Temps unitaires service méthodes · IND A - 22/02/24';
+let tuQty = (() => { try { return JSON.parse(localStorage.getItem('metrix:tuQty')) || {}; } catch { return {}; } })();
+const tuSave = () => { try { localStorage.setItem('metrix:tuQty', JSON.stringify(tuQty)); } catch {} };
+const tuDec = () => fmt(1.5, 1).includes(',') ? ',' : '.';
+// unité de la quantité : « h/m² » -> « m² », « h » (forfait) -> « × »
+const tuQUnit = u => { const m = /^h\s*\/\s*(.+)$/i.exec(u || ''); return m ? m[1].replace(/\s*\(.*\)|\s*-.*$/, '') : '×'; };
+// quantité saisie : un nombre ou un petit calcul (12,5+3*2 ; 4x2,5)
+function tuEval(s) {
+  s = String(s || '').trim(); if (!s) return null;
+  const js = s.replace(/\s+/g, '').replace(/,/g, '.').replace(/[×xX]/g, '*');
+  if (!/^[\d.+\-*/()]+$/.test(js)) return NaN;
+  try { const v = Function('"use strict";return (' + js + ')')(); return Number.isFinite(v) ? v : NaN; } catch { return NaN; }
+}
+// formule à coller dans Excel : =quantité*TU (virgule décimale en français)
+function tuFormula(i) {
+  const r = TU_LIB[i], s = String(tuQty[i] || '').trim(); if (!s || r[1] == null) return null;
+  const d = tuDec(), num = x => String(x).replace(/[.,]/g, d);
+  let q = s.replace(/\s+/g, '').replace(/[×xX]/g, '*').replace(/[.,]/g, d);
+  if (/[+\-]/.test(q.slice(1))) q = '(' + q + ')';
+  return '=' + q + '*' + num(r[1]);
+}
+function copyText(t) {
+  const fb = () => { const a = document.createElement('textarea'); a.value = t; a.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); } catch {} a.remove(); };
+  try { navigator.clipboard.writeText(t).catch(fb); } catch { fb(); }
+}
+const TU_ICO_COPY = '<svg viewBox="0 0 16 16"><rect x="5.5" y="5.5" width="8" height="8.5" rx="1.5"/><path d="M10.5 5.5V3.5A1.5 1.5 0 0 0 9 2H4A1.5 1.5 0 0 0 2.5 3.5v6A1.5 1.5 0 0 0 4 11h1.5"/></svg>';
+const TU_ICO_OK = '<svg viewBox="0 0 16 16"><path d="m3 8.5 3.2 3L13 4.5"/></svg>';
+const TU_ICO_PICK = '<svg viewBox="0 0 16 16"><path d="M2 13.5 13.5 2"/><path d="m4.5 11 1.3 1.3M7 8.5l1.3 1.3M9.5 6l1.3 1.3M12 3.5l1.3 1.3"/></svg>';
+function renderTu() {
+  $('tuSrc').textContent = TU_SRC;
+  const d = tuDec();
+  let h = `<tr><th>Désignation</th><th class="n">TU</th><th>Unité</th><th>Quantité</th><th class="n">Heures</th><th style="width:64px"></th></tr>`;
+  TU_LIB.forEach((r, i) => {
+    if (r[0] === '#') { h += `<tr class="h h${r[1]}" data-lv="${r[1]}"><td colspan="6">${esc(r[2])}</td></tr>`; return; }
+    const [l, tu, u] = r;
+    if (tu == null) { h += `<tr class="it" data-i="${i}"><td class="l">${esc(l)}</td><td colspan="5"><span class="tag">${esc(u)}</span></td></tr>`; return; }
+    h += `<tr class="it" data-i="${i}"><td class="l">${esc(l)}</td><td class="n">${String(tu).replace('.', d)}</td><td class="u">${esc(u)}</td>
+      <td><div class="q"><input inputmode="decimal" value="${esc(tuQty[i] || '')}" title="Quantité : un nombre ou un calcul (ex. 12,5+3*2)"><span class="qu">${esc(tuQUnit(u))}</span>
+      <button class="ib pk" title="Prendre la quantité d'un métré du plan">${TU_ICO_PICK}</button></div></td>
+      <td class="n hrs"></td><td><button class="ib cp" title="Copier la formule pour Excel">${TU_ICO_COPY}</button></td></tr>`;
+  });
+  const tb = $('tuTable'); tb.innerHTML = h;
+  tb.querySelectorAll('tr.it[data-i]').forEach(tr => {
+    const i = +tr.dataset.i, inp = tr.querySelector('input'); if (!inp) return;
+    inp.oninput = () => { const v = inp.value.trim(); if (v) tuQty[i] = v; else delete tuQty[i]; tuSave(); tuRow(tr); tuTotal(); };
+    tr.querySelector('.cp').onclick = e => tuCopy(i, e.currentTarget);
+    tr.querySelector('.pk').onclick = e => tuPick(i, e.currentTarget, tr);
+    tuRow(tr);
+  });
+  tuFilter(); tuTotal();
+}
+function tuRow(tr) {
+  const i = +tr.dataset.i, v = tuEval(tuQty[i]), inp = tr.querySelector('input');
+  inp.classList.toggle('bad', Number.isNaN(v));
+  tr.classList.toggle('on', v != null && !Number.isNaN(v));
+  const f = tuFormula(i);
+  tr.querySelector('.hrs').textContent = v == null || Number.isNaN(v) ? '' : fmt(v * TU_LIB[i][1]) + ' h';
+  tr.querySelector('.cp').title = f ? trText('Copier la formule pour Excel') + ' : ' + f : trText('Copier la formule pour Excel');
+}
+function tuHours() {
+  let t = 0, n = 0;
+  for (const k in tuQty) { const v = tuEval(tuQty[k]), r = TU_LIB[k]; if (r && r[1] != null && v != null && !Number.isNaN(v)) { t += v * r[1]; n++; } }
+  return { t, n };
+}
+function tuTotal() { const { t, n } = tuHours(); $('tuTot').textContent = n ? `Total : ${fmt(t)} h (${n} ligne${n > 1 ? 's' : ''})` : ''; }
+function tuCopy(i, btn) {
+  const f = tuFormula(i);
+  if (!f) { toast(trText('Saisissez d’abord une quantité sur cette ligne.')); btn.closest('tr').querySelector('input').focus(); return; }
+  copyText(f); toast(trText('Formule copiée') + ' : ' + f);
+  btn.innerHTML = TU_ICO_OK; btn.classList.add('ok');
+  setTimeout(() => { btn.innerHTML = TU_ICO_COPY; btn.classList.remove('ok'); }, 1400);
+}
+function tuFilter() {
+  const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const q = norm(($('tuSearch').value || '').trim());
+  const rows = [...$('tuTable').querySelectorAll('tr[data-i], tr.h')];
+  const vis = rows.map(tr => !q || norm(tr.textContent).includes(q));
+  // une rubrique reste visible si elle correspond ou si une ligne en dessous correspond
+  if (q) rows.forEach((tr, k) => {
+    if (!tr.classList.contains('h') || vis[k]) return;
+    const lv = +tr.dataset.lv;
+    for (let j = k + 1; j < rows.length; j++) {
+      if (rows[j].classList.contains('h') && +rows[j].dataset.lv <= lv) break;
+      if (!rows[j].classList.contains('h') && vis[j]) { vis[k] = true; break; }
+    }
+  });
+  // une rubrique qui correspond montre toutes ses lignes
+  if (q) rows.forEach((tr, k) => {
+    if (!tr.classList.contains('h') || !norm(tr.textContent).includes(q)) return;
+    const lv = +tr.dataset.lv;
+    for (let j = k + 1; j < rows.length; j++) { if (rows[j].classList.contains('h') && +rows[j].dataset.lv <= lv) break; vis[j] = true; }
+  });
+  rows.forEach((tr, k) => tr.hidden = !vis[k]);
+}
+// quantités disponibles dans le plan ouvert : totaux des métrés, surfaces de murs, résultats d'ouvrages
+function tuSources() {
+  const out = [];
+  for (const m of (st.measures || [])) {
+    if (isNote(m) || m.type === 'sketch') continue;
+    const { unit, total, wall } = rowValues(m);
+    if (total != null) out.push({ nm: m.name, v: total, u: m.type === 'count' ? 'u' : m.type === 'line' ? 'ml' : 'm²' });
+    if (wall != null) out.push({ nm: m.name + ' · ' + trText('surface de mur'), v: wall, u: 'm²' });
+    const mo = measureOuvrage(m);
+    if (mo && mo.results) mo.o.results.forEach((r, k) => { const x = mo.results[k]; if (x && !x.error && x.v != null) out.push({ nm: m.name + ' · ' + r.label, v: x.v, u: r.u }); });
+  }
+  return out;
+}
+const tuUnitKey = u => String(u || '').toLowerCase().replace('³', '3').replace('²', '2').replace(/^m$/, 'ml').replace(/^(u|unité|ens|cage|buton|grue|bâtiment)$/, 'u');
+function tuPick(i, btn, tr) {
+  document.querySelector('.tu-pick')?.remove();
+  const want = tuUnitKey(tuQUnit(TU_LIB[i][2])), src = tuSources();
+  src.sort((a, b) => (tuUnitKey(b.u) === want) - (tuUnitKey(a.u) === want));
+  const p = document.createElement('div'); p.className = 'tu-pick';
+  p.innerHTML = src.length
+    ? `<div class="ph">${esc(trText('Quantités du plan ouvert'))}</div>` + src.map((s, k) => `<div class="po${tuUnitKey(s.u) === want ? '' : ' dim'}" data-k="${k}"><span class="nm" title="${esc(s.nm)}">${esc(s.nm)}</span><span class="v">${fmt(s.v, Number.isInteger(s.v) ? 0 : 2)} ${esc(s.u)}</span></div>`).join('')
+    : `<div class="ph" style="padding:10px">${esc(trText('Aucun métré dans le plan ouvert. Mesurez d’abord dans l’onglet Accueil.'))}</div>`;
+  document.body.appendChild(p);
+  const r = btn.getBoundingClientRect(), w = p.offsetWidth, hgt = p.offsetHeight;
+  p.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.right - w)) + 'px';
+  p.style.top = (r.bottom + hgt + 8 > innerHeight ? Math.max(8, r.top - hgt - 4) : r.bottom + 4) + 'px';
+  p.querySelectorAll('.po').forEach(el => el.onclick = () => {
+    const s = src[+el.dataset.k], inp = tr.querySelector('input');
+    inp.value = String(Math.round(s.v * 100) / 100).replace('.', tuDec()); inp.oninput(); p.remove();
+  });
+  setTimeout(() => document.addEventListener('mousedown', function off(e) { if (!p.contains(e.target)) { p.remove(); document.removeEventListener('mousedown', off); } }), 0);
+}
+$('tuSearch').oninput = tuFilter;
+$('tuClear').onclick = () => {
+  if (!Object.keys(tuQty).length) return;
+  if (!confirm(trText('Vider toutes les quantités saisies ?'))) return;
+  tuQty = {}; tuSave(); renderTu();
+};
+$('tuCopyAll').onclick = () => {
+  const d = tuDec(), rows = [[trText('Désignation'), trText('Quantité'), trText('Unité'), 'TU', trText('Heures')].join('\t')];
+  TU_LIB.forEach((r, i) => { const f = tuFormula(i); if (f && !Number.isNaN(tuEval(tuQty[i]))) rows.push([r[0], String(Math.round(tuEval(tuQty[i]) * 1000) / 1000).replace(".", d), tuQUnit(r[2]), String(r[1]).replace('.', d) + ' ' + r[2], f].join('\t')); });
+  if (rows.length < 2) { toast(trText('Aucune quantité saisie.')); return; }
+  copyText(rows.join('\r\n') + '\r\n'); toast(trText('Lignes copiées : collez-les dans Excel.'));
+};
 function renderSettings() {
   $('updUrlIn').value = updUrl(); $('updAutoIn').checked = updAuto(); renderUpdState();
   $('setVersion').textContent = 'Version installée : ' + METRIX_VERSION;
@@ -3299,6 +3737,7 @@ function renderLibrary() {
 }
 $('tabLib').onclick = () => showTab('lib');
 $('tabSet').onclick = () => showTab('set');
+$('tabTu').onclick = () => showTab('tu');
 // cartes de l'onglet Paramètres
 document.querySelectorAll('.lang-opt').forEach(b => b.onclick = () => { setLang(b.dataset.lang); renderSettings(); });
 document.querySelectorAll('.theme-opt').forEach(b => b.onclick = () => {
