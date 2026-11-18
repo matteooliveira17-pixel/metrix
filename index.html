@@ -845,7 +845,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.0';
+const METRIX_VERSION = '3.1';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -931,6 +931,8 @@ addTr([
   ["Abandonner et revenir au Pointeur", "Cancel and go back to the Pointer", "Abandonar e voltar ao Ponteiro", "Abandonar y volver al Puntero"],
   ["Propriétés et pages", "Properties and pages", "Propriedades e páginas", "Propiedades y páginas"],
   ["Liste des métrés", "Takeoff list", "Lista de medições", "Lista de mediciones"],
+  ["Annuler la dernière modification", "Undo the last change", "Anular a última alteração", "Deshacer el último cambio"],
+  ["Rétablir la modification", "Redo the change", "Refazer a alteração", "Rehacer el cambio"],
   ["Micro-flèches du ruban", "Ribbon micro-arrows", "Micro-setas da faixa", "Microflechas de la cinta"],
   ["Affiche la petite flèche à droite du nom de chaque groupe (Plan, Sélection, Mesurer…), qui sert à choisir les boutons affichés.", "Shows the small arrow to the right of each group name (Plan, Selection, Measure…), used to choose the buttons shown.", "Mostra a pequena seta à direita do nome de cada grupo (Planta, Seleção, Medir…), que serve para escolher os botões mostrados.", "Muestra la pequeña flecha a la derecha del nombre de cada grupo (Plano, Selección, Medir…), que sirve para elegir los botones mostrados."],
   ["Personnaliser « {g} »", "Customize “{g}”", "Personalizar « {g} »", "Personalizar « {g} »"],
@@ -1365,6 +1367,8 @@ addTr2([
   ["Abandonner et revenir au Pointeur","Abbrechen und zum Zeiger zurück","Annuleren en terug naar de aanwijzer","取消并返回指针","إلغاء والعودة إلى المؤشر","Annulla e torna al puntatore","Отменить и вернуться к указателю"],
   ["Propriétés et pages","Eigenschaften und Seiten","Eigenschappen en pagina's","属性和页面","الخصائص والصفحات","Proprietà e pagine","Свойства и страницы"],
   ["Liste des métrés","Aufmaßliste","Lijst met metingen","测量列表","قائمة القياسات","Elenco delle misure","Список замеров"],
+  ["Annuler la dernière modification","Letzte Änderung rückgängig machen","Laatste wijziging ongedaan maken","撤销上一次修改","التراجع عن آخر تعديل","Annulla l'ultima modifica","Отменить последнее изменение"],
+  ["Rétablir la modification","Änderung wiederherstellen","Wijziging opnieuw uitvoeren","重做修改","إعادة التعديل","Ripeti la modifica","Повторить изменение"],
   ["Micro-flèches du ruban","Mini-Pfeile im Menüband","Mini-pijltjes in het lint","功能区小箭头","الأسهم الصغيرة في الشريط","Mini-frecce della barra","Мини-стрелки на ленте"],
   ["Affiche la petite flèche à droite du nom de chaque groupe (Plan, Sélection, Mesurer…), qui sert à choisir les boutons affichés.","Zeigt den kleinen Pfeil rechts neben dem Namen jeder Gruppe (Plan, Auswahl, Messen…), mit dem Sie die angezeigten Schaltflächen wählen.","Toont het kleine pijltje rechts van de naam van elke groep (Tekening, Selectie, Meten…), waarmee u de getoonde knoppen kiest.","在每个分组名称（图纸、选择、测量…）右侧显示小箭头，用于选择要显示的按钮。","يعرض السهم الصغير على يمين اسم كل مجموعة (المخطط، التحديد، القياس…)، ويُستخدم لاختيار الأزرار المعروضة.","Mostra la piccola freccia a destra del nome di ogni gruppo (Disegno, Selezione, Misura…), che serve a scegliere i pulsanti mostrati.","Показывает маленькую стрелку справа от названия каждой группы (Чертёж, Выбор, Замеры…), с помощью которой выбираются показываемые кнопки."],
   ["Personnaliser « {g} »","„{g}“ anpassen","„{g}” aanpassen","自定义“{g}”","تخصيص «{g}»","Personalizza «{g}»","Настроить «{g}»"],
@@ -2959,9 +2963,9 @@ function renderSettings() {
   const M = IS_MAC ? '⌘' : 'Ctrl+', DEL = IS_MAC ? '⌫' : 'Suppr', BACK = IS_MAC ? '⌫' : 'Retour arrière';
   const keys = [
     ['V', 'Pointeur'], ['S', 'Surface'], ['R', 'Rectangle'], ['L', 'Longueur'], ['C', 'Compteur'], ['G', 'Gomme'],
-    ['D', 'Vide rectangle'], ['P', 'Main levée'], ['N', 'Nouvelle surface / longueur'], ['E', 'Ajustement manuel de l\'échelle'], ['F', 'Ajuster à la fenêtre'],
+    ['O', 'Cercle'], ['A', 'Arc'], ['D', 'Vide rectangle'], ['P', 'Main levée'], ['N', 'Nouvelle surface / longueur'], ['E', 'Ajustement manuel de l\'échelle'], ['F', 'Ajuster à la fenêtre'],
     ['Entrée', 'Terminer le tracé'], [BACK, 'Annuler le dernier point'], ['Échap', 'Retour au Pointeur'], [DEL, 'Supprimer le métré sélectionné'],
-    [M + 'Z', 'Annuler la suppression'], [M + 'O', 'Ouvrir un plan'], ['Maj', 'Angles à 45° pendant le tracé'], ['Espace + glisser', 'Déplacer le plan'],
+    [M + 'Z', 'Annuler la dernière modification'], [IS_MAC ? '⇧⌘Z' : 'Ctrl+Y', 'Rétablir la modification'], [M + 'O', 'Ouvrir un plan'], ['Maj', 'Angles à 45° pendant le tracé'], ['Espace + glisser', 'Déplacer le plan'],
   ];
   $('setKeys').innerHTML = keys.map(([k, d]) => `<div><span>${esc(d)}</span><kbd>${esc(k)}</kbd></div>`).join('');
 }
