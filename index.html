@@ -359,6 +359,26 @@
   .rbd-foot { display:flex; gap:14px; justify-content:flex-start; margin:8px 18px 4px; }
   .rbd-all { border:0; background:none; color:var(--blue); cursor:pointer; font:inherit; font-size:11.5px; padding:0; }
   .rbd-all:hover { text-decoration:underline; }
+  /* ---------- outils Dessin et Texte ---------- */
+  .notebar { position:absolute; top:10px; left:10px; z-index:6; display:flex; align-items:center; gap:4px; padding:5px 6px; border-radius:10px; background:rgba(255,255,255,.97); border:1px solid var(--line); box-shadow:0 4px 16px rgba(20,30,50,.18); }
+  .notebar[hidden] { display:none; }
+  .nb-g { display:flex; align-items:center; gap:3px; padding:0 4px; }
+  .nb-g + .nb-g { border-left:1px solid var(--line); }
+  .nb-l { font-weight:600; padding:0 4px; color:var(--txt); }
+  .notebar button { width:28px; height:28px; padding:0; display:grid; place-items:center; border:1px solid transparent; border-radius:6px; background:none; cursor:pointer; color:var(--txt); font:inherit; font-weight:700; }
+  .notebar button:hover { background:rgba(43,111,214,.08); }
+  .notebar button.on { background:rgba(43,111,214,.14); border-color:#2b6fd6; }
+  .nb-s svg { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+  .notebar .nb-c { width:22px; height:22px; border-radius:50%; background:var(--c); border:2px solid #fff; box-shadow:0 0 0 1px rgba(0,0,0,.18); }
+  .notebar .nb-c.on { box-shadow:0 0 0 2px #2b6fd6; border-color:#fff; background:var(--c); }
+  .nb-w i { display:block; width:16px; border-radius:4px; background:currentColor; }
+  .notebar .nb-bg { width:auto; padding:0 9px; font-weight:600; }
+  .text-ed { position:absolute; z-index:7; min-width:40px; margin:0; border:1.5px dashed; border-radius:2px; background:rgba(255,255,255,.95); font-family:"Segoe UI",system-ui,-apple-system,sans-serif; font-weight:600; line-height:1.25; resize:none; overflow:hidden; white-space:pre; outline:none; box-shadow:0 2px 10px rgba(20,30,50,.18); }
+  .text-ed.nobg { background:rgba(255,255,255,.5); }
+  .text-ed[hidden] { display:none; }
+  html.dark .notebar { background:rgba(36,41,49,.97); }
+  html.dark .notebar .nb-c { border-color:#2c323b; }
+  @media (max-width: 1000px) { .notebar { left:60px; } }
   /* ---------- écran tactile et petits écrans (iPhone, iPad) ---------- */
   html { -webkit-text-size-adjust:100%; touch-action:manipulation; }
   body { height:100dvh; padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); box-sizing:border-box; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent; }
@@ -638,6 +658,15 @@
   </div><div class="cap">Déductions</div></div>
 
   <div class="grp"><div class="items">
+    <button class="rb tool" data-tool="draw" title="Dessin : crayon, ligne, flèche, rectangle, ellipse (B)">
+      <svg viewBox="0 0 32 32"><path d="M4 25c3-1 5-4 8-3s5 4 9 1" fill="none" stroke="#1f6feb" stroke-width="2.2" stroke-linecap="round"/><rect x="5" y="5" width="9" height="7" rx="1" fill="none" stroke="#e5484d" stroke-width="1.8"/><path d="m27.5 4.5 2 2-11 11-3 1 1-3z" fill="#f5c542" stroke="#8a6d12" stroke-width="1.1" stroke-linejoin="round"/><path d="m16.5 15.5 2 2" stroke="#8a6d12" stroke-width="1.1"/></svg>
+      Dessin</button>
+    <button class="rb tool" data-tool="text" title="Zone de texte : cliquez sur le plan et tapez (T)">
+      <svg viewBox="0 0 32 32"><rect x="3.5" y="6.5" width="25" height="19" rx="2" fill="#fff" stroke="#5f6670" stroke-width="1.4" stroke-dasharray="3 2"/><path d="M10 11h12M16 11v11" stroke="#111827" stroke-width="2.6" stroke-linecap="round"/></svg>
+      Texte</button>
+  </div><div class="cap">Annoter</div></div>
+
+  <div class="grp"><div class="items">
     <button class="rb" id="fit" title="Ajuster à la fenêtre (F)">
       <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#eef4fc" stroke="#7a8ca5" stroke-width="1.5"/><path d="M16 8v16M8 16h16" stroke="#1f5fbf" stroke-width="1.5"/><path d="m16 6-3 4h6zM16 26l-3-4h6zM6 16l4-3v6zM26 16l-4-3v6z" fill="#1f5fbf"/></svg>
       Ajuster à la fenêtre</button>
@@ -683,6 +712,8 @@
   <div id="docTabs" hidden></div>
   <div id="stage">
     <canvas id="cv"></canvas>
+    <div class="notebar" id="noteBar" hidden></div>
+    <textarea class="text-ed" id="textEd" hidden spellcheck="true" rows="1"></textarea>
     <div class="scalehint" id="scaleHint" hidden></div>
     <button class="sidebtn" id="openLeft" title="Propriétés et pages"><svg viewBox="0 0 16 16"><path d="M2 3h12M2 8h12M2 13h12"/></svg></button>
     <button class="sidebtn" id="openRight" title="Liste des métrés"><svg viewBox="0 0 16 16"><path d="M5 3h9M5 8h9M5 13h9"/><circle cx="2" cy="3" r="1"/><circle cx="2" cy="8" r="1"/><circle cx="2" cy="13" r="1"/></svg></button>
@@ -817,9 +848,9 @@ const imgW = (img = st.img) => img.worldW || img.width, imgH = (img = st.img) =>
 const MOD = IS_MAC ? 'Cmd' : 'Ctrl';   // touche des raccourcis selon le système
 const PDF_RENDER = 2;            // résolution de rendu des PDF (px par point PDF)
 const COLORS = ['#e5484d','#1f6feb','#30a46c','#f76b15','#8e4ec6','#0d9488','#d6409f','#a18072'];
-const TYPES = { line:'Longueur', area:'Surface', count:'Compteur', sketch:'Annotation' };
+const TYPES = { line:'Longueur', area:'Surface', count:'Compteur', sketch:'Annotation', draw:'Dessin', text:'Texte' };
 const GROUPS = { area:'Surfaces', line:'Longueurs', count:'Compteurs', sketch:'Annotations' };
-const TOOL_NAMES = { pan:'Pointeur', calib:'Ajustement manuel de l\'échelle', line:'Longueur', area:'Surface', rect:'Rectangle', circle:'Cercle', arc:'Arc', count:'Compteur', erase:'Gomme', voidrect:'Vide rectangle', void:'Vide libre' };
+const TOOL_NAMES = { draw:'Dessin', text:'Texte', pan:'Pointeur', calib:'Ajustement manuel de l\'échelle', line:'Longueur', area:'Surface', rect:'Rectangle', circle:'Cercle', arc:'Arc', count:'Compteur', erase:'Gomme', voidrect:'Vide rectangle', void:'Vide libre' };
 const HELP = {
   pan:   'Pointeur — cliquez un métré pour le sélectionner (touche effacer pour le supprimer) · 2 doigts pour déplacer le plan · pincer (ou ' + MOD + ' + molette) pour zoomer',
   calib: 'Ajustement manuel — cliquez les 2 extrémités d\'une cote connue',
@@ -828,6 +859,8 @@ const HELP = {
   rect:  'Rectangle — cliquez 2 coins opposés · les tracés suivants s\'ajouteront à cette surface (« Nouvelle surface » ou N pour en changer)',
   circle: 'Cercle — cliquez les 2 extrémités d\'un diamètre : surface (m²) et diamètre · les cercles s\'ajoutent à la surface en cours (« Nouvelle surface » ou N pour en changer)',
   arc:   'Arc — cliquez le départ, puis l\'arrivée, puis un point de la courbe : longueur de l\'arc · s\'ajoute à la longueur en cours (« Nouvelle longueur » ou N pour en changer)',
+  draw:  'Dessin — choisissez la forme, la couleur et l\'épaisseur dans la barre au-dessus du plan, puis tracez en maintenant le clic · Maj : angles de 45° ou formes régulières · annotation non comptée dans le métré',
+  text:  'Texte — cliquez sur le plan et tapez · Entrée pour valider, Maj + Entrée pour aller à la ligne · avec le Pointeur : glisser pour déplacer, double-clic pour modifier',
   count: 'Compteur — clic sur chaque élément · Entrée ou double-clic pour terminer le groupe',
   free: 'Main levée — maintenez le clic et dessinez : trait ouvert = longueur (m), boucle refermée sur son départ = surface (m²) · ' + MOD + ' + Z pour annuler le dernier tracé',
   erase: 'Gomme — maintenez le clic et passez sur un métré (n\'importe où dessus) pour le supprimer · ' + MOD + ' + Z pour annuler · Échap : retour au Pointeur',
@@ -845,7 +878,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.1';
+const METRIX_VERSION = '3.2';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -931,6 +964,28 @@ addTr([
   ["Abandonner et revenir au Pointeur", "Cancel and go back to the Pointer", "Abandonar e voltar ao Ponteiro", "Abandonar y volver al Puntero"],
   ["Propriétés et pages", "Properties and pages", "Propriedades e páginas", "Propiedades y páginas"],
   ["Liste des métrés", "Takeoff list", "Lista de medições", "Lista de mediciones"],
+  ["Texte","Text","Texto","Texto"],
+  ["Dessin","Drawing","Desenho","Dibujo"],
+  ["Annoter","Annotate","Anotar","Anotar"],
+  ["Crayon","Pen","Lápis","Lápiz"],
+  ["Ligne","Line","Linha","Línea"],
+  ["Flèche","Arrow","Seta","Flecha"],
+  ["Ellipse","Ellipse","Elipse","Elipse"],
+  ["Fin","Thin","Fino","Fino"],
+  ["Moyen","Medium","Médio","Medio"],
+  ["Épais","Thick","Grosso","Grueso"],
+  ["Petit","Small","Pequeno","Pequeño"],
+  ["Grand","Large","Grande","Grande"],
+  ["Cadre","Frame","Moldura","Marco"],
+  ["Fond blanc et cadre","White background and frame","Fundo branco e moldura","Fondo blanco y marco"],
+  ["Forme","Shape","Forma","Forma"],
+  ["Taille","Size","Tamanho","Tamaño"],
+  ["Dessin : crayon, ligne, flèche, rectangle, ellipse (B)","Drawing: pen, line, arrow, rectangle, ellipse (B)","Desenho: lápis, linha, seta, retângulo, elipse (B)","Dibujo: lápiz, línea, flecha, rectángulo, elipse (B)"],
+  ["Zone de texte : cliquez sur le plan et tapez (T)","Text box: click on the plan and type (T)","Caixa de texto: clique na planta e escreva (T)","Cuadro de texto: haga clic en el plano y escriba (T)"],
+  ["Dessin — choisissez la forme, la couleur et l'épaisseur dans la barre au-dessus du plan, puis tracez en maintenant le clic · Maj : angles de 45° ou formes régulières · annotation non comptée dans le métré","Drawing — choose the shape, colour and thickness in the bar above the plan, then draw while holding the click · Shift: 45° angles or regular shapes · annotation not counted in the takeoff","Desenho — escolha a forma, a cor e a espessura na barra acima da planta e desenhe mantendo o clique · Shift: ângulos de 45° ou formas regulares · anotação não contada na medição","Dibujo — elija la forma, el color y el grosor en la barra sobre el plano y dibuje manteniendo el clic · Mayús: ángulos de 45° o formas regulares · anotación no contada en la medición"],
+  ["Texte — cliquez sur le plan et tapez · Entrée pour valider, Maj + Entrée pour aller à la ligne · avec le Pointeur : glisser pour déplacer, double-clic pour modifier","Text — click on the plan and type · Enter to confirm, Shift + Enter for a new line · with the Pointer: drag to move, double-click to edit","Texto — clique na planta e escreva · Enter para validar, Shift + Enter para mudar de linha · com o Ponteiro: arrastar para mover, duplo clique para editar","Texto — haga clic en el plano y escriba · Intro para validar, Mayús + Intro para cambiar de línea · con el Puntero: arrastrar para mover, doble clic para editar"],
+  ["Annotation : non comptée dans le récapitulatif ni dans l'export Excel. Avec le Pointeur, glissez-la pour la déplacer, double-cliquez pour modifier le texte.","Annotation: not counted in the summary or the Excel export. With the Pointer, drag it to move it, double-click to edit the text.","Anotação: não contada no resumo nem na exportação Excel. Com o Ponteiro, arraste-a para mover, duplo clique para editar o texto.","Anotación: no contada en el resumen ni en la exportación a Excel. Con el Puntero, arrástrela para moverla, doble clic para editar el texto."],
+  ["Annotation : non comptée dans le récapitulatif ni dans l'export Excel. Avec le Pointeur, glissez-la pour la déplacer.","Annotation: not counted in the summary or the Excel export. With the Pointer, drag it to move it.","Anotação: não contada no resumo nem na exportação Excel. Com o Ponteiro, arraste-a para mover.","Anotación: no contada en el resumen ni en la exportación a Excel. Con el Puntero, arrástrela para moverla."],
   ["Annuler la dernière modification", "Undo the last change", "Anular a última alteração", "Deshacer el último cambio"],
   ["Rétablir la modification", "Redo the change", "Refazer a alteração", "Rehacer el cambio"],
   ["Micro-flèches du ruban", "Ribbon micro-arrows", "Micro-setas da faixa", "Microflechas de la cinta"],
@@ -1367,6 +1422,28 @@ addTr2([
   ["Abandonner et revenir au Pointeur","Abbrechen und zum Zeiger zurück","Annuleren en terug naar de aanwijzer","取消并返回指针","إلغاء والعودة إلى المؤشر","Annulla e torna al puntatore","Отменить и вернуться к указателю"],
   ["Propriétés et pages","Eigenschaften und Seiten","Eigenschappen en pagina's","属性和页面","الخصائص والصفحات","Proprietà e pagine","Свойства и страницы"],
   ["Liste des métrés","Aufmaßliste","Lijst met metingen","测量列表","قائمة القياسات","Elenco delle misure","Список замеров"],
+  ["Texte","Text","Tekst","文字","نص","Testo","Текст"],
+  ["Dessin","Zeichnung","Tekening","绘图","رسم","Disegno","Рисунок"],
+  ["Annoter","Beschriften","Annoteren","批注","تعليق","Annota","Пометки"],
+  ["Crayon","Stift","Pen","画笔","قلم","Matita","Карандаш"],
+  ["Ligne","Linie","Lijn","直线","خط","Linea","Линия"],
+  ["Flèche","Pfeil","Pijl","箭头","سهم","Freccia","Стрелка"],
+  ["Ellipse","Ellipse","Ellips","椭圆","قطع ناقص","Ellisse","Эллипс"],
+  ["Fin","Dünn","Dun","细","رفيع","Sottile","Тонкая"],
+  ["Moyen","Mittel","Gemiddeld","中","متوسط","Medio","Средняя"],
+  ["Épais","Dick","Dik","粗","سميك","Spesso","Толстая"],
+  ["Petit","Klein","Klein","小","صغير","Piccolo","Мелкий"],
+  ["Grand","Groß","Groot","大","كبير","Grande","Крупный"],
+  ["Cadre","Rahmen","Kader","边框","إطار","Cornice","Рамка"],
+  ["Fond blanc et cadre","Weißer Hintergrund und Rahmen","Witte achtergrond en kader","白色背景和边框","خلفية بيضاء وإطار","Sfondo bianco e cornice","Белый фон и рамка"],
+  ["Forme","Form","Vorm","形状","الشكل","Forma","Фигура"],
+  ["Taille","Größe","Grootte","大小","الحجم","Dimensione","Размер"],
+  ["Dessin : crayon, ligne, flèche, rectangle, ellipse (B)","Zeichnung: Stift, Linie, Pfeil, Rechteck, Ellipse (B)","Tekening: pen, lijn, pijl, rechthoek, ellips (B)","绘图：画笔、直线、箭头、矩形、椭圆 (B)","رسم: قلم، خط، سهم، مستطيل، قطع ناقص (B)","Disegno: matita, linea, freccia, rettangolo, ellisse (B)","Рисунок: карандаш, линия, стрелка, прямоугольник, эллипс (B)"],
+  ["Zone de texte : cliquez sur le plan et tapez (T)","Textfeld: auf den Plan klicken und tippen (T)","Tekstvak: klik op de tekening en typ (T)","文本框：点击图纸并输入 (T)","مربع نص: انقر على المخطط واكتب (T)","Casella di testo: clicca sul disegno e scrivi (T)","Текстовое поле: щёлкните по чертежу и введите текст (T)"],
+  ["Dessin — choisissez la forme, la couleur et l'épaisseur dans la barre au-dessus du plan, puis tracez en maintenant le clic · Maj : angles de 45° ou formes régulières · annotation non comptée dans le métré","Zeichnung — Form, Farbe und Stärke in der Leiste über dem Plan wählen, dann bei gedrückter Maustaste zeichnen · Umschalt: 45°-Winkel oder regelmäßige Formen · Anmerkung, nicht im Aufmaß gezählt","Tekening — kies vorm, kleur en dikte in de balk boven de tekening en teken met ingedrukte muisknop · Shift: hoeken van 45° of regelmatige vormen · aantekening, niet meegeteld in de meting","绘图 — 在图纸上方的工具条中选择形状、颜色和粗细，然后按住鼠标绘制 · Shift：45° 角或规则形状 · 批注，不计入测量","رسم — اختر الشكل واللون والسماكة من الشريط أعلى المخطط، ثم ارسم مع الضغط المستمر · Shift: زوايا 45° أو أشكال منتظمة · تعليق لا يُحتسب في القياس","Disegno — scegli forma, colore e spessore nella barra sopra il disegno, poi traccia tenendo premuto · Maiusc: angoli di 45° o forme regolari · annotazione non conteggiata nella misura","Рисунок — выберите фигуру, цвет и толщину на панели над чертежом и рисуйте, удерживая кнопку · Shift: углы 45° или правильные фигуры · пометка, не учитывается в замерах"],
+  ["Texte — cliquez sur le plan et tapez · Entrée pour valider, Maj + Entrée pour aller à la ligne · avec le Pointeur : glisser pour déplacer, double-clic pour modifier","Text — auf den Plan klicken und tippen · Eingabe bestätigt, Umschalt + Eingabe für neue Zeile · mit dem Zeiger: ziehen zum Verschieben, Doppelklick zum Bearbeiten","Tekst — klik op de tekening en typ · Enter om te bevestigen, Shift + Enter voor een nieuwe regel · met de aanwijzer: slepen om te verplaatsen, dubbelklikken om te bewerken","文字 — 点击图纸并输入 · 回车确认，Shift + 回车换行 · 使用指针：拖动可移动，双击可编辑","نص — انقر على المخطط واكتب · Enter للتأكيد، Shift + Enter لسطر جديد · بالمؤشر: اسحب للتحريك، انقر نقرًا مزدوجًا للتعديل","Testo — clicca sul disegno e scrivi · Invio per confermare, Maiusc + Invio per andare a capo · con il puntatore: trascina per spostare, doppio clic per modificare","Текст — щёлкните по чертежу и введите текст · Enter — подтвердить, Shift + Enter — новая строка · указателем: перетащите для перемещения, двойной щелчок для правки"],
+  ["Annotation : non comptée dans le récapitulatif ni dans l'export Excel. Avec le Pointeur, glissez-la pour la déplacer, double-cliquez pour modifier le texte.","Anmerkung: weder in der Übersicht noch im Excel-Export gezählt. Mit dem Zeiger ziehen zum Verschieben, Doppelklick zum Bearbeiten des Textes.","Aantekening: niet meegeteld in het overzicht of de Excel-export. Met de aanwijzer slepen om te verplaatsen, dubbelklikken om de tekst te bewerken.","批注：不计入汇总，也不导出到 Excel。使用指针拖动可移动，双击可编辑文字。","تعليق: لا يُحتسب في الملخص ولا في تصدير Excel. بالمؤشر اسحبه لتحريكه، وانقر نقرًا مزدوجًا لتعديل النص.","Annotazione: non conteggiata nel riepilogo né nell'esportazione Excel. Con il puntatore trascinala per spostarla, doppio clic per modificare il testo.","Пометка: не учитывается в сводке и экспорте в Excel. Указателем перетащите её для перемещения, двойной щелчок — правка текста."],
+  ["Annotation : non comptée dans le récapitulatif ni dans l'export Excel. Avec le Pointeur, glissez-la pour la déplacer.","Anmerkung: weder in der Übersicht noch im Excel-Export gezählt. Mit dem Zeiger ziehen zum Verschieben.","Aantekening: niet meegeteld in het overzicht of de Excel-export. Met de aanwijzer slepen om te verplaatsen.","批注：不计入汇总，也不导出到 Excel。使用指针拖动可移动。","تعليق: لا يُحتسب في الملخص ولا في تصدير Excel. بالمؤشر اسحبه لتحريكه.","Annotazione: non conteggiata nel riepilogo né nell'esportazione Excel. Con il puntatore trascinala per spostarla.","Пометка: не учитывается в сводке и экспорте в Excel. Указателем перетащите её для перемещения."],
   ["Annuler la dernière modification","Letzte Änderung rückgängig machen","Laatste wijziging ongedaan maken","撤销上一次修改","التراجع عن آخر تعديل","Annulla l'ultima modifica","Отменить последнее изменение"],
   ["Rétablir la modification","Änderung wiederherstellen","Wijziging opnieuw uitvoeren","重做修改","إعادة التعديل","Ripeti la modifica","Повторить изменение"],
   ["Micro-flèches du ruban","Mini-Pfeile im Menüband","Mini-pijltjes in het lint","功能区小箭头","الأسهم الصغيرة في الشريط","Mini-frecce della barra","Мини-стрелки на ленте"],
@@ -1835,7 +1912,7 @@ function areaParts(m) {
 }
 function value(m) {
   const k = scale(m.page);
-  if (m.type === 'sketch') return null;   // annotation : pas de quantité
+  if (isNote(m)) return null;   // annotation (dessin, texte) : pas de quantité
   if (m.type === 'count') return { v: m.points.length, u: 'u' };
   if (!k) return null;
   if (m.type === 'line') return { v: lineLen(m) * k, u: 'm' };
@@ -1850,6 +1927,8 @@ function rowValues(m) {
 }
 function totalText(m) {
   if (m.type === 'sketch') { const n = pathsOf(m).length; return `${n} trait${n > 1 ? 's' : ''}`; }
+  if (m.type === 'draw') return trText(SHAPE_NAMES[m.shape] || 'Dessin');
+  if (m.type === 'text') { const t = String(m.text || '').split('\n')[0]; return '« ' + (t.length > 24 ? t.slice(0, 23) + '…' : t) + ' »'; }
   const { unit, total } = rowValues(m);
   if (total == null) return '—';
   return m.type === 'count' ? `${total} u` : `${fmt(total)} ${unit.u}`;
@@ -2441,6 +2520,8 @@ function draw() {
       if (on) text(trText('Cliquez pour fermer'), f.x, f.y - (CLOSE_SNAP + 12) * px, px, '#1e7a1c', 11);
     }
   }
+  if (st.shape) shapePreview(px);
+  if (st.editing) placeEditor();
   if (st.drawing && st.drawing.length > 1) {   // trait à main levée en cours : longueur, ou surface si la boucle se ferme
     const d = st.drawing, loop = strokeClosed(d), k = scale();
     const tgt = loop ? currentSurface() : currentLine(), col = tgt ? tgt.color : COLORS[st.measures.length % COLORS.length];
@@ -2598,10 +2679,176 @@ function drawSketch(m, hi, px) {
   ctx.restore();
 }
 
+/* ---------- outils Dessin et Texte (annotations, non comptées dans le métré) ----------
+   Dessin : crayon, ligne, flèche, rectangle, ellipse — couleur et épaisseur au choix.
+   Texte : un clic sur le plan ouvre une zone de saisie ; Entrée valide, Maj + Entrée passe à la ligne.
+   Avec le Pointeur : un clic sélectionne, glisser déplace, double-clic sur un texte le modifie. */
+const NOTE_TYPES = ['sketch', 'draw', 'text'];
+const isNote = m => !!m && NOTE_TYPES.includes(m.type);
+const SHAPE_NAMES = { pen: 'Crayon', line: 'Ligne', arrow: 'Flèche', rect: 'Rectangle', ellipse: 'Ellipse' };
+const NOTE_COLORS = ['#e5484d', '#f76b15', '#f5b400', '#30a46c', '#1f6feb', '#8e4ec6', '#111827'];
+const DRAW_W = [2, 4, 8];            // épaisseurs (pixels à l'écran au moment du tracé)
+const TEXT_SIZES = [12, 16, 24];     // tailles de texte (pixels à l'écran au moment de la saisie)
+const loadOpt = (k, d) => { try { return { ...d, ...JSON.parse(localStorage.getItem(k) || '{}') }; } catch { return { ...d }; } };
+st.drawOpt = loadOpt('metrix:drawOpt', { shape: 'pen', color: '#e5484d', w: 1 });
+st.textOpt = loadOpt('metrix:textOpt', { color: '#111827', s: 1, bg: true });
+const saveOpts = () => { try { localStorage.setItem('metrix:drawOpt', JSON.stringify(st.drawOpt)); localStorage.setItem('metrix:textOpt', JSON.stringify(st.textOpt)); } catch {} };
+
+function ellipsePts(a, b, n = 64) {
+  const cx = (a.x + b.x) / 2, cy = (a.y + b.y) / 2, rx = Math.abs(b.x - a.x) / 2, ry = Math.abs(b.y - a.y) / 2;
+  return Array.from({ length: n + 1 }, (_, i) => { const t = 2 * Math.PI * i / n; return { x: cx + rx * Math.cos(t), y: cy + ry * Math.sin(t) }; });
+}
+// contour d'une annotation (pour la sélection, le survol et la gomme)
+function noteOutline(m) {
+  if (m.type === 'text') { const b = textBox(m); return [[{ x: b.x, y: b.y }, { x: b.x + b.w, y: b.y }, { x: b.x + b.w, y: b.y + b.h }, { x: b.x, y: b.y + b.h }, { x: b.x, y: b.y }]]; }
+  if (m.type === 'draw') {
+    const [a, b] = m.points;
+    if (m.shape === 'pen') return [m.points];
+    if (m.shape === 'rect') return [[a, { x: b.x, y: a.y }, b, { x: a.x, y: b.y }, a]];
+    if (m.shape === 'ellipse') return [ellipsePts(a, b)];
+    return [[a, b]];
+  }
+  return pathsOf(m);
+}
+function noteHit(m, p, tol) {
+  if (m.type === 'text') { const b = textBox(m); return p.x >= b.x - tol && p.x <= b.x + b.w + tol && p.y >= b.y - tol && p.y <= b.y + b.h + tol; }
+  for (const pts of noteOutline(m)) for (let i = 1; i < pts.length; i++) if (segDist(p, pts[i - 1], pts[i]) < tol + (m.width || 0) / 2) return true;
+  return false;
+}
+function drawDraw(m, hi, px) {
+  const [a, b] = m.points; if (!a || !b && m.shape !== 'pen') return;
+  ctx.save(); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  const w = m.width, shape = () => {
+    ctx.beginPath();
+    if (m.shape === 'pen') m.points.forEach((q, i) => i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y));
+    else if (m.shape === 'rect') ctx.rect(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.abs(b.x - a.x), Math.abs(b.y - a.y));
+    else if (m.shape === 'ellipse') ctx.ellipse((a.x + b.x) / 2, (a.y + b.y) / 2, Math.abs(b.x - a.x) / 2, Math.abs(b.y - a.y) / 2, 0, 0, 2 * Math.PI);
+    else {
+      ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+      if (m.shape === 'arrow') {   // pointe de flèche
+        const ang = Math.atan2(b.y - a.y, b.x - a.x), L = Math.max(w * 4.5, 9 * px), s = Math.PI / 7;
+        ctx.moveTo(b.x - L * Math.cos(ang - s), b.y - L * Math.sin(ang - s)); ctx.lineTo(b.x, b.y); ctx.lineTo(b.x - L * Math.cos(ang + s), b.y - L * Math.sin(ang + s));
+      }
+    }
+  };
+  if (hi) { shape(); ctx.strokeStyle = 'rgba(250,204,21,.7)'; ctx.lineWidth = w + 9 * px; ctx.stroke(); }
+  shape(); ctx.strokeStyle = m.color; ctx.lineWidth = w; ctx.stroke();
+  ctx.restore();
+}
+function textBox(m) {
+  const lines = String(m.text || '').split('\n'), s = m.size, pad = s * .35;
+  ctx.save(); ctx.font = `600 ${s}px "Segoe UI",system-ui,-apple-system,sans-serif`;
+  const w = Math.max(...lines.map(l => ctx.measureText(l).width), s);
+  ctx.restore();
+  return { x: m.x, y: m.y, w: w + 2 * pad, h: lines.length * s * 1.25 + 2 * pad - s * .25, pad };
+}
+function drawText(m, hi, px) {
+  if (st.editing && st.editing.m === m) return;   // en cours de modification : la zone de saisie le remplace
+  const b = textBox(m), s = m.size, lines = String(m.text || '').split('\n');
+  ctx.save();
+  if (hi) { ctx.fillStyle = 'rgba(250,204,21,.35)'; ctx.fillRect(b.x - 5 * px, b.y - 5 * px, b.w + 10 * px, b.h + 10 * px); }
+  if (m.bg) { ctx.fillStyle = 'rgba(255,255,255,.92)'; ctx.fillRect(b.x, b.y, b.w, b.h); ctx.strokeStyle = m.color; ctx.lineWidth = Math.max(s * .06, px); ctx.strokeRect(b.x, b.y, b.w, b.h); }
+  ctx.font = `600 ${s}px "Segoe UI",system-ui,-apple-system,sans-serif`; ctx.textBaseline = 'top'; ctx.textAlign = 'left'; ctx.fillStyle = m.color;
+  lines.forEach((l, i) => ctx.fillText(l, b.x + b.pad, b.y + b.pad + i * s * 1.25));
+  ctx.restore();
+}
+// tracé d'une forme en cours (outil Dessin)
+function shapePreview(px) {
+  const s = st.shape; if (!s || s.pts.length < 2) return;
+  drawDraw({ shape: s.shape, points: s.pts, color: st.drawOpt.color, width: DRAW_W[st.drawOpt.w] / st.view.z }, false, px);
+}
+function constrainShape(a, q, shape, shift) {
+  if (!shift) return q;
+  const dx = q.x - a.x, dy = q.y - a.y;
+  if (shape === 'rect' || shape === 'ellipse') { const d = Math.max(Math.abs(dx), Math.abs(dy)); return { x: a.x + Math.sign(dx || 1) * d, y: a.y + Math.sign(dy || 1) * d }; }
+  const ang = Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) * Math.PI / 4, r = Math.hypot(dx, dy);
+  return { x: a.x + r * Math.cos(ang), y: a.y + r * Math.sin(ang) };
+}
+function finishShape() {
+  const s = st.shape; st.shape = null; if (!s) return draw();
+  let pts = s.pts;
+  if (s.shape === 'pen') { if (pts.length < 2) return draw(); pts = simplify(pts, .6 / st.view.z).map(q => ({ x: q.x, y: q.y })); }
+  else { if (pts.length < 2 || dist(pts[0], pts[1]) * st.view.z < 4) return draw(); pts = [pts[0], pts[1]]; }
+  const n = st.measures.filter(m => m.type === 'draw').length + 1;
+  const m = { id: st.nextId++, type: 'draw', page: st.page, shape: s.shape, points: pts, color: st.drawOpt.color, width: DRAW_W[st.drawOpt.w] / st.view.z, name: `${trText(SHAPE_NAMES[s.shape])} ${n}` };
+  st.measures.push(m); st.sel = m.id;
+  persist(); refresh();
+}
+// zone de saisie du texte, posée sur le plan
+function placeEditor() {
+  const e = st.editing, ed = $('textEd'); if (!e) return;
+  const z = st.view.z;
+  ed.style.left = (e.pos.x * z + st.view.x) + 'px'; ed.style.top = (e.pos.y * z + st.view.y) + 'px';
+  ed.style.fontSize = (e.size * z) + 'px'; ed.style.color = e.color; ed.style.borderColor = e.color;
+  ed.style.padding = (e.size * z * .35) + 'px';
+  ed.style.height = 'auto'; ed.style.height = ed.scrollHeight + 'px';
+  ed.style.width = 'auto'; ed.style.width = Math.max(ed.scrollWidth + 4, e.size * z * 6) + 'px';
+}
+function openTextEditor(m, p) {
+  if (st.editing) commitText();
+  const sz = TEXT_SIZES[st.textOpt.s] / st.view.z;
+  st.editing = { m, pos: m ? { x: m.x, y: m.y } : p, size: m ? m.size : sz, color: m ? m.color : st.textOpt.color, bg: m ? m.bg : st.textOpt.bg };
+  const ed = $('textEd'); ed.value = m ? m.text : ''; ed.hidden = false;
+  ed.classList.toggle('nobg', !st.editing.bg);
+  placeEditor(); draw();
+  setTimeout(() => { ed.focus(); ed.select(); }, 0);
+}
+function commitText(cancel) {
+  const e = st.editing; if (!e) return;
+  st.editing = null;
+  const ed = $('textEd'), text = ed.value.replace(/\s+$/, ''); ed.hidden = true; ed.blur();
+  if (cancel) return draw();
+  if (e.m) {
+    if (!text.trim()) { st.measures = st.measures.filter(x => x !== e.m); if (st.sel === e.m.id) st.sel = null; }
+    else e.m.text = text;
+  } else if (text.trim()) {
+    const n = st.measures.filter(m => m.type === 'text').length + 1;
+    const m = { id: st.nextId++, type: 'text', page: st.page, x: e.pos.x, y: e.pos.y, text, color: e.color, size: e.size, bg: e.bg, name: `${trText('Texte')} ${n}` };
+    st.measures.push(m); st.sel = m.id;
+  }
+  persist(); refresh();
+}
+// barre d'options sous le ruban, visible avec les outils Dessin et Texte
+$('textEd').addEventListener('keydown', e => {
+  e.stopPropagation();
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); commitText(); }
+  else if (e.key === 'Escape') { e.preventDefault(); commitText(true); }
+});
+$('textEd').addEventListener('input', placeEditor);
+$('textEd').addEventListener('blur', () => setTimeout(() => { if (st.editing && document.activeElement !== $('textEd')) commitText(); }, 120));
+function renderNoteBar() {
+  const bar = $('noteBar'), t = st.tool;
+  if (t !== 'draw' && t !== 'text') { bar.hidden = true; return; }
+  const sw = (c, on) => `<button class="nb-c${on ? ' on' : ''}" data-c="${c}" style="--c:${c}" title="${c}"></button>`;
+  const SH = { pen: '<path d="M3 13c2-6 4 0 6-4s2-5 4-6"/>', line: '<path d="M3 13 13 3"/>', arrow: '<path d="M3 13 13 3M7.5 3H13v5.5"/>', rect: '<rect x="3" y="4" width="10" height="8" rx="1"/>', ellipse: '<ellipse cx="8" cy="8" rx="5.5" ry="4"/>' };
+  if (t === 'draw') {
+    const o = st.drawOpt;
+    bar.innerHTML = `<div class="nb-g">${Object.keys(SH).map(k => `<button class="nb-s${o.shape === k ? ' on' : ''}" data-s="${k}" title="${SHAPE_NAMES[k]}"><svg viewBox="0 0 16 16">${SH[k]}</svg></button>`).join('')}</div>
+      <div class="nb-g">${NOTE_COLORS.map(c => sw(c, o.color === c)).join('')}</div>
+      <div class="nb-g">${DRAW_W.map((w, i) => `<button class="nb-w${o.w === i ? ' on' : ''}" data-w="${i}" title="${['Fin', 'Moyen', 'Épais'][i]}"><i style="height:${w + 1}px"></i></button>`).join('')}</div>`;
+  } else {
+    const o = st.textOpt;
+    bar.innerHTML = `<div class="nb-g"><span class="nb-l">Texte</span></div>
+      <div class="nb-g">${NOTE_COLORS.map(c => sw(c, o.color === c)).join('')}</div>
+      <div class="nb-g">${['Petit', 'Moyen', 'Grand'].map((l, i) => `<button class="nb-z${o.s === i ? ' on' : ''}" data-z="${i}" title="${l}" style="font-size:${[11, 14, 18][i]}px">A</button>`).join('')}</div>
+      <div class="nb-g"><button class="nb-bg${o.bg ? ' on' : ''}" title="Fond blanc et cadre">Cadre</button></div>`;
+  }
+  bar.hidden = false;
+  bar.querySelectorAll('button').forEach(b => b.onmousedown = e => e.preventDefault());   // garde la saisie de texte ouverte
+  const opt = t === 'draw' ? st.drawOpt : st.textOpt;
+  bar.querySelectorAll('.nb-s').forEach(b => b.onclick = () => { opt.shape = b.dataset.s; saveOpts(); renderNoteBar(); });
+  bar.querySelectorAll('.nb-c').forEach(b => b.onclick = () => { opt.color = b.dataset.c; saveOpts(); renderNoteBar(); if (st.editing) { st.editing.color = opt.color; placeEditor(); } });
+  bar.querySelectorAll('.nb-w').forEach(b => b.onclick = () => { opt.w = +b.dataset.w; saveOpts(); renderNoteBar(); });
+  bar.querySelectorAll('.nb-z').forEach(b => b.onclick = () => { opt.s = +b.dataset.z; saveOpts(); renderNoteBar(); if (st.editing && !st.editing.m) { st.editing.size = TEXT_SIZES[opt.s] / st.view.z; placeEditor(); } });
+  bar.querySelectorAll('.nb-bg').forEach(b => b.onclick = () => { opt.bg = !opt.bg; saveOpts(); renderNoteBar(); });
+  translateNode(bar);
+}
 function drawMeasure(m, hi, px) {
   if (m.type === 'area' && !m.preview) return drawArea(m, hi, px);
   if (m.type === 'line' && !m.preview) return drawLine(m, hi, px);
   if (m.type === 'sketch') return drawSketch(m, hi, px);
+  if (m.type === 'draw') return drawDraw(m, hi, px);
+  if (m.type === 'text') return drawText(m, hi, px);
   const p = m.points; if (!p.length) return;
   ctx.lineJoin = 'round'; ctx.lineCap = 'round';
   if (m.type === 'count') {
@@ -2705,6 +2952,7 @@ function hitTest(p) {
   const tol = 8 / st.view.z;
   const list = st.measures.filter(m => m.page === st.page).reverse();
   for (const m of list) {   // priorité aux points et aux traits
+    if (m.type === 'draw' || m.type === 'text') { if (noteHit(m, p, tol)) return m; continue; }
     if (m.type === 'count' && m.points.some(q => dist(q, p) < tol*1.3)) return m;
     if (m.type !== 'count') {
       const outlines = m.type === 'area' ? zonesOf(m).map(z => closed(z.points)) : pathsOf(m);
@@ -2726,6 +2974,8 @@ function eraseTargets(p) {
     if (m.type === 'count') {
       const idx = m.points.map((q, i) => dist(q, p) <= tol ? i : -1).filter(i => i >= 0);
       if (idx.length) out.push({ m, idx });   // seuls les points touchés sont effacés
+    } else if (m.type === 'draw' || m.type === 'text') {
+      if (noteHit(m, p, tol)) out.push({ m, whole: true });   // dessin, texte : effacés en entier
     } else if (m.type === 'area') {
       // surface : la gomme efface le vide ou la zone touchés, pas toute la surface
       const near = q => { const r = closed(q); for (let i = 1; i < r.length; i++) if (segDist(p, r[i-1], r[i]) <= tol) return true; return false; };
@@ -2763,7 +3013,8 @@ function eraseAt(p) {
   if (st.erasing && hits.some(h => !h.inner || h.voidIdx))
     for (const m of st.measures) if (m.type === 'area' && m.page === st.page)
       for (const z of zonesOf(m)) if (inPoly(p, z.points)) st.erasing.protect.add(z);
-  for (const { m, idx, voidIdx, zone, path } of hits) {
+  for (const { m, idx, voidIdx, zone, path, whole } of hits) {
+    if (whole) { st.measures = st.measures.filter(x => x !== m); if (st.sel === m.id) st.sel = null; continue; }
     if (m.type === 'area' && m.zones) {
       const z = m.zones[zone]; if (!z) continue;
       if (voidIdx) z.voids = z.voids.filter((_, i) => !voidIdx.includes(i));
@@ -2799,7 +3050,7 @@ function drawHover(m, px) {
   if (m.type === 'count') {
     for (const q of m.points) { ctx.beginPath(); ctx.arc(q.x, q.y, 12*px, 0, Math.PI*2); ctx.strokeStyle = 'rgba(14,165,233,.35)'; ctx.lineWidth = 6*px; ctx.stroke(); ctx.strokeStyle = '#0284c7'; ctx.lineWidth = 1.5*px; ctx.stroke(); }
   } else {
-    const shapes = m.type === 'area' ? zonesOf(m).map(z => z.points) : pathsOf(m);
+    const shapes = m.type === 'area' ? zonesOf(m).map(z => z.points) : (m.type === 'draw' || m.type === 'text') ? noteOutline(m) : pathsOf(m);
     for (const p of shapes) {
       if (!p.length) continue;
       const path = () => { ctx.beginPath(); p.forEach((q,i) => i ? ctx.lineTo(q.x,q.y) : ctx.moveTo(q.x,q.y)); if (m.type === 'area') ctx.closePath(); };
@@ -2810,9 +3061,10 @@ function drawHover(m, px) {
   ctx.restore();
 }
 
-function drawDoomed({ m, idx, voidIdx, zone, path }, px) {   // aperçu en pointillés rouges de ce qui sera effacé
+function drawDoomed({ m, idx, voidIdx, zone, path, whole }, px) {   // aperçu en pointillés rouges de ce qui sera effacé
   ctx.save(); ctx.strokeStyle = '#e11d48'; ctx.lineWidth = 5*px; ctx.setLineDash([8*px, 5*px]);
   const outline = (pts, close) => { ctx.beginPath(); pts.forEach((q,j) => j ? ctx.lineTo(q.x,q.y) : ctx.moveTo(q.x,q.y)); if (close) ctx.closePath(); ctx.stroke(); };
+  if (whole) { for (const o of noteOutline(m)) outline(o, false); ctx.restore(); return; }
   if (m.type === 'area') {
     const z = zonesOf(m)[zone];
     if (z && voidIdx) for (const i of voidIdx) outline(z.voids[i].points, true);
@@ -3077,7 +3329,7 @@ function renderTree() {
   if (!st.measures.length) { list.innerHTML = '<div class="tree-empty">Aucun métré. Choisissez un outil dans le groupe « Mesurer » du ruban.</div>'; return; }
   let h = '<div class="tree">';
   for (const type of ['area','line','count','sketch']) {
-    const items = st.measures.filter(m => m.type === type);
+    const items = st.measures.filter(m => m.type === type || (type === 'sketch' && isNote(m)));
     if (!items.length) continue;
     const sum = items.reduce((s, m) => s + (rowValues(m).total ?? 0), 0);
     const u = type === 'count' ? 'u' : type === 'line' ? 'm' : 'm²';
@@ -3113,6 +3365,35 @@ function renderProps() {
       </table>${k ? '' : '<button class="pbtn" id="pScale">Régler l\'échelle…</button>'}`
       : '<div class="props-empty">Aucun plan ouvert.</div>';
     const b = $('pScale'); if (b) b.onclick = scaleDialog;
+    return;
+  }
+  if (m.type === 'draw' || m.type === 'text') {   // dessin ou texte : annotation, pas de quantité
+    const isT = m.type === 'text';
+    box.innerHTML = `<table class="pg">
+      <tr class="grp-row"><th colspan="2">${isT ? 'Texte' : 'Dessin'}</th></tr>
+      <tr><th>Désignation</th><td><input id="pName" value="${esc(m.name)}"></td></tr>
+      ${isT ? `<tr><th>Texte</th><td><textarea id="pText" rows="3" style="width:100%;box-sizing:border-box;font:inherit;resize:vertical">${esc(m.text)}</textarea></td></tr>` : `<tr><th>Forme</th><td>${trText(SHAPE_NAMES[m.shape])}</td></tr>`}
+      <tr><th>Couleur</th><td><input id="pColor" type="color" value="${m.color}"></td></tr>
+      ${isT ? `<tr><th>Taille</th><td><button class="pbtn" id="pSmaller" style="margin:0 4px 0 0">A−</button><button class="pbtn" id="pBigger" style="margin:0">A+</button></td></tr>
+      <tr><th>Cadre</th><td><input id="pBg" type="checkbox"${m.bg ? ' checked' : ''}> <label for="pBg">Fond blanc et cadre</label></td></tr>`
+      : `<tr><th>Épaisseur</th><td><button class="pbtn" id="pThin" style="margin:0 4px 0 0">−</button><button class="pbtn" id="pThick" style="margin:0">+</button></td></tr>`}
+      ${st.isPdf ? `<tr><th>Page</th><td>${m.page}</td></tr>` : ''}
+      </table>
+      <p style="margin:8px 10px 0;color:var(--muted);line-height:1.4">Annotation : non comptée dans le récapitulatif ni dans l'export Excel. Avec le Pointeur, glissez-la pour la déplacer${isT ? ', double-cliquez pour modifier le texte' : ''}.</p>
+      <button class="pbtn" id="pDel">Supprimer</button>`;
+    $('pName').onchange = e => { m.name = e.target.value || trText(isT ? 'Texte' : 'Dessin'); persist(); refresh(); };
+    $('pColor').oninput = e => { m.color = e.target.value; persist(); renderTree(); draw(); };
+    if (isT) {
+      $('pText').oninput = e => { m.text = e.target.value; persist(); renderTree(); draw(); };
+      $('pSmaller').onclick = () => { m.size *= .85; persist(); draw(); };
+      $('pBigger').onclick = () => { m.size /= .85; persist(); draw(); };
+      $('pBg').onchange = e => { m.bg = e.target.checked; persist(); draw(); };
+    } else {
+      $('pThin').onclick = () => { m.width *= .7; persist(); draw(); };
+      $('pThick').onclick = () => { m.width /= .7; persist(); draw(); };
+    }
+    $('pDel').onclick = () => del(m);
+    translateNode(box);
     return;
   }
   if (m.type === 'sketch') {   // annotation à main levée : pas de quantité
@@ -3269,10 +3550,12 @@ function startAddZone(m, tool) {
 
 function setTool(t) {
   if (st.cur && st.cur.type !== t) finish();
-  st.tool = t; st.cur = null; st.hover = null;
+  if (st.editing) commitText();
+  st.tool = t; st.cur = null; st.hover = null; st.shape = null;
+  renderNoteBar();
   document.querySelectorAll('.tool').forEach(b => b.classList.toggle('active', b.dataset.tool === t));
   updateHelp();
-  cv.style.cursor = t === 'pan' ? 'default' : t === 'erase' ? 'none' : 'crosshair';
+  cv.style.cursor = t === 'pan' ? 'default' : t === 'erase' ? 'none' : t === 'text' ? 'text' : 'crosshair';
   draw();
 }
 
@@ -3430,8 +3713,17 @@ function finish() {
 /* ---------- événements souris / clavier ---------- */
 let drag = null;
 cv.addEventListener('mousedown', e => {
+  if (st.editing) commitText();
   if (st.tool === 'pan' || e.button === 1 || st.space) {
     drag = { x: e.clientX, y: e.clientY, vx: st.view.x, vy: st.view.y, moved:false, mid: e.button === 1 || st.space };
+    if (st.tool === 'pan' && e.button === 0 && !st.space && st.img) {   // un dessin ou un texte sous la souris : on le déplace
+      const r = cv.getBoundingClientRect(), w = toWorld(e.clientX - r.left, e.clientY - r.top), h = hitTest(w);
+      if (h && (h.type === 'draw' || h.type === 'text')) drag.move = { m: h, w, orig: JSON.stringify(h.type === 'text' ? { x: h.x, y: h.y } : h.points) };
+    }
+    e.preventDefault();
+  } else if (st.tool === 'draw' && e.button === 0 && st.img) {   // outil Dessin : début d'une forme
+    const r = cv.getBoundingClientRect();
+    st.shape = { shape: st.drawOpt.shape, pts: [toWorld(e.clientX - r.left, e.clientY - r.top)] };
     e.preventDefault();
   } else if (st.tool === 'free' && e.button === 0 && st.img) {   // main levée : début d'un trait
     const r = cv.getBoundingClientRect();
@@ -3449,8 +3741,19 @@ window.addEventListener('mousemove', e => {
   const r = cv.getBoundingClientRect();
   if (drag) {
     if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 3) { drag.moved = true; cv.style.cursor = 'grabbing'; }
+    if (drag.moved && drag.move) {   // déplacement d'un dessin ou d'un texte
+      const w = toWorld(e.clientX - r.left, e.clientY - r.top), dx = w.x - drag.move.w.x, dy = w.y - drag.move.w.y, o = JSON.parse(drag.move.orig), m = drag.move.m;
+      if (m.type === 'text') { m.x = o.x + dx; m.y = o.y + dy; } else m.points = o.map(q => ({ x: q.x + dx, y: q.y + dy }));
+      draw(); return;
+    }
     if (drag.moved) { st.view.x = drag.vx + e.clientX - drag.x; st.view.y = drag.vy + e.clientY - drag.y; draw(); }
     return;
+  }
+  if (st.shape) {   // outil Dessin : forme en cours
+    const q = toWorld(e.clientX - r.left, e.clientY - r.top), s = st.shape;
+    if (s.shape === 'pen') { if (dist(q, s.pts[s.pts.length - 1]) * st.view.z >= 2) s.pts.push(q); }
+    else s.pts[1] = constrainShape(s.pts[0], q, s.shape, e.shiftKey);
+    draw(); return;
   }
   if (st.erasing) { st.mouse = toWorld(e.clientX - r.left, e.clientY - r.top); eraseAt(st.mouse); draw(); return; }
   if (st.drawing) {   // main levée : on ajoute un point dès que la souris a bougé de 2 px
@@ -3473,6 +3776,7 @@ window.addEventListener('mousemove', e => {
   if (st.cur || st.tool === 'erase' || (st.snap && SNAP_TOOLS.includes(st.tool))) draw();
 });
 window.addEventListener('mouseup', () => {
+  if (st.shape) { finishShape(); return; }
   if (st.drawing) { const pts = st.drawing; st.drawing = null; finishStroke(pts); return; }
   if (st.erasing) {
     const s = st.erasing; st.erasing = null;
@@ -3481,16 +3785,26 @@ window.addEventListener('mouseup', () => {
   }
   if (!drag) return;
   if (drag.moved || drag.mid) st._skipClick = true;
+  if (drag.move && drag.moved) { st.sel = drag.move.m.id; persist(); refresh(); }
   drag = null; cv.style.cursor = st.tool === 'pan' ? 'default' : st.tool === 'erase' ? 'none' : 'crosshair';
 });
 cv.addEventListener('click', e => {
   if (st._skipClick) { st._skipClick = false; return; }
-  if (st.tool === 'erase' || st.tool === 'free') return;
+  if (st.tool === 'erase' || st.tool === 'free' || st.tool === 'draw') return;
+  if (st.tool === 'text' && st.img) {   // outil Texte : nouvelle zone de texte, ou modification d'un texte existant
+    const r = cv.getBoundingClientRect(), p = toWorld(e.clientX - r.left, e.clientY - r.top), h = hitTest(p);
+    openTextEditor(h && h.type === 'text' ? h : null, p); return;
+  }
   const r = cv.getBoundingClientRect(), p = toWorld(e.clientX - r.left, e.clientY - r.top);
   if (st.tool === 'pan') { const m = hitTest(p); st.sel = m ? m.id : null; if (m && m.type === 'area') st.addZone = m.id; if (m && m.type === 'line') st.addLine = m.id; if (m && m.type === 'sketch') st.addSketch = m.id; updateHelp(); refresh(); return; }
   addPoint(p);
 });
-cv.addEventListener('dblclick', () => {
+cv.addEventListener('dblclick', e => {
+  if (st.tool === 'pan' && st.img) {   // double-clic sur un texte : on le modifie
+    const r = cv.getBoundingClientRect(), h = hitTest(toWorld(e.clientX - r.left, e.clientY - r.top));
+    if (h && h.type === 'text') openTextEditor(h);
+    return;
+  }
   if (!st.cur || st.tool === 'pan') return;
   const p = st.cur.points;
   if (p.length >= 2 && dist(p[p.length-1], p[p.length-2]) * st.view.z < 6) p.pop();
@@ -3541,7 +3855,7 @@ cv.addEventListener('touchstart', e => {
   }
   if (tc && tc.pinch) return;
   const p = tPt(e.touches[0]), t = st.tool;
-  const mouse = t === 'pan' || ((t === 'free' || t === 'erase') && !!st.img);
+  const mouse = t === 'pan' || ((t === 'free' || t === 'erase' || t === 'draw') && !!st.img);
   tc = { start: p, last: p, moved: false, mouse, vx: st.view.x, vy: st.view.y };
   if (mouse) fireMouse('mousedown', p);
 }, { passive: false });
@@ -3605,7 +3919,7 @@ window.addEventListener('keydown', e => {
   }
   else if (e.key === 'Delete' && st.sel) deleteSelected();   // touche Suppr (Windows)
   else if (!e.metaKey && !e.ctrlKey) {
-    const map = { v:'pan', e:'calib', l:'line', s:'area', r:'rect', c:'count', g:'erase', d:'voidrect', p:'free', o:'circle', a:'arc' };
+    const map = { v:'pan', e:'calib', l:'line', s:'area', r:'rect', c:'count', g:'erase', d:'voidrect', p:'free', o:'circle', a:'arc', b:'draw', t:'text' };
     const k = e.key.toLowerCase();
     if (k === 'n') newSurface();
     if (map[k]) setTool(map[k]);
