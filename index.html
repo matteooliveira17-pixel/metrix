@@ -1175,7 +1175,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.17';
+const METRIX_VERSION = '3.18';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -1948,6 +1948,12 @@ addTr([
   ["Luminaires","Light fixtures","Luminárias","Luminarias"],
   ["Appareils sanitaires","Sanitary fixtures","Aparelhos sanitários","Aparatos sanitarios"],
   ["Éléments géographiques (terrain)","Geographic elements (site)","Elementos geográficos (terreno)","Elementos geográficos (terreno)"],
+  // longueurs et largeurs (Revit / IFC)
+  ["Longueur et largeur des éléments","Length and width of the elements","Comprimento e largura dos elementos","Longitud y anchura de los elementos"],
+  ["Mesurées sur la forme de chaque élément (vue de dessus) : la longueur est le plus grand côté. Aussi dans le classeur Excel, feuille « Longueurs et largeurs ».","Measured on the shape of each element (top view): the length is the longest side. Also in the Excel workbook, « Lengths and widths » sheet.","Medidas na forma de cada elemento (vista de cima): o comprimento é o lado maior. Também no livro Excel, folha « Comprimentos e larguras ».","Medidas sobre la forma de cada elemento (vista superior): la longitud es el lado mayor. También en el libro de Excel, hoja « Longitudes y anchuras »."],
+  ["Longueur × largeur","Length × width","Comprimento × largura","Longitud × anchura"],
+  ["Longueurs et largeurs des éléments","Lengths and widths of the elements","Comprimentos e larguras dos elementos","Longitudes y anchuras de los elementos"],
+  ["Longueurs et largeurs","Lengths and widths","Comprimentos e larguras","Longitudes y anchuras"],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -2652,6 +2658,11 @@ addTr2([
   ["Luminaires","Leuchten","Armaturen","灯具","وحدات الإضاءة","Apparecchi di illuminazione","Светильники"],
   ["Appareils sanitaires","Sanitärobjekte","Sanitaire toestellen","卫生洁具","الأجهزة الصحية","Apparecchi sanitari","Сантехнические приборы"],
   ["Éléments géographiques (terrain)","Geografische Elemente (Gelände)","Geografische elementen (terrein)","地理元素（场地）","عناصر جغرافية (الأرض)","Elementi geografici (terreno)","Географические элементы (участок)"],
+  ["Longueur et largeur des éléments","Länge und Breite der Elemente","Lengte en breedte van de elementen","构件的长度和宽度","طول وعرض العناصر","Lunghezza e larghezza degli elementi","Длина и ширина элементов"],
+  ["Mesurées sur la forme de chaque élément (vue de dessus) : la longueur est le plus grand côté. Aussi dans le classeur Excel, feuille « Longueurs et largeurs ».","Gemessen an der Form jedes Elements (Draufsicht): Die Länge ist die längste Seite. Auch in der Excel-Arbeitsmappe, Blatt « Längen und Breiten ».","Gemeten op de vorm van elk element (bovenaanzicht): de lengte is de langste zijde. Ook in de Excel-werkmap, blad « Lengtes en breedtes ».","按每个构件的形状测量（俯视）：长度为较长的边。Excel 工作簿的「长度和宽度」工作表中也有。","مقاسة على شكل كل عنصر (منظر علوي): الطول هو الضلع الأطول. موجودة أيضًا في مصنف Excel، ورقة « الأطوال والعروض ».","Misurate sulla forma di ogni elemento (vista dall'alto): la lunghezza è il lato maggiore. Anche nella cartella Excel, foglio « Lunghezze e larghezze ».","Измерены по форме каждого элемента (вид сверху): длина — большая сторона. Также в книге Excel, лист «Длины и ширины»."],
+  ["Longueur × largeur","Länge × Breite","Lengte × breedte","长 × 宽","الطول × العرض","Lunghezza × larghezza","Длина × ширина"],
+  ["Longueurs et largeurs des éléments","Längen und Breiten der Elemente","Lengtes en breedtes van de elementen","构件的长度和宽度","أطوال وعروض العناصر","Lunghezze e larghezze degli elementi","Длины и ширины элементов"],
+  ["Longueurs et largeurs","Längen und Breiten","Lengtes en breedtes","长度和宽度","الأطوال والعروض","Lunghezze e larghezze","Длины и ширины"],
 ]);
 // --- fin des langues ajoutées ---
 
@@ -4640,7 +4651,7 @@ function ifcPickInfo() {
 }
 function ifcPickSet(on) {   // affiche / cache les cases à cocher
   const M = ifcModel;
-  ifcXlsSel = on && M ? new Set(M.groups.map(g => g.key)) : null;
+  ifcXlsSel = on && M ? new Set() : null;   // tout décoché au départ : on coche ce qu'on veut exporter
   $('ifcPickBar').hidden = !ifcXlsSel; $('ifcXlsBtn').classList.toggle('picking', !!ifcXlsSel); $('ifcXlsBtn').disabled = false;
   $('ifcXlsLbl').textContent = trText('Exporter les métrés (Excel)');
   renderIfcTree(); ifcPickInfo();
@@ -4709,7 +4720,7 @@ function renderIfcMain() {
     <div class="ifc-scroll"><table class="ifct"><tr><th>${esc(trText('Nom'))}</th><th>${esc(trText('ID Revit'))}</th><th>${esc(trText('Niveau'))}</th>${cols.map(c => `<th class="n">${esc(ifcLabel(c.nm))} (${IFC_KU[c.k]})</th>`).join('')}</tr>
       ${items.map(e => `<tr data-id="${e.id}"${e.id === ifcHot ? ' class="hot"' : ''} title="${esc(trText(e.shapes ? 'Voir sur le plan' : 'Pas de dessin pour cet élément'))}"><td>${esc(e.name)}</td><td>${esc(e.tag)}</td><td>${esc(e.lvl)}</td>${cols.map(c => `<td class="n">${e.q[c.nm] ? ifcFmt(e.q[c.nm].v, c.k) : ''}</td>`).join('')}</tr>`).join('')}
       <tr class="tot"><td colspan="3">${esc(trText('Total'))} (${items.length})</td>${cols.map((c, i) => `<td class="n">${ifcAdd(c) ? ifcFmt(tot[i], c.k) : ''}</td>`).join('')}</tr>
-    </table></div></div>`;
+    </table></div>${ifcDimTable(items)}</div>`;
   box.querySelectorAll('.ib[data-c]').forEach(b => b.onclick = () => ifcCopyBtn(b, b.dataset.c));
   box.querySelectorAll('tr[data-id]').forEach(tr => tr.onclick = () => {
     const el = items.find(x => String(x.id) === tr.dataset.id); ifcHot = el ? el.id : null;
@@ -4814,6 +4825,7 @@ async function ifcOpenFile(f, info = {}) {
     ifcModel = ifcBuild(M, f.name, f.size); ifcSel = null;
     if (info.matCol) { ifcModel.matNameCol = info.matCol.names || null; ifcModel.catCol = info.matCol.cats || null; } ifcHot = null; ifcHover = null; ifcView = null; ifcOpenCats.clear();
     try { ifcGeom(ifcModel, M); } catch (err) { console.error(err); }
+    try { ifcDims(ifcModel); } catch (err) { console.error(err); }
     $('ifcLevel').value = ''; $('ifcSearch').value = '';
     if (info.rvt) ifcModel.fromRvt = { name: info.rvt, warn: info.warn };
     ifcModel.recKey = 'ifc:' + (info.rvt || f.name) + ':' + f.size;
@@ -5326,6 +5338,27 @@ function ifcFrame(e) {
   for (const p of pts) { const dx = p[0] - cx, dy = p[1] - cy, pu = dx * u[0] + dy * u[1], pv = dx * v[0] + dy * v[1]; if (pu < u0) u0 = pu; if (pu > u1) u1 = pu; if (pv < v0) v0 = pv; if (pv > v1) v1 = pv; }
   if (v1 - v0 > u1 - u0) { const fu = u; u = [v[0], v[1]]; v = [-fu[0], -fu[1]]; [u0, u1, v0, v1] = [v0, v1, -u1, -u0]; }
   return (e._fr = { c: [cx, cy], u, v, u0, u1, v0, v1 });
+}
+// longueur × largeur × hauteur de chaque élément, mesurées sur sa forme : rectangle le plus serré vu de dessus
+// (calé sur la direction de l'élément), hauteur d'après la vue 3D. Longueur = le plus grand côté.
+function ifcDims(M) {
+  for (const e of M.elements) {
+    if (!e.shapes || !e.shapes.length) continue;
+    const fr = ifcFrame(e), L = fr.u1 - fr.u0, l = fr.v1 - fr.v0;
+    let z0 = Infinity, z1 = -Infinity;
+    if (e.tri) for (let i = 2; i < e.tri.length; i += 3) { const z = e.tri[i]; if (z < z0) z0 = z; if (z > z1) z1 = z; }
+    if (isFinite(L) && isFinite(l)) e.dim = { L: Math.max(L, l), l: Math.min(L, l), H: z1 > z0 ? z1 - z0 : null };
+  }
+}
+function ifcDimTable(items) {   // tableau « longueur × largeur » des éléments d'une désignation
+  const its = items.filter(e => e.dim); if (!its.length) return '';
+  const f2 = v => v == null ? '' : fmt(v, 2), sL = its.reduce((s, e) => s + e.dim.L, 0), sA = its.reduce((s, e) => s + e.dim.L * e.dim.l, 0);
+  return `<h4>${esc(trText('Longueur et largeur des éléments'))}</h4>
+    <p class="hint" style="margin-top:0">${esc(trText('Mesurées sur la forme de chaque élément (vue de dessus) : la longueur est le plus grand côté. Aussi dans le classeur Excel, feuille « Longueurs et largeurs ».'))}</p>
+    <div class="ifc-scroll"><table class="ifct"><tr><th>${esc(trText('Nom'))}</th><th>${esc(trText('Niveau'))}</th><th class="n">${esc(trText('Longueur'))} (m)</th><th class="n">${esc(trText('Largeur'))} (m)</th><th class="n">${esc(trText('Hauteur'))} (m)</th><th class="n">${esc(trText('Longueur × largeur'))} (m²)</th></tr>
+      ${its.map(e => `<tr data-id="${e.id}"${e.id === ifcHot ? ' class="hot"' : ''}><td>${esc(e.name)}</td><td>${esc(e.lvl)}</td><td class="n">${f2(e.dim.L)}</td><td class="n">${f2(e.dim.l)}</td><td class="n">${f2(e.dim.H)}</td><td class="n">${f2(e.dim.L * e.dim.l)}</td></tr>`).join('')}
+      <tr class="tot"><td colspan="2">${esc(trText('Total'))} (${its.length})</td><td class="n">${f2(sL)}</td><td></td><td></td><td class="n">${f2(sA)}</td></tr>
+    </table></div>`;
 }
 function ifcPlanEls() {
   const M = ifcModel; if (!M) return [];
@@ -6201,10 +6234,19 @@ function ifcXlsxSheets(M, keys) {   // keys : désignations à exporter (toutes 
   const el = title(T('Éléments de la maquette'));
   const H3 = el.length; el.push([T('Catégorie'), T('Désignation'), T('Nom'), T('ID Revit'), T('Niveau'), ...qcols.map(c => ifcLabel(c.nm) + ' (' + IFC_KU[c.k] + ')')].map(v => ({ v, s: 4 })));
   for (const g of groups) for (const e of g.items) el.push([T(e.cat), e.des, e.name, e.tag, e.lvl, ...qcols.map(c => e.q[c.nm] ? { v: r2(e.q[c.nm].v), s: c.k === 'N' ? 3 : 2 } : null)]);
+  // 4. longueur × largeur de chaque élément (mesurées sur sa forme), sous-total par désignation
+  const dm = title(T('Longueurs et largeurs des éléments'));
+  const H4 = dm.length; dm.push([T('Catégorie'), T('Désignation'), T('Nom'), T('ID Revit'), T('Niveau'), T('Longueur') + ' (m)', T('Largeur') + ' (m)', T('Hauteur') + ' (m)', T('Longueur × largeur') + ' (m²)'].map(v => ({ v, s: 4 })));
+  for (const g of groups) {
+    const its = g.items.filter(e => e.dim); if (!its.length) continue;
+    for (const e of its) dm.push([T(e.cat), e.des, e.name, e.tag, e.lvl, { v: r2(e.dim.L), s: 2 }, { v: r2(e.dim.l), s: 2 }, { v: r2(e.dim.H), s: 2 }, { v: r2(e.dim.L * e.dim.l), s: 2 }]);
+    dm.push([{ v: T('Total') + ' ' + g.des, s: 1 }, { v: '', s: 6 }, { v: its.length + ' u', s: 6 }, { v: '', s: 6 }, { v: '', s: 6 }, { v: r2(its.reduce((s, e) => s + e.dim.L, 0)), s: 5 }, { v: '', s: 6 }, { v: '', s: 6 }, { v: r2(its.reduce((s, e) => s + e.dim.L * e.dim.l, 0)), s: 5 }]);
+  }
   return [
     { name: T('Récapitulatif'), header: H1, cols: [22, 42, 12, 14, 14, 14], rows: rec },
     { name: T('Par niveau'), header: H2, cols: [16, 22, 42, 12, 14, 14, 14], rows: lv },
     { name: T('Éléments'), header: H3, cols: [20, 36, 44, 12, 14, ...qcols.map(() => 16)], rows: el },
+    { name: T('Longueurs et largeurs'), header: H4, cols: [20, 36, 44, 12, 14, 14, 14, 14, 18], rows: dm },
   ];
 }
 function ifcExportXlsx() {
