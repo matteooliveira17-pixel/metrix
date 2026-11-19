@@ -238,7 +238,7 @@
   html.dark .ifc-main .warn { background:#2e2a1c; border-color:#6b5a26; }
   html.dark .ifc-main .ib { color:#b8c0cc; }
   .ifc-right { min-width:0; }
-  .ifc-plan { position:relative; flex:0 0 54%; min-height:220px; border-bottom:1px solid var(--line); background:#f6f7f9; overflow:hidden; }
+  .ifc-plan { position:relative; flex:0 0 54%; min-height:220px; border-bottom:1px solid var(--line); background:#f4f3ef; overflow:hidden; }
   .ifc-plan[hidden] { display:none; }
   .ifc-plan canvas { position:absolute; inset:0; width:100%; height:100%; cursor:grab; touch-action:none; }
   .ifc-pbar { position:absolute; top:8px; left:8px; display:flex; gap:4px; align-items:center; background:rgba(255,255,255,.92); border:1px solid var(--line); border-radius:7px; padding:3px; box-shadow:0 2px 6px rgba(0,0,0,.08); }
@@ -252,7 +252,7 @@
   .ifct tr[data-id] { cursor:pointer; }
   .ifct tr[data-id]:hover td { background:var(--hover); }
   .ifct tr.hot td { background:rgba(232,89,12,.12); }
-  html.dark .ifc-plan { background:#15181d; }
+  html.dark .ifc-plan { background:#f4f3ef; }
   html.dark .ifc-pbar, html.dark .ifc-phint { background:rgba(30,34,40,.92); border-color:#3a414c; }
   html.dark .ifc-pbar select { background:#15181d; border-color:#4a5260; }
   /* import Revit : réglages et conversion en cours */
@@ -1106,7 +1106,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.6';
+const METRIX_VERSION = '3.7';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -4568,6 +4568,22 @@ const G3 = {
     return { x, y: G3.cross(z, x), z };
   },
 };
+// dessus des solides à facettes : une seule couche de faces (celles vers le haut, ou à défaut vers le bas)
+function ifcTopFaces(polys) {
+  const f = polys.filter(p => p.up), up = f.filter(p => p.up > 0), down = f.filter(p => p.up < 0);
+  if (!f.length || !up.length || !down.length) return polys;
+  const area = l => l.reduce((a, p) => { const r = p.r[0]; let t = 0; for (let i = 0; i < r.length; i++) { const q = r[(i + 1) % r.length]; t += r[i][0] * q[1] - q[0] * r[i][1]; } return a + Math.abs(t) / 2; }, 0);
+  const keep = area(up) >= area(down) * 0.98 ? up : down;
+  return polys.filter(p => !p.up).concat(keep);
+}
+// contour vu de dessus : les arêtes des faces qui ne sont partagées par aucune autre face
+function ifcOutline(shapes) {
+  const faces = shapes.filter(p => p.up); if (!faces.length) return null;
+  const cnt = new Map(), k = p => Math.round(p[0] * 2000) + ',' + Math.round(p[1] * 2000);
+  for (const f of faces) { const r = f.r[0]; for (let i = 0; i < r.length; i++) { const a = r[i], b = r[(i + 1) % r.length], ka = k(a), kb = k(b); if (ka === kb) continue; const key = ka < kb ? ka + '|' + kb : kb + '|' + ka; const e = cnt.get(key); if (e) e.n++; else cnt.set(key, { n: 1, a, b }); } }
+  const out = []; for (const e of cnt.values()) if (e.n === 1) out.push([e.a[0], e.a[1], e.b[0], e.b[1]]);
+  return out;
+}
 function ifcGeom(model, M) {
   const ANG = model.units.PLANEANGLEUNIT || 1, place = new Map(), mapCache = new Map();
   let budget = 4e6;   // nombre maximal de points lus : au-delà, les formes très détaillées sont simplifiées
@@ -4741,14 +4757,16 @@ function ifcGeom(model, M) {
         for (let i = 0; i < r.length; i++) { const p = r[i], q = r[(i + 1) % r.length]; nz += (p[0] - q[0]) * (p[1] + q[1]); }
         const n = r.length > 2 ? G3.cross([r[1][0] - r[0][0], r[1][1] - r[0][1], r[1][2] - r[0][2]], [r[2][0] - r[0][0], r[2][1] - r[0][1], r[2][2] - r[0][2]]) : [0, 0, 0];
         nl = Math.hypot(n[0], n[1], n[2]);
-        if (Math.abs(nz) > 1e-9 && (nl === 0 || Math.abs(n[2]) > nl * 0.01)) polys.push({ r: [r.map(p => [p[0] * LU, p[1] * LU])], s: 0 });
+        if (Math.abs(nz) > 1e-9 && (nl === 0 || Math.abs(n[2]) > nl * 0.01)) polys.push({ r: [r.map(p => [p[0] * LU, p[1] * LU])], s: 0, up: nl === 0 ? 1 : n[2] > 0 ? 1 : -1 });
       } else if (s.k === 'pts') polys.push({ r: [hull(s.ring.map(p => [p[0] * LU, p[1] * LU]))], s: 1 });
     }
     if (!polys.length) continue;
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
     for (const sh of polys) for (const r of sh.r) for (const p of r) { if (p[0] < x0) x0 = p[0]; if (p[0] > x1) x1 = p[0]; if (p[1] < y0) y0 = p[1]; if (p[1] > y1) y1 = p[1]; }
     if (!Number.isFinite(x0)) continue;
-    el.shapes = polys; el.bb = [x0, y0, x1, y1];
+    el.shapes = ifcTopFaces(polys); el.bb = [x0, y0, x1, y1];
+    el.outline = ifcOutline(el.shapes);
+    el.ax = [m.x[0], m.x[1]]; el.ay = [m.y[0], m.y[1]];
   }
   model.planOk = model.elements.some(e => e.shapes);
   model.planCut = budget < 0;
@@ -4758,15 +4776,69 @@ let ifcView = null, ifcHot = null, ifcHover = null;
 const IFC_RANK = { IFCSPACE: 0, IFCSLAB: 1, IFCSLABSTANDARDCASE: 1, IFCROOF: 1, IFCCOVERING: 1, IFCFOOTING: 1, IFCSTAIR: 3, IFCSTAIRFLIGHT: 3, IFCRAMP: 3, IFCRAMPFLIGHT: 3, IFCRAILING: 3,
   IFCWALL: 4, IFCWALLSTANDARDCASE: 4, IFCWALLELEMENTEDCASE: 4, IFCCURTAINWALL: 4, IFCPLATE: 4, IFCMEMBER: 4, IFCCOLUMN: 5, IFCCOLUMNSTANDARDCASE: 5, IFCPILE: 5,
   IFCBEAM: 6, IFCBEAMSTANDARDCASE: 6, IFCDOOR: 7, IFCDOORSTANDARDCASE: 7, IFCWINDOW: 7, IFCWINDOWSTANDARDCASE: 7 };
-function ifcStyle(el, dark) {
-  const c = el.cls;
-  if (c === 'IFCSPACE') return dark ? ['rgba(90,140,210,.16)', 'rgba(120,170,235,.55)'] : ['rgba(90,140,210,.10)', 'rgba(70,120,190,.45)'];
-  if (/SLAB|ROOF|COVERING|FOOTING/.test(c)) return dark ? ['#2b3038', '#5a6370'] : ['#e9ecef', '#b4bcc5'];
-  if (/WALL|PLATE|MEMBER/.test(c)) return dark ? ['#8a94a3', '#c3cad4'] : ['#7d8590', '#454c55'];
-  if (/COLUMN|PILE/.test(c)) return dark ? ['#c3cad4', '#e6e9ee'] : ['#3b4148', '#22262b'];
-  if (/BEAM/.test(c)) return dark ? ['rgba(160,170,185,.35)', '#a7b0bd'] : ['rgba(90,100,115,.18)', '#6b7480'];
-  if (/DOOR|WINDOW/.test(c)) return dark ? ['#1e2228', '#9aa4b2'] : ['#ffffff', '#5f6873'];
-  return dark ? ['#4a525e', '#7d8794'] : ['#ced4da', '#8a939d'];
+// sorte d'élément pour le dessin du plan (façon plan d'architecte)
+function ifcKind(e) {
+  const c = e.cls;
+  if (c === 'IFCSPACE') return 'space';
+  if (/^IFC(SLAB|COVERING|FOOTING)/.test(c)) return 'slab';
+  if (/^IFCROOF/.test(c)) return 'roof';
+  if (/^IFC(WALL|CURTAINWALL|PLATE|MEMBER)/.test(c)) return 'wall';
+  if (/^IFC(COLUMN|PILE)/.test(c)) return 'column';
+  if (/^IFCBEAM/.test(c)) return 'beam';
+  if (/^IFCDOOR/.test(c)) return 'door';
+  if (/^IFCWINDOW/.test(c)) return 'window';
+  if (/^IFC(STAIR|RAMP)/.test(c)) return 'stair';
+  if (/^IFCRAILING/.test(c)) return 'rail';
+  return 'other';
+}
+// matériau d'un mur d'après sa désignation : béton (hachures serrées), maçonnerie (hachures), cloison (gris clair)
+function ifcWallMat(e) {
+  const d = (e.des || '') + ' ' + (e.name || '');
+  if (/plâtre|platre|placo|cloison|doublage|gypsum|partition|plaque|\bint[.é]/i.test(d)) return 'part';
+  if (/béton|beton|\bBA\b|voile|concrete|cast/i.test(d)) return 'conc';
+  if (/parpaing|bloc|brique|maçonn|maconn|porotherm|agglo|masonry|brick|block|pierre|stone/i.test(d)) return 'mas';
+  return 'wall';
+}
+const IFC_PAPER = '#fdfdfb';
+const ifcPatterns = {};
+function ifcHatch(x, key, base, line, step, cross) {
+  if (ifcPatterns[key]) return ifcPatterns[key];
+  const c = document.createElement('canvas'); c.width = c.height = step;
+  const g = c.getContext('2d'); g.fillStyle = base; g.fillRect(0, 0, step, step);
+  g.strokeStyle = line; g.lineWidth = 1;
+  g.beginPath(); g.moveTo(-1, step + 1); g.lineTo(step + 1, -1); g.moveTo(-1, 1); g.lineTo(1, -1); g.moveTo(step - 1, step + 1); g.lineTo(step + 1, step - 1);
+  if (cross) { g.moveTo(-1, -1); g.lineTo(step + 1, step + 1); }
+  g.stroke();
+  return (ifcPatterns[key] = x.createPattern(c, 'repeat'));
+}
+// repère d'un élément vu de dessus (axe principal u, axe perpendiculaire v, étendues) : portes et fenêtres
+function ifcMainAngle() {
+  const M = ifcModel; if (M._ang != null) return M._ang;
+  const bins = new Float64Array(90);
+  for (const e of M.elements) {
+    if (!e.shapes || ifcKind(e) !== 'wall') continue;
+    const segs = e.outline || e.shapes.filter(sh => sh.s).flatMap(sh => sh.r.flatMap(r => r.map((p, i) => [p[0], p[1], r[(i + 1) % r.length][0], r[(i + 1) % r.length][1]])));
+    for (const g of segs) { const dx = g[2] - g[0], dy = g[3] - g[1], L = Math.hypot(dx, dy); if (L < 1e-3) continue; let a = Math.atan2(dy, dx) * 180 / Math.PI; a = ((a % 90) + 90) % 90; bins[Math.round(a) % 90] += L; }
+  }
+  let best = 0; for (let i = 1; i < 90; i++) if (bins[i] > bins[best]) best = i;
+  return (M._ang = best * Math.PI / 180);
+}
+function ifcFrame(e) {
+  if (e._fr) return e._fr;
+  const pts = []; for (const sh of e.shapes) for (const r of sh.r) for (const p of r) pts.push(p);
+  let cx = 0, cy = 0; for (const p of pts) { cx += p[0]; cy += p[1]; } cx /= pts.length || 1; cy /= pts.length || 1;
+  let sxx = 0, syy = 0, sxy = 0; for (const p of pts) { const dx = p[0] - cx, dy = p[1] - cy; sxx += dx * dx; syy += dy * dy; sxy += dx * dy; }
+  let a = 0.5 * Math.atan2(2 * sxy, sxx - syy);
+  // calé sur la direction des murs (à 25° près) : évite les fenêtres et portes légèrement de travers
+  const a0 = ifcMainAngle(), q = Math.round((a - a0) / (Math.PI / 2)), snap = a0 + q * Math.PI / 2;
+  if (Math.abs(a - snap) < 25 * Math.PI / 180) a = snap;
+  let u = [Math.cos(a), Math.sin(a)], v = [-u[1], u[0]];
+  // sens d'ouverture : d'après le repère de l'élément quand il est aligné, sinon côté +v
+  if (e.ax && Math.abs(u[0] * e.ax[0] + u[1] * e.ax[1]) > 0.95) { if (u[0] * e.ax[0] + u[1] * e.ax[1] < 0) u = [-u[0], -u[1]]; v = [-u[1], u[0]]; if (e.ay && v[0] * e.ay[0] + v[1] * e.ay[1] < 0) v = [-v[0], -v[1]]; }
+  let u0 = Infinity, u1 = -Infinity, v0 = Infinity, v1 = -Infinity;
+  for (const p of pts) { const dx = p[0] - cx, dy = p[1] - cy, pu = dx * u[0] + dy * u[1], pv = dx * v[0] + dy * v[1]; if (pu < u0) u0 = pu; if (pu > u1) u1 = pu; if (pv < v0) v0 = pv; if (pv > v1) v1 = pv; }
+  if (v1 - v0 > u1 - u0) { const fu = u; u = [v[0], v[1]]; v = [-fu[0], -fu[1]]; [u0, u1, v0, v1] = [v0, v1, -u1, -u0]; }
+  return (e._fr = { c: [cx, cy], u, v, u0, u1, v0, v1 });
 }
 function ifcPlanEls() {
   const M = ifcModel; if (!M) return [];
@@ -4786,30 +4858,94 @@ function ifcDraw() {
   const cv = $('ifcCv'), M = ifcModel; if (!cv || !M || $('ifcPlan').hidden) return;
   const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
   if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
-  const x = cv.getContext('2d'), dark = document.documentElement.classList.contains('dark');
-  x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, W, H);
+  const x = cv.getContext('2d');
+  x.setTransform(dpr, 0, 0, dpr, 0, 0); x.fillStyle = IFC_PAPER; x.fillRect(0, 0, W, H);   // feuille blanche
   if (!ifcView) ifcFit();
   const { s, tx, ty } = ifcView, els = ifcPlanEls();
-  const path = sh => { x.beginPath(); for (const r of sh.r) { r.forEach((p, i) => { const X = p[0] * s + tx, Y = -p[1] * s + ty; i ? x.lineTo(X, Y) : x.moveTo(X, Y); }); x.closePath(); } };
+  const X = p => p[0] * s + tx, Y = p => -p[1] * s + ty;
+  const path = sh => { x.beginPath(); for (const r of sh.r) { r.forEach((p, i) => i ? x.lineTo(X(p), Y(p)) : x.moveTo(X(p), Y(p))); x.closePath(); } };
+  const fillEl = (e, f) => { x.fillStyle = f; for (const sh of e.shapes) { path(sh); x.fill('evenodd'); } };
+  const strokeEl = (e, st, lw, dash) => {
+    x.strokeStyle = st; x.lineWidth = lw; x.setLineDash(dash || []);
+    if (e.outline) { x.beginPath(); for (const g of e.outline) { x.moveTo(g[0] * s + tx, -g[1] * s + ty); x.lineTo(g[2] * s + tx, -g[3] * s + ty); } x.stroke(); }
+    else for (const sh of e.shapes) if (sh.s) { path(sh); x.stroke(); }
+    x.setLineDash([]);
+  };
   const vis = e => !(e.bb[2] * s + tx < 0 || e.bb[0] * s + tx > W || -e.bb[1] * s + ty < 0 || -e.bb[3] * s + ty > H);
-  const selEls = [];
-  x.lineJoin = 'round';
+  const lwCut = Math.min(2.4, Math.max(1.1, s * 0.012)), lwThin = Math.max(0.6, lwCut * 0.5);
+  const P = (f, a, b) => [f.c[0] + f.u[0] * a + f.v[0] * b, f.c[1] + f.u[1] * a + f.v[1] * b];   // point dans le repère d'une porte / fenêtre
+  const line = (a, b) => { x.moveTo(X(a), Y(a)); x.lineTo(X(b), Y(b)); };
+  const rect = f => { x.beginPath(); [P(f, f.u0, f.v0), P(f, f.u1, f.v0), P(f, f.u1, f.v1), P(f, f.u0, f.v1)].forEach((p, i) => i ? x.lineTo(X(p), Y(p)) : x.moveTo(X(p), Y(p))); x.closePath(); };
+  // porte : battant ouvert à 90° et arc d'ouverture (deux battants au-delà de 1,30 m)
+  const door = e => {
+    const f = ifcFrame(e), w = f.u1 - f.u0;
+    rect(f); x.fillStyle = IFC_PAPER; x.fill();
+    x.strokeStyle = '#2b2d31'; x.lineWidth = lwThin; x.beginPath(); line(P(f, f.u0, f.v0), P(f, f.u0, f.v1)); line(P(f, f.u1, f.v0), P(f, f.u1, f.v1)); x.stroke();
+    const leaves = w > 1.3 ? [[f.u0, w / 2, 1], [f.u1, w / 2, -1]] : [[f.u0, w, 1]];
+    for (const [hu, len, dir] of leaves) {
+      const h = P(f, hu, f.v1), tip = P(f, hu, f.v1 + len), end = P(f, hu + dir * len, f.v1);
+      x.lineWidth = lwCut * 0.8; x.beginPath(); line(h, tip); x.stroke();
+      const a0 = Math.atan2(Y(tip) - Y(h), X(tip) - X(h)), a1 = Math.atan2(Y(end) - Y(h), X(end) - X(h));
+      let d = a1 - a0; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI;
+      x.lineWidth = lwThin * 0.8; x.beginPath(); x.arc(X(h), Y(h), len * s, a0, a1, d < 0); x.stroke();
+    }
+  };
+  // fenêtre : cadre et double trait du vitrage
+  const win = e => {
+    const f = ifcFrame(e), d = f.v1 - f.v0;
+    rect(f); x.fillStyle = IFC_PAPER; x.fill(); x.strokeStyle = '#2b2d31'; x.lineWidth = lwThin; x.stroke();
+    x.beginPath(); line(P(f, f.u0, f.v0 + d * 0.4), P(f, f.u1, f.v0 + d * 0.4)); line(P(f, f.u0, f.v0 + d * 0.6), P(f, f.u1, f.v0 + d * 0.6)); x.stroke();
+  };
+  const hot = [];
+  x.lineJoin = 'round'; x.lineCap = 'round';
   for (const e of els) {
     if (!vis(e)) continue;
-    const g = (e.cat + '\u0001' + e.des) === ifcSel; if (e.id === ifcHot) selEls.push(e);
-    const [f, st] = g ? ['rgba(43,111,214,.78)', '#1c4f9c'] : ifcStyle(e, dark);
-    x.fillStyle = f; x.strokeStyle = st; x.lineWidth = g ? 1.3 : e.cls === 'IFCSPACE' ? 1 : 0.8;
-    for (const sh of e.shapes) { path(sh); x.fill('evenodd'); if (sh.s || g) x.stroke(); }
+    const k = ifcKind(e), sel = (e.cat + '\u0001' + e.des) === ifcSel;
+    if (e.id === ifcHot) hot.push(e);
+    switch (k) {
+      case 'space': fillEl(e, 'rgba(120,160,210,.07)'); break;
+      case 'slab': fillEl(e, '#ebe9e3'); strokeEl(e, '#c5c1b8', lwThin); break;
+      case 'roof': strokeEl(e, '#9b978e', lwThin, [6, 4]); break;
+      case 'wall': {
+        const m = ifcWallMat(e);
+        fillEl(e, m === 'conc' ? ifcHatch(x, 'conc', '#a3a7ac', 'rgba(30,32,36,.75)', 5) : m === 'mas' ? ifcHatch(x, 'mas', '#d3c9b9', 'rgba(90,72,50,.7)', 7, true)
+          : m === 'part' ? '#e6e6e3' : ifcHatch(x, 'wall', '#bfc2c6', 'rgba(40,42,46,.55)', 7));
+        strokeEl(e, '#16181b', lwCut); break;
+      }
+      case 'column': fillEl(e, '#30343a'); strokeEl(e, '#111', lwCut); break;
+      case 'beam': strokeEl(e, '#6d6a63', lwThin, [8, 4]); break;
+      case 'door': door(e); break;
+      case 'window': win(e); break;
+      case 'stair': fillEl(e, '#f2f0ea'); strokeEl(e, '#85817a', lwThin); break;
+      case 'rail': strokeEl(e, '#6f6b64', lwThin); break;
+      default: fillEl(e, 'rgba(0,0,0,.035)'); strokeEl(e, '#a29e95', lwThin);
+    }
+    if (sel) { fillEl(e, 'rgba(43,111,214,.5)'); strokeEl(e, '#1c4f9c', 1.4); }
   }
-  // élément choisi (clic sur le plan ou dans le tableau) : en orange, par-dessus
-  for (const e of selEls) {
-    x.fillStyle = 'rgba(232,89,12,.85)'; x.strokeStyle = '#b33f00'; x.lineWidth = 2.2;
-    for (const sh of e.shapes) { path(sh); x.fill('evenodd'); x.stroke(); }
-  }
-  if (ifcHover && ifcHover.shapes && els.includes(ifcHover)) {
-    x.strokeStyle = dark ? '#ffd43b' : '#e8590c'; x.lineWidth = 2;
-    for (const sh of ifcHover.shapes) { path(sh); x.stroke(); }
-  }
+// noms et surfaces des pièces, au centre de chacune (quand elles sont assez grandes à l'écran)
+x.textAlign = 'center'; x.textBaseline = 'middle';
+for (const e of els) {
+  if (ifcKind(e) !== 'space' || !vis(e)) continue;
+  const w = (e.bb[2] - e.bb[0]) * s, h = (e.bb[3] - e.bb[1]) * s; if (w < 46 || h < 30) continue;
+  const f = ifcFrame(e), cx = X(f.c), cy = Y(f.c);
+  const ar = ['NetFloorArea', 'GrossFloorArea', 'NetArea', 'Area', 'Surface'].map(k => e.q[k]).find(q => q && q.k === 'A');
+  const fs = Math.max(10, Math.min(14, s * 0.22));
+  x.font = '600 ' + fs + 'px -apple-system, Segoe UI, sans-serif'; x.fillStyle = '#2d3e57';
+  x.fillText(String(e.des).slice(0, 28), cx, ar ? cy - fs * 0.6 : cy);
+  if (ar) { x.font = (fs - 1) + 'px -apple-system, Segoe UI, sans-serif'; x.fillStyle = '#566578'; x.fillText(fmt(ar.v) + ' m²', cx, cy + fs * 0.7); }
+}
+x.textAlign = 'start';
+// élément choisi (clic sur le plan ou dans le tableau) : en orange, par-dessus
+for (const e of hot) { fillEl(e, 'rgba(232,89,12,.7)'); strokeEl(e, '#b33f00', 2.2); }
+  if (ifcHover && ifcHover.shapes && els.includes(ifcHover)) strokeEl(ifcHover, '#e8590c', 2);
+  // échelle graphique
+  const raw = 110 / s, pw = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / pw, L = (n < 1.5 ? 1 : n < 3.5 ? 2 : n < 7.5 ? 5 : 10) * pw, px = L * s;
+  const bx = 14, by = H - 26;
+  x.fillStyle = 'rgba(253,253,251,.9)'; x.fillRect(bx - 6, by - 16, px + 52, 30);
+  for (let i = 0; i < 4; i++) { x.fillStyle = i % 2 ? '#fff' : '#222'; x.fillRect(bx + px * i / 4, by, px / 4, 5); }
+  x.strokeStyle = '#222'; x.lineWidth = 1; x.strokeRect(bx, by, px, 5);
+  x.fillStyle = '#222'; x.font = '11px -apple-system, Segoe UI, sans-serif'; x.textBaseline = 'bottom';
+  x.fillText('0', bx - 3, by - 2); x.fillText(fmt(L, L < 1 ? 1 : 0) + ' m', bx + px - 6, by - 2);
   $('ifcPlanEmpty').hidden = els.length > 0;
 }
 function ifcPick(mx, my) {
