@@ -1155,7 +1155,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.13';
+const METRIX_VERSION = '3.14';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -1917,6 +1917,10 @@ addTr([
   // zone « Cliquez ici » (Revit / IFC)
   ["pour ouvrir une maquette IFC, ou déposez-la dans cette zone.","to open an IFC model, or drop it in this area.","para abrir um modelo IFC, ou largue-o nesta zona.","para abrir un modelo IFC, o suéltelo en esta zona."],
   ["Fichier Revit (.rvt) : bouton « Importer Revit (.rvt)… » à gauche.","Revit file (.rvt): « Import Revit (.rvt)… » button on the left.","Ficheiro Revit (.rvt): botão « Importar Revit (.rvt)… » à esquerda.","Archivo Revit (.rvt): botón « Importar Revit (.rvt)… » a la izquierda."],
+  // cadre « Cliquez ici » : fichiers Revit
+  ["pour ouvrir une maquette Revit (.rvt) ou IFC (.ifc), ou déposez-la dans cette zone.","to open a Revit (.rvt) or IFC (.ifc) model, or drop it in this area.","para abrir um modelo Revit (.rvt) ou IFC (.ifc), ou largue-o nesta zona.","para abrir un modelo Revit (.rvt) o IFC (.ifc), o suéltelo en esta zona."],
+  ["Les fichiers Revit sont convertis automatiquement en IFC par le convertisseur DDC.","Revit files are converted to IFC automatically by the DDC converter.","Os ficheiros Revit são convertidos automaticamente em IFC pelo conversor DDC.","Los archivos de Revit se convierten automáticamente a IFC con el convertidor DDC."],
+  ["Pour convertir un fichier Revit, cliquez dans le cadre « Cliquez ici » (ou sur « Importer Revit (.rvt)… ») et choisissez-le : le glisser-déposer ne permet pas la conversion.","To convert a Revit file, click in the « Click here » area (or on « Import Revit (.rvt)… ») and choose it: drag and drop cannot convert it.","Para converter um ficheiro Revit, clique na zona « Clique aqui » (ou em « Importar Revit (.rvt)… ») e escolha-o: arrastar e largar não permite a conversão.","Para convertir un archivo de Revit, haga clic en la zona « Haga clic aquí » (o en « Importar Revit (.rvt)… ») y elíjalo: arrastrar y soltar no permite la conversión."],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -2612,6 +2616,9 @@ addTr2([
   ["Afficher les couleurs des matériaux définies dans Revit (sinon : couleurs de Métrix par matériau)","Die in Revit definierten Materialfarben anzeigen (sonst: Métrix-Farben nach Material)","De in Revit gedefinieerde materiaalkleuren tonen (anders: Métrix-kleuren per materiaal)","显示 Revit 中定义的材质颜色（否则：Métrix 按材质的颜色）","عرض ألوان المواد المحددة في Revit (وإلا: ألوان Métrix حسب المادة)","Mostra i colori dei materiali definiti in Revit (altrimenti: colori di Métrix per materiale)","Показывать цвета материалов, заданные в Revit (иначе — цвета Métrix по материалу)"],
   ["pour ouvrir une maquette IFC, ou déposez-la dans cette zone.","um ein IFC-Modell zu öffnen, oder ziehen Sie es in diesen Bereich.","om een IFC-model te openen, of sleep het naar dit vak.","以打开 IFC 模型，或将其拖放到此区域。","لفتح نموذج IFC، أو أفلته في هذه المنطقة.","per aprire un modello IFC, oppure trascinalo in questa zona.","чтобы открыть модель IFC, или перетащите её в эту область."],
   ["Fichier Revit (.rvt) : bouton « Importer Revit (.rvt)… » à gauche.","Revit-Datei (.rvt): Schaltfläche « Revit importieren (.rvt)… » links.","Revit-bestand (.rvt): knop « Revit importeren (.rvt)… » links.","Revit 文件 (.rvt)：左侧的「导入 Revit (.rvt)…」按钮。","ملف Revit (.rvt): زر « استيراد Revit (.rvt)… » على اليسار.","File Revit (.rvt): pulsante « Importa Revit (.rvt)… » a sinistra.","Файл Revit (.rvt): кнопка «Импорт Revit (.rvt)…» слева."],
+  ["pour ouvrir une maquette Revit (.rvt) ou IFC (.ifc), ou déposez-la dans cette zone.","um ein Revit- (.rvt) oder IFC-Modell (.ifc) zu öffnen, oder ziehen Sie es in diesen Bereich.","om een Revit- (.rvt) of IFC-model (.ifc) te openen, of sleep het naar dit vak.","以打开 Revit (.rvt) 或 IFC (.ifc) 模型，或将其拖放到此区域。","لفتح نموذج Revit (.rvt) أو IFC (.ifc)، أو أفلته في هذه المنطقة.","per aprire un modello Revit (.rvt) o IFC (.ifc), oppure trascinalo in questa zona.","чтобы открыть модель Revit (.rvt) или IFC (.ifc), или перетащите её в эту область."],
+  ["Les fichiers Revit sont convertis automatiquement en IFC par le convertisseur DDC.","Revit-Dateien werden vom DDC-Konverter automatisch in IFC umgewandelt.","Revit-bestanden worden automatisch door de DDC-converter naar IFC omgezet.","Revit 文件会由 DDC 转换器自动转换为 IFC。","تُحوَّل ملفات Revit تلقائيًا إلى IFC بواسطة محوّل DDC.","I file Revit vengono convertiti automaticamente in IFC dal convertitore DDC.","Файлы Revit автоматически преобразуются в IFC конвертером DDC."],
+  ["Pour convertir un fichier Revit, cliquez dans le cadre « Cliquez ici » (ou sur « Importer Revit (.rvt)… ») et choisissez-le : le glisser-déposer ne permet pas la conversion.","Um eine Revit-Datei umzuwandeln, klicken Sie in den Bereich « Hier klicken » (oder auf « Revit importieren (.rvt)… ») und wählen Sie sie aus: Ziehen und Ablegen reicht dafür nicht.","Om een Revit-bestand om te zetten, klikt u in het vak « Klik hier » (of op « Revit importeren (.rvt)… ») en kiest u het: slepen en neerzetten volstaat niet.","要转换 Revit 文件，请点击「点击此处」区域（或「导入 Revit (.rvt)…」）并选择该文件：拖放无法进行转换。","لتحويل ملف Revit، انقر في منطقة « انقر هنا » (أو على « استيراد Revit (.rvt)… ») واختره: السحب والإفلات لا يسمح بالتحويل.","Per convertire un file Revit, fai clic nella zona « Clicca qui » (o su « Importa Revit (.rvt)… ») e sceglilo: il trascinamento non consente la conversione.","Чтобы преобразовать файл Revit, щёлкните в области «Щёлкните здесь» (или на «Импорт Revit (.rvt)…») и выберите его: перетаскивание не позволяет выполнить преобразование."],
 ]);
 // --- fin des langues ajoutées ---
 
@@ -4596,7 +4603,7 @@ function renderIfcMain() {
   const g = M && M.groups.find(x => x.key === ifcSel);
   if (!M) { $('ifcTitle').textContent = trText('Maquette Revit'); box.innerHTML = `<div class="ifc-main"><h2>${esc(trText('Métrés d’une maquette Revit'))}</h2><p class="sub">${esc(trText('Ouvrez une maquette IFC exportée de Revit : Métrix liste tous les éléments trouvés avec leur désignation et leurs quantités.'))}</p>
       <div class="ifc-drop" id="ifcDrop" role="button" tabindex="0"><svg viewBox="0 0 32 32"><path d="M7 3h13l6 6v20H7z" fill="#f4f6fa" stroke="#9aa4b2"/><path d="M20 3v6h6M11 15h11M11 19h11M11 23h7" stroke="#9aa4b2"/></svg>
-        <div><b>${esc(trText('Cliquez ici'))}</b> ${esc(trText('pour ouvrir une maquette IFC, ou déposez-la dans cette zone.'))}<br>${esc(trText('Fichier Revit (.rvt) : bouton « Importer Revit (.rvt)… » à gauche.'))}</div></div>
+        <div><b>${esc(trText('Cliquez ici'))}</b> ${esc(trText('pour ouvrir une maquette Revit (.rvt) ou IFC (.ifc), ou déposez-la dans cette zone.'))}<br>${esc(trText('Les fichiers Revit sont convertis automatiquement en IFC par le convertisseur DDC.'))}</div></div>
       ${ifcHelp(false)}</div>`;
     const d = $('ifcDrop');
     d.onclick = () => $('ifcFile').click();
@@ -4723,7 +4730,9 @@ $('ifcCloseBtn').onclick = ifcClose;
 async function ifcOpenFile(f, info = {}) {
   if (!f) return;
   showTab('ifc');
-  if (/\.rvt$/i.test(f.name)) {
+  if (/\.(rvt|rfa)$/i.test(f.name)) {
+    if (NATIVE && rvtCan()) return notify(trText('Pour convertir un fichier Revit, cliquez dans le cadre « Cliquez ici » (ou sur « Importer Revit (.rvt)… ») et choisissez-le : le glisser-déposer ne permet pas la conversion.'));
+    if (!NATIVE) return rvtImport();   // explique la marche à suivre (Windows : « Convertir Revit »)
     $('ifcTitle').textContent = f.name;
     $('ifcMain').innerHTML = `<div class="ifc-main"><h2>${esc(f.name)}</h2>${ifcHelp(true)}</div>`;
     return;
@@ -4761,7 +4770,9 @@ $('ifcPage').addEventListener('drop', e => { e.preventDefault(); e.stopPropagati
 if (NATIVE) $('ifcFile').addEventListener('click', async e => {
   e.preventDefault();
   const r = await nativeCall({ cmd: 'open', kind: 'ifc' });
-  if (r.error) notify(r.error); else if (r.path) readNativeFile('ifc', r.path, r.name, r.src);
+  if (r.error) notify(r.error);
+  else if (r.path && /\.(rvt|rfa)$/i.test(r.name)) rvtImport(r);   // fichier Revit : conversion par DDC
+  else if (r.path) readNativeFile('ifc', r.path, r.name, r.src);
 });
 // entité par numéro : objets lus (relations, quantités…) ou géométrie repérée dans les tableaux compacts
 function ifcE(M, id, keep = true) {
@@ -5848,13 +5859,14 @@ function rvtReadColors(dir) {
     x.onerror = () => ok(null); x.send();
   });
 }
-async function rvtImport() {
+async function rvtImport(picked) {   // picked : fichier .rvt déjà choisi (cadre « Cliquez ici »)
+  if (picked && picked.path && !(rvtCan() && rvtCfg().exe)) nativeCall({ cmd: 'removeWork', path: picked.path.replace(/\/[^/]*$/, '') });
   if (!NATIVE) return dialog(trText('Import Revit'), `<p style="margin:14px 16px;text-align:left">${esc(rvtText(IS_WIN ? 'windows' : 'noNative'))}</p>`, () => {}, false);
   if (!rvtCan()) return rvtShowError('oldApp');
   if (rvtBusy) return;
   const c = rvtCfg();
   if (!c.exe) { dialog(trText('Import Revit'), `<p style="margin:14px 16px;text-align:left">${esc(rvtText('notConfigured'))}</p>`, () => { showTab('set'); rvtGoSettings(); }); $('dlgOk').textContent = trText('Ouvrir les paramètres'); return; }
-  const pick = await nativeCall({ cmd: 'open', kind: 'rvt' });
+  const pick = picked && picked.path ? picked : await nativeCall({ cmd: 'open', kind: 'rvt' });
   if (pick.error) return notify(pick.error);
   if (!pick.path) return;
   return rvtConvertPicked(pick, c);
@@ -5892,7 +5904,7 @@ async function rvtConvertPicked(pick, c = rvtCfg()) {
   x.send();
   return res;
 }
-$('rvtImportBtn').onclick = rvtImport;
+$('rvtImportBtn').onclick = () => rvtImport();
 // accès pour les tests automatiques
 window.__metrixRvt = { rvtCommand, rvtClassify, rvtWinPath, rvtEngineOf, rvtText, rvtConvertPicked, rvtCfg, rvtSaveCfg, ifcCompareRows: (...a) => ifcCompareRows(...a), model: () => ifcModel, xlsxB64: () => { const d = xlsxBuild(ifcXlsxSheets(ifcModel)); let b = ''; for (let i = 0; i < d.length; i += 0x8000) b += String.fromCharCode.apply(null, d.subarray(i, i + 0x8000)); return btoa(b); }, pick3d: (x, y) => { const e = ifc3dPick(x, y); return e ? e.des : null; }, ifcParse: t => ifcParse(t), ifcBuild: (M, n) => ifcBuild(M, n, 0), ifcRecList, ifcRecOpen, ifcRecRemove, ifcClose, rvtReportColors, openIfc: (f, info) => ifcOpenFile(f, info) };
 
