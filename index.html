@@ -180,6 +180,63 @@
   body.tu-mode { grid-template-rows:auto 1fr auto; }
   body.tu-mode .ribbon, body.tu-mode .work { display:none; }
   body.tu-mode #tuPage { display:flex; }
+  /* onglet « Revit / IFC » : métrés lus dans une maquette IFC exportée de Revit */
+  #ifcPage { display:none; gap:4px; padding:4px; min-height:0; }
+  body.ifc-mode { grid-template-rows:auto 1fr auto; }
+  body.ifc-mode .ribbon, body.ifc-mode .work { display:none; }
+  body.ifc-mode #ifcPage { display:grid; grid-template-columns:340px minmax(0, 1fr); }
+  @media (max-width: 760px) { body.ifc-mode #ifcPage { grid-template-columns:1fr; grid-template-rows:42% minmax(0, 1fr); } }
+  .ifc-tools { display:flex; flex-direction:column; gap:6px; padding:8px; border-bottom:1px solid #e4e8ef; background:#f8f9fb; }
+  .ifc-open { display:flex; align-items:center; justify-content:center; gap:7px; padding:6px 10px; border:1px solid #2b579a; background:#2b579a; color:#fff; border-radius:5px; cursor:pointer; font-weight:600; position:relative; overflow:hidden; }
+  .ifc-open:hover { background:#24497f; }
+  .ifc-open input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+  .ifc-open svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+  .ifc-tools input[type=search], .ifc-tools select { font:inherit; padding:4px 7px; border:1px solid var(--line); border-radius:4px; background:#fff; color:var(--txt); width:100%; }
+  .ifc-file { font-size:11.5px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ifc-cat { border-bottom:1px solid #edf0f4; }
+  .ifc-cat > .ch { display:flex; align-items:center; gap:6px; padding:6px 8px; cursor:pointer; font-weight:600; background:#f4f6f9; user-select:none; }
+  .ifc-cat > .ch:hover { background:var(--hover); }
+  .ifc-cat > .ch .tw { width:10px; transition:transform .15s; color:var(--muted); font-size:9px; }
+  .ifc-cat.open > .ch .tw { transform:rotate(90deg); }
+  .ifc-cat > .ch .nm { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ifc-cat > .ch .n { color:var(--muted); font-weight:400; font-size:11px; }
+  .ifc-cat .rows { display:none; }
+  .ifc-cat.open .rows { display:block; }
+  .ifc-g { display:flex; align-items:baseline; gap:8px; padding:5px 8px 5px 24px; cursor:pointer; border-top:1px solid #f1f3f6; }
+  .ifc-g:hover { background:var(--hover); }
+  .ifc-g.sel { background:var(--sel); }
+  .ifc-g .nm { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ifc-g .v { font-variant-numeric:tabular-nums; white-space:nowrap; font-size:11.5px; color:var(--blue); font-weight:600; }
+  .ifc-g .n { color:var(--muted); font-size:11px; white-space:nowrap; }
+  .ifc-main { padding:16px 20px 30px; max-width:1100px; }
+  .ifc-main h2 { margin:0 0 2px; font-size:17px; color:var(--txt); }
+  .ifc-main .sub { color:var(--muted); margin:0 0 14px; }
+  .ifc-main h4 { margin:18px 0 6px; color:var(--ptxt); font-size:12.5px; }
+  .ifc-main .hint { color:var(--muted); line-height:1.55; }
+  .ifc-main ol { line-height:1.7; padding-left:20px; margin:6px 0 12px; }
+  .ifc-main .card { border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:14px; background:#fbfcfd; }
+  .ifc-main .warn { border-color:#f0d58a; background:#fffaeb; }
+  table.ifct { width:100%; border-collapse:collapse; }
+  .ifct th { text-align:left; font-weight:600; color:var(--muted); padding:5px 8px; border-bottom:1px solid var(--line); white-space:nowrap; background:#f6f7f9; position:sticky; top:0; }
+  .ifct td { padding:4px 8px; border-bottom:1px solid #edf0f4; }
+  .ifct td.n, .ifct th.n { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .ifct tr.tot td { font-weight:700; border-top:2px solid var(--line); }
+  .ifct tr.clk { cursor:pointer; }
+  .ifct tr.clk:hover td { background:var(--hover); }
+  .ifc-main .ib { width:26px; height:24px; display:inline-grid; place-items:center; border:1px solid transparent; background:none; border-radius:4px; cursor:pointer; color:#4a5568; padding:0; vertical-align:middle; }
+  .ifc-main .ib:hover { background:var(--hover); border-color:#a9c6ea; color:var(--blue); }
+  .ifc-main .ib svg { width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+  .ifc-main .ib.ok { color:#107c10; }
+  .ifc-main .acts { display:flex; gap:8px; margin:10px 0 4px; flex-wrap:wrap; }
+  .ifc-scroll { max-height:52vh; overflow:auto; border:1px solid var(--line); border-radius:6px; }
+  html.dark .ifc-tools { background:#22262d; border-color:#3a414c; }
+  html.dark .ifc-tools input[type=search], html.dark .ifc-tools select { background:#15181d; border-color:#4a5260; }
+  html.dark .ifc-cat > .ch { background:#262b33; }
+  html.dark .ifc-cat, html.dark .ifc-g, html.dark .ifct td { border-color:#2d333d; }
+  html.dark .ifct th { background:#262b33; }
+  html.dark .ifc-main .card { background:#1e2228; border-color:#3a414c; }
+  html.dark .ifc-main .warn { background:#2e2a1c; border-color:#6b5a26; }
+  html.dark .ifc-main .ib { color:#b8c0cc; }
   .tu-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px 16px; border-bottom:1px solid var(--line); background:var(--pane, #fff); }
   .tu-bar h2 { margin:0; font-size:15px; color:var(--txt); }
   .tu-bar .src { color:var(--muted); font-size:11.5px; }
@@ -320,7 +377,7 @@
   html.dark .keys kbd { background:#2a2f38; }
   html.dark .lang-opt.on, html.dark .theme-opt.on { background:rgba(76,134,216,.14); }
   .tab#tabSet { cursor:pointer; }
-  .tab#tabLib, .tab#tabHome, .tab#tabTu { cursor:pointer; }
+  .tab#tabLib, .tab#tabHome, .tab#tabTu, .tab#tabIfc { cursor:pointer; }
   .navbtns { display:flex; gap:2px; align-self:center; margin:0 0 3px 8px; }
   .navbtns button { width:28px; height:24px; display:grid; place-items:center; padding:0; border:1px solid transparent; border-radius:4px; background:none; color:#2b579a; cursor:pointer; }
   .navbtns button:hover:not(:disabled) { background:rgba(20,30,50,.08); border-color:var(--rline); }
@@ -645,6 +702,7 @@
   <span class="tab active" id="tabHome">Accueil</span>
   <span class="tab" id="tabLib" title="Bibliothèque d'ouvrages : béton, coffrage, aciers… calculés à partir des métrés">Ouvrages</span>
   <span class="tab" id="tabTu" title="Temps unitaires du service méthodes : quantités, heures et formule Excel">Temps unitaires</span>
+  <span class="tab" id="tabIfc" title="Métrés d'une maquette Revit exportée en IFC">Revit / IFC</span>
   <span class="tab" id="tabSet" title="Réglages : langue, thème">Paramètres</span>
   <span class="navbtns"><button id="undoBtn" title="Annuler (Ctrl+Z)" disabled><svg viewBox="0 0 20 20"><path class="ar" d="M7.5 4.5 3.5 8.5l4 4"/><path d="M4 8.5h7.5a4.5 4.5 0 0 1 0 9H9"/></svg></button><button id="redoBtn" title="Rétablir (Ctrl+Maj+Z)" disabled><svg viewBox="0 0 20 20"><path class="ar" d="m12.5 4.5 4 4-4 4"/><path d="M16 8.5H8.5a4.5 4.5 0 0 0 0 9H11"/></svg></button></span>
   <span class="doc"><span id="docName">Métrix</span></span>
@@ -821,6 +879,23 @@
   </div>
   <div class="tu-scroll"><table class="tu" id="tuTable"></table></div>
 </section>
+<!-- onglet « Revit / IFC » : métrés d'une maquette Revit exportée en IFC -->
+<section id="ifcPage">
+  <div class="pane ifc-side">
+    <h3>Métrés de la maquette</h3>
+    <div class="ifc-tools">
+      <label class="ifc-open" id="ifcOpenLbl" title="Ouvrir une maquette IFC exportée de Revit (fichier .ifc)"><svg viewBox="0 0 16 16"><path d="M2 4.5V12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H8L6.5 3.5H3A1 1 0 0 0 2 4.5z"/></svg><span>Ouvrir un fichier IFC…</span><input id="ifcFile" type="file" accept=".ifc,.rvt"></label>
+      <div class="ifc-file" id="ifcFileName"></div>
+      <select id="ifcLevel" title="N'afficher que les éléments d'un niveau"></select>
+      <input type="search" id="ifcSearch" placeholder="Rechercher une désignation…">
+    </div>
+    <div class="body" id="ifcTree"></div>
+  </div>
+  <div class="pane">
+    <h3 id="ifcTitle">Maquette Revit</h3>
+    <div class="body" id="ifcMain"></div>
+  </div>
+</section>
 <!-- onglet « Paramètres » : langue et thème -->
 <section id="settings">
   <div class="set-wrap">
@@ -947,7 +1022,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.3';
+const METRIX_VERSION = '3.4';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -1470,6 +1545,102 @@ addTr([
   ["Vider toutes les quantités saisies ?","Clear all entered quantities?","Apagar todas as quantidades introduzidas?","¿Borrar todas las cantidades introducidas?"],
   ["Aucune quantité saisie.","No quantity entered.","Nenhuma quantidade introduzida.","Ninguna cantidad introducida."],
   ["Lignes copiées : collez-les dans Excel.","Rows copied: paste them into Excel.","Linhas copiadas: cole-as no Excel.","Filas copiadas: péguelas en Excel."],
+  // onglet Revit / IFC
+  ["Revit / IFC","Revit / IFC","Revit / IFC","Revit / IFC"],
+  ["Métrés d'une maquette Revit exportée en IFC","Quantities from a Revit model exported to IFC","Medições de um modelo Revit exportado em IFC","Mediciones de un modelo Revit exportado a IFC"],
+  ["Métrés de la maquette","Model quantities","Medições do modelo","Mediciones del modelo"],
+  ["Ouvrir une maquette IFC exportée de Revit (fichier .ifc)","Open an IFC model exported from Revit (.ifc file)","Abrir um modelo IFC exportado do Revit (ficheiro .ifc)","Abrir un modelo IFC exportado de Revit (archivo .ifc)"],
+  ["Ouvrir un fichier IFC…","Open an IFC file…","Abrir um ficheiro IFC…","Abrir un archivo IFC…"],
+  ["N'afficher que les éléments d'un niveau","Show only the elements of one level","Mostrar apenas os elementos de um piso","Mostrar solo los elementos de un nivel"],
+  ["Rechercher une désignation…","Search for a name…","Procurar uma designação…","Buscar una designación…"],
+  ["Maquette Revit","Revit model","Modelo Revit","Modelo Revit"],
+  ["Murs","Walls","Paredes","Muros"],
+  ["Murs-rideaux","Curtain walls","Fachadas-cortina","Muros cortina"],
+  ["Dalles","Slabs","Lajes","Losas"],
+  ["Toits","Roofs","Coberturas","Cubiertas"],
+  ["Poteaux","Columns","Pilares","Pilares"],
+  ["Poutres","Beams","Vigas","Vigas"],
+  ["Fondations","Foundations","Fundações","Cimentaciones"],
+  ["Pieux","Piles","Estacas","Pilotes"],
+  ["Escaliers","Stairs","Escadas","Escaleras"],
+  ["Volées d'escalier","Stair flights","Lanços de escada","Tramos de escalera"],
+  ["Rampes","Ramps","Rampas","Rampas"],
+  ["Garde-corps","Railings","Guarda-corpos","Barandillas"],
+  ["Portes","Doors","Portas","Puertas"],
+  ["Fenêtres","Windows","Janelas","Ventanas"],
+  ["Revêtements","Coverings","Revestimentos","Revestimientos"],
+  ["Panneaux","Panels","Painéis","Paneles"],
+  ["Montants et ossatures","Mullions and framing","Montantes e estruturas","Montantes y estructuras"],
+  ["Pièces","Rooms","Divisões","Habitaciones"],
+  ["Mobilier","Furniture","Mobiliário","Mobiliario"],
+  ["Autres éléments","Other elements","Outros elementos","Otros elementos"],
+  ["Armatures","Reinforcement","Armaduras","Armaduras"],
+  ["Conduits","Chimneys","Condutas","Conductos"],
+  ["Brise-soleil","Sun shading","Palas de sombreamento","Parasoles"],
+  ["Assemblages","Assemblies","Conjuntos","Conjuntos"],
+  ["Équipements techniques","Building services equipment","Equipamentos técnicos","Equipos técnicos"],
+  ["Réseaux (tuyaux, gaines)","Networks (pipes, ducts)","Redes (tubos, condutas)","Redes (tuberías, conductos)"],
+  ["Raccords de réseaux","Network fittings","Acessórios de redes","Accesorios de redes"],
+  ["Volume net","Net volume","Volume líquido","Volumen neto"],
+  ["Volume brut","Gross volume","Volume bruto","Volumen bruto"],
+  ["Surface nette","Net area","Área líquida","Superficie neta"],
+  ["Surface brute","Gross area","Área bruta","Superficie bruta"],
+  ["Surface latérale nette","Net side area","Área lateral líquida","Superficie lateral neta"],
+  ["Surface latérale brute","Gross side area","Área lateral bruta","Superficie lateral bruta"],
+  ["Emprise nette","Net footprint","Implantação líquida","Huella neta"],
+  ["Emprise brute","Gross footprint","Implantação bruta","Huella bruta"],
+  ["Surface de plancher nette","Net floor area","Área de pavimento líquida","Superficie de suelo neta"],
+  ["Surface de plancher brute","Gross floor area","Área de pavimento bruta","Superficie de suelo bruta"],
+  ["Surface de plafond nette","Net ceiling area","Área de teto líquida","Superficie de techo neta"],
+  ["Surface de plafond brute","Gross ceiling area","Área de teto bruta","Superficie de techo bruta"],
+  ["Surface de murs nette","Net wall area","Área de paredes líquida","Superficie de muros neta"],
+  ["Surface de murs brute","Gross wall area","Área de paredes bruta","Superficie de muros bruta"],
+  ["Surface extérieure","Outer surface area","Área exterior","Superficie exterior"],
+  ["Section","Cross-section area","Secção","Sección"],
+  ["Profondeur","Depth","Profundidade","Profundidad"],
+  ["Périmètre brut","Gross perimeter","Perímetro bruto","Perímetro bruto"],
+  ["Périmètre net","Net perimeter","Perímetro líquido","Perímetro neto"],
+  ["Hauteur nette","Net height","Altura líquida","Altura neta"],
+  ["Hauteur sous plafond","Ceiling height","Pé-direito","Altura libre"],
+  ["Hauteur de sol fini","Finished floor height","Altura do piso acabado","Altura de suelo terminado"],
+  ["Poids net","Net weight","Peso líquido","Peso neto"],
+  ["Poids brut","Gross weight","Peso bruto","Peso bruto"],
+  ["Sans désignation","Unnamed","Sem designação","Sin designación"],
+  ["Tous les niveaux","All levels","Todos os pisos","Todos los niveles"],
+  ["Aucune maquette ouverte.","No model open.","Nenhum modelo aberto.","Ningún modelo abierto."],
+  ["Aucun élément ne correspond.","No matching element.","Nenhum elemento corresponde.","Ningún elemento coincide."],
+  ["Aucun élément trouvé dans ce fichier.","No element found in this file.","Nenhum elemento encontrado neste ficheiro.","No se encontró ningún elemento en este archivo."],
+  ["Copié","Copied","Copiado","Copiado"],
+  ["Les fichiers .rvt ne peuvent pas être lus directement",".rvt files cannot be read directly","Os ficheiros .rvt não podem ser lidos diretamente","Los archivos .rvt no se pueden leer directamente"],
+  ["Le format .rvt appartient à Autodesk et n’est lisible que par Revit. Exportez la maquette en IFC (format ouvert), puis ouvrez le fichier .ifc ici.","The .rvt format belongs to Autodesk and can only be read by Revit. Export the model to IFC (an open format), then open the .ifc file here.","O formato .rvt pertence à Autodesk e só pode ser lido pelo Revit. Exporte o modelo em IFC (formato aberto) e abra aqui o ficheiro .ifc.","El formato .rvt pertenece a Autodesk y solo Revit puede leerlo. Exporte el modelo a IFC (formato abierto) y abra aquí el archivo .ifc."],
+  ["Exporter la maquette depuis Revit","Export the model from Revit","Exportar o modelo a partir do Revit","Exportar el modelo desde Revit"],
+  ["Dans Revit, ouvrez le projet puis Fichier → Exporter → IFC.","In Revit, open the project, then File → Export → IFC.","No Revit, abra o projeto e depois Ficheiro → Exportar → IFC.","En Revit, abra el proyecto y luego Archivo → Exportar → IFC."],
+  ["Cliquez sur « Modifier la configuration… », onglet « Ensembles de propriétés » : cochez « Exporter les quantités de base » (et « Exporter les ensembles de propriétés Revit »).","Click “Modify Setup…”, “Property Sets” tab: tick “Export base quantities” (and “Export Revit property sets”).","Clique em « Modificar configuração… », separador « Conjuntos de propriedades »: marque « Exportar quantidades base » (e « Exportar conjuntos de propriedades do Revit »).","Haga clic en « Modificar configuración… », pestaña « Conjuntos de propiedades »: marque « Exportar cantidades base » (y « Exportar conjuntos de propiedades de Revit »)."],
+  ["Enregistrez le fichier .ifc, puis ouvrez-le ici avec « Ouvrir un fichier IFC… ».","Save the .ifc file, then open it here with “Open an IFC file…”.","Guarde o ficheiro .ifc e abra-o aqui com « Abrir um ficheiro IFC… ».","Guarde el archivo .ifc y ábralo aquí con « Abrir un archivo IFC… »."],
+  ["Le fichier est lu sur cet appareil : rien n’est envoyé sur internet.","The file is read on this device: nothing is sent over the internet.","O ficheiro é lido neste dispositivo: nada é enviado pela internet.","El archivo se lee en este dispositivo: no se envía nada por internet."],
+  ["Métrés d’une maquette Revit","Quantities from a Revit model","Medições de um modelo Revit","Mediciones de un modelo Revit"],
+  ["Ouvrez une maquette IFC exportée de Revit : Métrix liste tous les éléments trouvés avec leur désignation et leurs quantités.","Open an IFC model exported from Revit: Métrix lists every element found with its name and quantities.","Abra um modelo IFC exportado do Revit: o Métrix lista todos os elementos encontrados com a sua designação e quantidades.","Abra un modelo IFC exportado de Revit: Métrix lista todos los elementos encontrados con su designación y cantidades."],
+  ["éléments","elements","elementos","elementos"],
+  ["élément","element","elemento","elemento"],
+  ["niveaux","levels","pisos","niveles"],
+  ["Choisissez une désignation dans la barre latérale pour voir ses éléments et ses quantités.","Choose a name in the sidebar to see its elements and quantities.","Escolha uma designação na barra lateral para ver os seus elementos e quantidades.","Elija una designación en la barra lateral para ver sus elementos y cantidades."],
+  ["Catégorie","Category","Categoria","Categoría"],
+  ["Désignations","Names","Designações","Designaciones"],
+  ["Éléments","Elements","Elementos","Elementos"],
+  ["Total","Total","Total","Total"],
+  ["Ce fichier ne contient pas de quantités (surfaces, volumes…). Dans Revit, réexportez-le en cochant « Exporter les quantités de base ».","This file contains no quantities (areas, volumes…). In Revit, export it again with “Export base quantities” ticked.","Este ficheiro não contém quantidades (áreas, volumes…). No Revit, exporte-o novamente marcando « Exportar quantidades base ».","Este archivo no contiene cantidades (superficies, volúmenes…). En Revit, vuelva a exportarlo marcando « Exportar cantidades base »."],
+  ["Quantités totales","Total quantities","Quantidades totais","Cantidades totales"],
+  ["Nombre","Count","Número","Número"],
+  ["Copier la valeur","Copy the value","Copiar o valor","Copiar el valor"],
+  ["Pas de surface ni de volume pour ces éléments dans le fichier : seul le nombre est connu.","No area or volume for these elements in the file: only the count is known.","Sem área nem volume para estes elementos no ficheiro: só o número é conhecido.","Sin superficie ni volumen para estos elementos en el archivo: solo se conoce el número."],
+  ["Copier le tableau pour Excel","Copy the table for Excel","Copiar a tabela para Excel","Copiar la tabla para Excel"],
+  ["Nom","Name","Nome","Nombre"],
+  ["ID Revit","Revit ID","ID Revit","ID de Revit"],
+  ["Niveau","Level","Piso","Nivel"],
+  ["Tableau copié : collez-le dans Excel.","Table copied: paste it into Excel.","Tabela copiada: cole-a no Excel.","Tabla copiada: péguela en Excel."],
+  ["Lecture de la maquette…","Reading the model…","A ler o modelo…","Leyendo el modelo…"],
+  ["{n} éléments trouvés","{n} elements found","{n} elementos encontrados","{n} elementos encontrados"],
+  ["Ce fichier n’est pas une maquette IFC lisible.","This file is not a readable IFC model.","Este ficheiro não é um modelo IFC legível.","Este archivo no es un modelo IFC legible."],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -1650,11 +1821,11 @@ addTr2([
   ["tout déduire","alle abziehen","alles aftrekken","全部扣除","خصم الكل","detrai tutto","вычитать все"],
   ["Les vides dont l'aire est inférieure ou égale à ce seuil ne sont pas déduits (vide pour plein). Laisser vide pour tout déduire.","Aussparungen mit einer Fläche kleiner oder gleich diesem Schwellenwert werden nicht abgezogen. Leer lassen, um alle abzuziehen.","Uitsparingen met een oppervlakte kleiner dan of gelijk aan deze drempel worden niet afgetrokken. Leeg laten om alles af te trekken.","面积小于或等于此阈值的洞口不扣除。留空则全部扣除。","لا تُخصم الفتحات التي تكون مساحتها أصغر من هذا الحد أو مساوية له. اتركه فارغًا لخصم الكل.","I vuoti con superficie minore o uguale a questa soglia non vengono detratti. Lascia vuoto per detrarre tutto.","Проёмы площадью не больше этого порога не вычитаются. Оставьте пустым, чтобы вычитать все."],
   ["Résultats","Ergebnisse","Resultaten","结果","النتائج","Risultati","Результаты"],
-  ["Surface brute","Bruttofläche","Bruto oppervlakte","毛面积","المساحة الإجمالية","Superficie lorda","Площадь брутто"],
+  ["Surface brute","Bruttofläche","Bruto oppervlak","总面积","المساحة الإجمالية","Superficie lorda","Площадь брутто"],
   ["Vides déduits ({n})","Abgezogene Aussparungen ({n})","Afgetrokken uitsparingen ({n})","已扣除洞口 ({n})","الفتحات المخصومة ({n})","Vuoti detratti ({n})","Вычтенные проёмы ({n})"],
   ["Vide pour plein ({n})","Nicht abgezogen ({n})","Niet afgetrokken ({n})","未扣除 ({n})","غير مخصومة ({n})","Non detratti ({n})","Не вычтены ({n})"],
   ["{a} m² non déduits","{a} m² nicht abgezogen","{a} m² niet afgetrokken","{a} m² 未扣除","{a} م² غير مخصومة","{a} m² non detratti","{a} м² не вычтено"],
-  ["Surface nette","Nettofläche","Netto oppervlakte","净面积","المساحة الصافية","Superficie netta","Площадь нетто"],
+  ["Surface nette","Nettofläche","Netto oppervlak","净面积","المساحة الصافية","Superficie netta","Площадь нетто"],
   ["Valeur unitaire","Einzelwert","Eenheidswaarde","单项值","القيمة الفردية","Valore unitario","Единичное значение"],
   ["Surface verticale","Vertikale Fläche","Verticale oppervlakte","立面面积","المساحة الرأسية","Superficie verticale","Вертикальная площадь"],
   ["Périmètre","Umfang","Omtrek","周长","المحيط","Perimetro","Периметр"],
@@ -1936,6 +2107,101 @@ addTr2([
   ["Vider toutes les quantités saisies ?","Alle eingegebenen Mengen löschen?","Alle ingevoerde hoeveelheden wissen?","清除所有已输入的工程量？","مسح كل الكميات المُدخلة؟","Cancellare tutte le quantità inserite?","Очистить все введённые объёмы?"],
   ["Aucune quantité saisie.","Keine Menge eingegeben.","Geen hoeveelheid ingevoerd.","未输入工程量。","لم تُدخل أي كمية.","Nessuna quantità inserita.","Объёмы не введены."],
   ["Lignes copiées : collez-les dans Excel.","Zeilen kopiert: fügen Sie sie in Excel ein.","Regels gekopieerd: plak ze in Excel.","已复制行：请粘贴到 Excel。","تم نسخ الأسطر: الصقها في Excel.","Righe copiate: incollale in Excel.","Строки скопированы: вставьте их в Excel."],
+  ["Revit / IFC","Revit / IFC","Revit / IFC","Revit / IFC","Revit / IFC","Revit / IFC","Revit / IFC"],
+  ["Métrés d'une maquette Revit exportée en IFC","Mengen aus einem als IFC exportierten Revit-Modell","Hoeveelheden uit een naar IFC geëxporteerd Revit-model","从导出为 IFC 的 Revit 模型中提取的工程量","كميات نموذج Revit المُصدَّر بصيغة IFC","Quantità da un modello Revit esportato in IFC","Объёмы из модели Revit, экспортированной в IFC"],
+  ["Métrés de la maquette","Mengen des Modells","Hoeveelheden van het model","模型工程量","كميات النموذج","Quantità del modello","Объёмы модели"],
+  ["Ouvrir une maquette IFC exportée de Revit (fichier .ifc)","Ein aus Revit exportiertes IFC-Modell öffnen (.ifc-Datei)","Een uit Revit geëxporteerd IFC-model openen (.ifc-bestand)","打开从 Revit 导出的 IFC 模型（.ifc 文件）","افتح نموذج IFC مُصدَّرًا من Revit (ملف .ifc)","Apri un modello IFC esportato da Revit (file .ifc)","Открыть модель IFC, экспортированную из Revit (файл .ifc)"],
+  ["Ouvrir un fichier IFC…","IFC-Datei öffnen…","IFC-bestand openen…","打开 IFC 文件…","فتح ملف IFC…","Apri un file IFC…","Открыть файл IFC…"],
+  ["N'afficher que les éléments d'un niveau","Nur die Elemente einer Ebene anzeigen","Alleen de elementen van één niveau tonen","仅显示某一楼层的构件","عرض عناصر مستوى واحد فقط","Mostra solo gli elementi di un livello","Показывать только элементы одного уровня"],
+  ["Rechercher une désignation…","Bezeichnung suchen…","Omschrijving zoeken…","搜索名称…","ابحث عن اسم…","Cerca una descrizione…","Найти название…"],
+  ["Maquette Revit","Revit-Modell","Revit-model","Revit 模型","نموذج Revit","Modello Revit","Модель Revit"],
+  ["Murs","Wände","Wanden","墙","الجدران","Muri","Стены"],
+  ["Murs-rideaux","Vorhangfassaden","Vliesgevels","幕墙","الجدران الستائرية","Facciate continue","Витражи"],
+  ["Dalles","Decken","Vloeren","楼板","البلاطات","Solai","Плиты"],
+  ["Toits","Dächer","Daken","屋顶","الأسطح","Tetti","Кровли"],
+  ["Poteaux","Stützen","Kolommen","柱","الأعمدة","Pilastri","Колонны"],
+  ["Poutres","Träger","Balken","梁","الجسور","Travi","Балки"],
+  ["Fondations","Fundamente","Funderingen","基础","الأساسات","Fondazioni","Фундаменты"],
+  ["Pieux","Pfähle","Palen","桩","الخوازيق","Pali","Сваи"],
+  ["Escaliers","Treppen","Trappen","楼梯","السلالم","Scale","Лестницы"],
+  ["Volées d'escalier","Treppenläufe","Trapbomen","梯段","قلبات السلالم","Rampe di scale","Лестничные марши"],
+  ["Rampes","Rampen","Hellingen","坡道","المنحدرات","Rampe","Пандусы"],
+  ["Garde-corps","Geländer","Borstweringen","栏杆","الدرابزينات","Parapetti","Ограждения"],
+  ["Portes","Türen","Deuren","门","الأبواب","Porte","Двери"],
+  ["Fenêtres","Fenster","Ramen","窗","النوافذ","Finestre","Окна"],
+  ["Revêtements","Beläge","Bekledingen","饰面","الكسوات","Rivestimenti","Покрытия"],
+  ["Panneaux","Paneele","Panelen","面板","الألواح","Pannelli","Панели"],
+  ["Montants et ossatures","Pfosten und Tragwerk","Stijlen en regelwerk","竖梃和骨架","القوائم والهياكل","Montanti e telai","Импосты и каркасы"],
+  ["Pièces","Räume","Ruimten","房间","الغرف","Locali","Помещения"],
+  ["Mobilier","Möbel","Meubilair","家具","الأثاث","Arredi","Мебель"],
+  ["Autres éléments","Sonstige Elemente","Overige elementen","其他构件","عناصر أخرى","Altri elementi","Прочие элементы"],
+  ["Armatures","Bewehrung","Wapening","钢筋","حديد التسليح","Armature","Арматура"],
+  ["Conduits","Schornsteine","Schoorstenen","烟道","المداخن","Canne fumarie","Дымоходы"],
+  ["Brise-soleil","Sonnenschutz","Zonwering","遮阳","كاسرات الشمس","Frangisole","Солнцезащита"],
+  ["Assemblages","Baugruppen","Samenstellingen","组件","التجميعات","Assiemi","Сборки"],
+  ["Équipements techniques","Haustechnik","Installatietechniek","设备","المعدات الفنية","Impianti tecnici","Инженерное оборудование"],
+  ["Réseaux (tuyaux, gaines)","Leitungen (Rohre, Kanäle)","Leidingen (buizen, kanalen)","管网（管道、风管）","الشبكات (أنابيب، مجاري)","Reti (tubi, canali)","Сети (трубы, воздуховоды)"],
+  ["Raccords de réseaux","Formteile","Hulpstukken","管件","وصلات الشبكات","Raccordi","Фитинги"],
+  ["Volume net","Nettovolumen","Netto volume","净体积","الحجم الصافي","Volume netto","Объём нетто"],
+  ["Volume brut","Bruttovolumen","Bruto volume","总体积","الحجم الإجمالي","Volume lordo","Объём брутто"],
+  ["Surface nette","Nettofläche","Netto oppervlak","净面积","المساحة الصافية","Superficie netta","Площадь нетто"],
+  ["Surface brute","Bruttofläche","Bruto oppervlak","总面积","المساحة الإجمالية","Superficie lorda","Площадь брутто"],
+  ["Surface latérale nette","Netto-Seitenfläche","Netto zijoppervlak","净侧面积","المساحة الجانبية الصافية","Superficie laterale netta","Боковая площадь нетто"],
+  ["Surface latérale brute","Brutto-Seitenfläche","Bruto zijoppervlak","总侧面积","المساحة الجانبية الإجمالية","Superficie laterale lorda","Боковая площадь брутто"],
+  ["Emprise nette","Netto-Grundfläche","Netto voetafdruk","净占地面积","البصمة الصافية","Impronta netta","Площадь основания нетто"],
+  ["Emprise brute","Brutto-Grundfläche","Bruto voetafdruk","总占地面积","البصمة الإجمالية","Impronta lorda","Площадь основания брутто"],
+  ["Surface de plancher nette","Netto-Bodenfläche","Netto vloeroppervlak","净楼面面积","مساحة الأرضية الصافية","Superficie di pavimento netta","Площадь пола нетто"],
+  ["Surface de plancher brute","Brutto-Bodenfläche","Bruto vloeroppervlak","总楼面面积","مساحة الأرضية الإجمالية","Superficie di pavimento lorda","Площадь пола брутто"],
+  ["Surface de plafond nette","Netto-Deckenfläche","Netto plafondoppervlak","净天花面积","مساحة السقف الصافية","Superficie del soffitto netta","Площадь потолка нетто"],
+  ["Surface de plafond brute","Brutto-Deckenfläche","Bruto plafondoppervlak","总天花面积","مساحة السقف الإجمالية","Superficie del soffitto lorda","Площадь потолка брутто"],
+  ["Surface de murs nette","Netto-Wandfläche","Netto wandoppervlak","净墙面积","مساحة الجدران الصافية","Superficie dei muri netta","Площадь стен нетто"],
+  ["Surface de murs brute","Brutto-Wandfläche","Bruto wandoppervlak","总墙面积","مساحة الجدران الإجمالية","Superficie dei muri lorda","Площадь стен брутто"],
+  ["Surface extérieure","Außenfläche","Buitenoppervlak","外表面积","المساحة الخارجية","Superficie esterna","Наружная площадь"],
+  ["Section","Querschnitt","Doorsnede","截面面积","المقطع","Sezione","Сечение"],
+  ["Profondeur","Tiefe","Diepte","深度","العمق","Profondità","Глубина"],
+  ["Périmètre brut","Bruttoumfang","Bruto omtrek","总周长","المحيط الإجمالي","Perimetro lordo","Периметр брутто"],
+  ["Périmètre net","Nettoumfang","Netto omtrek","净周长","المحيط الصافي","Perimetro netto","Периметр нетто"],
+  ["Hauteur nette","Lichte Höhe","Netto hoogte","净高","الارتفاع الصافي","Altezza netta","Высота нетто"],
+  ["Hauteur sous plafond","Raumhöhe","Plafondhoogte","吊顶高度","الارتفاع حتى السقف","Altezza utile","Высота до потолка"],
+  ["Hauteur de sol fini","Höhe Fertigfußboden","Hoogte afgewerkte vloer","完成地面高度","ارتفاع الأرضية النهائية","Altezza pavimento finito","Высота чистого пола"],
+  ["Poids net","Nettogewicht","Nettogewicht","净重","الوزن الصافي","Peso netto","Масса нетто"],
+  ["Poids brut","Bruttogewicht","Brutogewicht","毛重","الوزن الإجمالي","Peso lordo","Масса брутто"],
+  ["Sans désignation","Ohne Bezeichnung","Zonder omschrijving","未命名","بدون اسم","Senza descrizione","Без названия"],
+  ["Tous les niveaux","Alle Ebenen","Alle niveaus","所有楼层","كل المستويات","Tutti i livelli","Все уровни"],
+  ["Aucune maquette ouverte.","Kein Modell geöffnet.","Geen model geopend.","未打开模型。","لا يوجد نموذج مفتوح.","Nessun modello aperto.","Модель не открыта."],
+  ["Aucun élément ne correspond.","Kein passendes Element.","Geen overeenkomend element.","没有匹配的构件。","لا يوجد عنصر مطابق.","Nessun elemento corrispondente.","Нет подходящих элементов."],
+  ["Aucun élément trouvé dans ce fichier.","Keine Elemente in dieser Datei gefunden.","Geen elementen gevonden in dit bestand.","此文件中未找到构件。","لم يُعثر على أي عنصر في هذا الملف.","Nessun elemento trovato in questo file.","В этом файле элементы не найдены."],
+  ["Copié","Kopiert","Gekopieerd","已复制","تم النسخ","Copiato","Скопировано"],
+  ["Les fichiers .rvt ne peuvent pas être lus directement",".rvt-Dateien können nicht direkt gelesen werden",".rvt-bestanden kunnen niet rechtstreeks worden gelezen","无法直接读取 .rvt 文件","لا يمكن قراءة ملفات .rvt مباشرة","I file .rvt non possono essere letti direttamente","Файлы .rvt нельзя открыть напрямую"],
+  ["Le format .rvt appartient à Autodesk et n’est lisible que par Revit. Exportez la maquette en IFC (format ouvert), puis ouvrez le fichier .ifc ici.","Das .rvt-Format gehört Autodesk und kann nur von Revit gelesen werden. Exportieren Sie das Modell als IFC (offenes Format) und öffnen Sie dann die .ifc-Datei hier.","Het .rvt-formaat is van Autodesk en kan alleen door Revit worden gelezen. Exporteer het model naar IFC (open formaat) en open hier het .ifc-bestand.",".rvt 格式属于 Autodesk，只能由 Revit 读取。请将模型导出为 IFC（开放格式），然后在此打开 .ifc 文件。","صيغة .rvt مملوكة لشركة Autodesk ولا يقرأها إلا Revit. صدِّر النموذج بصيغة IFC (صيغة مفتوحة) ثم افتح ملف .ifc هنا.","Il formato .rvt appartiene ad Autodesk e può essere letto solo da Revit. Esporta il modello in IFC (formato aperto), poi apri qui il file .ifc.","Формат .rvt принадлежит Autodesk и читается только Revit. Экспортируйте модель в IFC (открытый формат) и откройте здесь файл .ifc."],
+  ["Exporter la maquette depuis Revit","Modell aus Revit exportieren","Het model uit Revit exporteren","从 Revit 导出模型","تصدير النموذج من Revit","Esportare il modello da Revit","Экспорт модели из Revit"],
+  ["Dans Revit, ouvrez le projet puis Fichier → Exporter → IFC.","Öffnen Sie in Revit das Projekt, dann Datei → Exportieren → IFC.","Open in Revit het project en kies Bestand → Exporteren → IFC.","在 Revit 中打开项目，然后选择 文件 → 导出 → IFC。","في Revit، افتح المشروع ثم ملف ← تصدير ← IFC.","In Revit apri il progetto, poi File → Esporta → IFC.","В Revit откройте проект, затем Файл → Экспорт → IFC."],
+  ["Cliquez sur « Modifier la configuration… », onglet « Ensembles de propriétés » : cochez « Exporter les quantités de base » (et « Exporter les ensembles de propriétés Revit »).","Klicken Sie auf „Konfiguration ändern…“, Registerkarte „Eigenschaftssätze“: aktivieren Sie „Basismengen exportieren“ (und „Revit-Eigenschaftssätze exportieren“).","Klik op „Instellingen wijzigen…”, tabblad „Eigenschappensets”: vink „Basishoeveelheden exporteren” aan (en „Revit-eigenschappensets exporteren”).","点击“修改设置…”，在“特性集”选项卡中勾选“导出基本数量”（以及“导出 Revit 特性集”）。","انقر «تعديل الإعداد…»، تبويب «مجموعات الخصائص»: فعّل «تصدير الكميات الأساسية» (و«تصدير مجموعات خصائص Revit»).","Fai clic su «Modifica configurazione…», scheda «Set di proprietà»: spunta «Esporta quantità di base» (e «Esporta set di proprietà Revit»).","Нажмите «Изменить настройку…», вкладка «Наборы свойств»: отметьте «Экспорт базовых количеств» (и «Экспорт наборов свойств Revit»)."],
+  ["Enregistrez le fichier .ifc, puis ouvrez-le ici avec « Ouvrir un fichier IFC… ».","Speichern Sie die .ifc-Datei und öffnen Sie sie hier mit „IFC-Datei öffnen…“.","Sla het .ifc-bestand op en open het hier met „IFC-bestand openen…”.","保存 .ifc 文件，然后在此通过“打开 IFC 文件…”打开它。","احفظ ملف .ifc ثم افتحه هنا عبر «فتح ملف IFC…».","Salva il file .ifc, poi aprilo qui con «Apri un file IFC…».","Сохраните файл .ifc и откройте его здесь кнопкой «Открыть файл IFC…»."],
+  ["Le fichier est lu sur cet appareil : rien n’est envoyé sur internet.","Die Datei wird auf diesem Gerät gelesen: nichts wird ins Internet gesendet.","Het bestand wordt op dit apparaat gelezen: er wordt niets via internet verzonden.","文件在本设备上读取：不会通过互联网发送任何内容。","يُقرأ الملف على هذا الجهاز: لا يُرسَل أي شيء عبر الإنترنت.","Il file viene letto su questo dispositivo: nulla viene inviato su internet.","Файл читается на этом устройстве: ничего не отправляется в интернет."],
+  ["Métrés d’une maquette Revit","Mengen aus einem Revit-Modell","Hoeveelheden uit een Revit-model","Revit 模型工程量","كميات نموذج Revit","Quantità da un modello Revit","Объёмы модели Revit"],
+  ["Ouvrez une maquette IFC exportée de Revit : Métrix liste tous les éléments trouvés avec leur désignation et leurs quantités.","Öffnen Sie ein aus Revit exportiertes IFC-Modell: Métrix listet alle gefundenen Elemente mit Bezeichnung und Mengen auf.","Open een uit Revit geëxporteerd IFC-model: Métrix toont alle gevonden elementen met hun omschrijving en hoeveelheden.","打开从 Revit 导出的 IFC 模型：Métrix 会列出找到的所有构件及其名称和工程量。","افتح نموذج IFC مُصدَّرًا من Revit: يعرض Métrix كل العناصر الموجودة مع أسمائها وكمياتها.","Apri un modello IFC esportato da Revit: Métrix elenca tutti gli elementi trovati con descrizione e quantità.","Откройте модель IFC, экспортированную из Revit: Métrix покажет все найденные элементы с названиями и объёмами."],
+  ["éléments","Elemente","elementen","个构件","عناصر","elementi","элементов"],
+  ["élément","Element","element","个构件","عنصر","elemento","элемент"],
+  ["niveaux","Ebenen","niveaus","个楼层","مستويات","livelli","уровней"],
+  ["Choisissez une désignation dans la barre latérale pour voir ses éléments et ses quantités.","Wählen Sie in der Seitenleiste eine Bezeichnung, um ihre Elemente und Mengen zu sehen.","Kies een omschrijving in de zijbalk om de elementen en hoeveelheden te zien.","在侧边栏中选择一个名称，查看其构件和工程量。","اختر اسمًا في الشريط الجانبي لعرض عناصره وكمياته.","Scegli una descrizione nella barra laterale per vederne elementi e quantità.","Выберите название на боковой панели, чтобы увидеть его элементы и объёмы."],
+  ["Catégorie","Kategorie","Categorie","类别","الفئة","Categoria","Категория"],
+  ["Désignations","Bezeichnungen","Omschrijvingen","名称","الأسماء","Descrizioni","Названия"],
+  ["Éléments","Elemente","Elementen","构件","العناصر","Elementi","Элементы"],
+  ["Total","Summe","Totaal","合计","الإجمالي","Totale","Итого"],
+  ["Ce fichier ne contient pas de quantités (surfaces, volumes…). Dans Revit, réexportez-le en cochant « Exporter les quantités de base ».","Diese Datei enthält keine Mengen (Flächen, Volumen…). Exportieren Sie sie in Revit erneut mit „Basismengen exportieren“.","Dit bestand bevat geen hoeveelheden (oppervlakken, volumes…). Exporteer het opnieuw in Revit met „Basishoeveelheden exporteren” aangevinkt.","此文件不含工程量（面积、体积…）。请在 Revit 中勾选“导出基本数量”后重新导出。","لا يحتوي هذا الملف على كميات (مساحات، أحجام…). أعد تصديره من Revit مع تفعيل «تصدير الكميات الأساسية».","Questo file non contiene quantità (superfici, volumi…). In Revit, esportalo di nuovo spuntando «Esporta quantità di base».","Файл не содержит объёмов (площадей, объёмов…). Экспортируйте его в Revit заново с отметкой «Экспорт базовых количеств»."],
+  ["Quantités totales","Gesamtmengen","Totale hoeveelheden","总工程量","الكميات الإجمالية","Quantità totali","Итоговые объёмы"],
+  ["Nombre","Anzahl","Aantal","数量","العدد","Numero","Количество"],
+  ["Copier la valeur","Wert kopieren","Waarde kopiëren","复制数值","نسخ القيمة","Copia il valore","Копировать значение"],
+  ["Pas de surface ni de volume pour ces éléments dans le fichier : seul le nombre est connu.","Keine Fläche und kein Volumen für diese Elemente in der Datei: nur die Anzahl ist bekannt.","Geen oppervlak of volume voor deze elementen in het bestand: alleen het aantal is bekend.","文件中没有这些构件的面积或体积：仅知道数量。","لا توجد مساحة أو حجم لهذه العناصر في الملف: العدد فقط معروف.","Nessuna superficie né volume per questi elementi nel file: è noto solo il numero.","В файле нет площади и объёма для этих элементов: известно только количество."],
+  ["Copier le tableau pour Excel","Tabelle für Excel kopieren","Tabel kopiëren voor Excel","复制表格到 Excel","نسخ الجدول إلى Excel","Copia la tabella per Excel","Копировать таблицу для Excel"],
+  ["Nom","Name","Naam","名称","الاسم","Nome","Имя"],
+  ["ID Revit","Revit-ID","Revit-ID","Revit ID","معرّف Revit","ID Revit","ID Revit"],
+  ["Niveau","Ebene","Niveau","楼层","المستوى","Livello","Уровень"],
+  ["Tableau copié : collez-le dans Excel.","Tabelle kopiert: fügen Sie sie in Excel ein.","Tabel gekopieerd: plak hem in Excel.","表格已复制：请粘贴到 Excel。","تم نسخ الجدول: الصقه في Excel.","Tabella copiata: incollala in Excel.","Таблица скопирована: вставьте её в Excel."],
+  ["Lecture de la maquette…","Modell wird gelesen…","Model wordt gelezen…","正在读取模型…","جارٍ قراءة النموذج…","Lettura del modello…","Чтение модели…"],
+  ["{n} éléments trouvés","{n} Elemente gefunden","{n} elementen gevonden","找到 {n} 个构件","تم العثور على {n} عنصر","{n} elementi trovati","Найдено элементов: {n}"],
+  ["Ce fichier n’est pas une maquette IFC lisible.","Diese Datei ist kein lesbares IFC-Modell.","Dit bestand is geen leesbaar IFC-model.","此文件不是可读取的 IFC 模型。","هذا الملف ليس نموذج IFC قابلًا للقراءة.","Questo file non è un modello IFC leggibile.","Этот файл не является читаемой моделью IFC."],
 ]);
 // --- fin des langues ajoutées ---
 
@@ -2099,7 +2365,7 @@ function readNativeFile(kind, path, name, src) {
   x.onload = () => {
     const type = /\.pdf$/i.test(name) ? 'application/pdf' : /\.json$/i.test(name) ? 'application/json' : '';
     const f = new File([x.response], name, { type: type || x.response.type });
-    kind === 'load' ? loadProject(f) : openFile(f, src || path);   // ancienne appli Mac : la copie temporaire sert d'emplacement
+    kind === 'ifc' ? ifcOpenFile(f) : kind === 'load' ? loadProject(f) : openFile(f, src || path);   // ancienne appli Mac : la copie temporaire sert d'emplacement
   };
   x.onerror = () => notify('Impossible de lire le fichier « ' + name + ' ».');
   x.timeout = 60000; x.ontimeout = () => notify('Le fichier « ' + name + ' » met trop de temps à s\'ouvrir. Réessayez, ou glissez-le directement sur la fenêtre.');
@@ -3305,13 +3571,16 @@ function showTab(name, selId) {
   document.body.classList.toggle('lib-mode', name === 'lib');
   document.body.classList.toggle('set-mode', name === 'set');
   document.body.classList.toggle('tu-mode', name === 'tu');
+  document.body.classList.toggle('ifc-mode', name === 'ifc');
   $('tabHome').classList.toggle('active', name === 'home');
   $('tabLib').classList.toggle('active', name === 'lib');
   $('tabSet').classList.toggle('active', name === 'set');
   $('tabTu').classList.toggle('active', name === 'tu');
+  $('tabIfc').classList.toggle('active', name === 'ifc');
   if (name === 'lib') renderLibrary();
   else if (name === 'set') renderSettings();
   else if (name === 'tu') renderTu();
+  else if (name === 'ifc') renderIfc();
   else { resize(); refresh(); }
 }
 function showLibrary(on, selId) { showTab(on ? 'lib' : 'home', selId); }
@@ -3640,6 +3909,344 @@ $('tuCopyAll').onclick = () => {
   if (rows.length < 2) { toast(trText('Aucune quantité saisie.')); return; }
   copyText(rows.join('\r\n') + '\r\n'); toast(trText('Lignes copiées : collez-les dans Excel.'));
 };
+/* ---------- onglet « Revit / IFC » : métrés lus dans une maquette IFC (export de Revit) ---------- */
+// Le format .rvt est fermé : Revit exporte la maquette en IFC (format ouvert), que Métrix lit hors connexion.
+const IFC_CATS = {
+  IFCWALL:'Murs', IFCWALLSTANDARDCASE:'Murs', IFCWALLELEMENTEDCASE:'Murs', IFCCURTAINWALL:'Murs-rideaux', IFCSLAB:'Dalles', IFCSLABSTANDARDCASE:'Dalles',
+  IFCROOF:'Toits', IFCCOLUMN:'Poteaux', IFCCOLUMNSTANDARDCASE:'Poteaux', IFCBEAM:'Poutres', IFCBEAMSTANDARDCASE:'Poutres', IFCFOOTING:'Fondations',
+  IFCPILE:'Pieux', IFCSTAIR:'Escaliers', IFCSTAIRFLIGHT:'Volées d\'escalier', IFCRAMP:'Rampes', IFCRAMPFLIGHT:'Rampes', IFCRAILING:'Garde-corps',
+  IFCDOOR:'Portes', IFCDOORSTANDARDCASE:'Portes', IFCWINDOW:'Fenêtres', IFCWINDOWSTANDARDCASE:'Fenêtres', IFCCOVERING:'Revêtements', IFCPLATE:'Panneaux',
+  IFCMEMBER:'Montants et ossatures', IFCSPACE:'Pièces', IFCFURNISHINGELEMENT:'Mobilier', IFCFURNITURE:'Mobilier', IFCBUILDINGELEMENTPROXY:'Autres éléments',
+  IFCREINFORCINGBAR:'Armatures', IFCREINFORCINGMESH:'Armatures', IFCCHIMNEY:'Conduits', IFCSHADINGDEVICE:'Brise-soleil', IFCELEMENTASSEMBLY:'Assemblages',
+  IFCFLOWTERMINAL:'Équipements techniques', IFCFLOWSEGMENT:'Réseaux (tuyaux, gaines)', IFCFLOWFITTING:'Raccords de réseaux', IFCDISTRIBUTIONELEMENT:'Équipements techniques',
+};
+const IFC_QN = {
+  NetVolume:'Volume net', GrossVolume:'Volume brut', Volume:'Volume', NetArea:'Surface nette', GrossArea:'Surface brute', Area:'Surface',
+  NetSideArea:'Surface latérale nette', GrossSideArea:'Surface latérale brute', NetFootprintArea:'Emprise nette', GrossFootprintArea:'Emprise brute',
+  NetFloorArea:'Surface de plancher nette', GrossFloorArea:'Surface de plancher brute', NetCeilingArea:'Surface de plafond nette', GrossCeilingArea:'Surface de plafond brute',
+  NetWallArea:'Surface de murs nette', GrossWallArea:'Surface de murs brute', NetSurfaceArea:'Surface nette', OuterSurfaceArea:'Surface extérieure', CrossSectionArea:'Section',
+  Length:'Longueur', Width:'Largeur', Height:'Hauteur', Depth:'Profondeur', Perimeter:'Périmètre', GrossPerimeter:'Périmètre brut', NetPerimeter:'Périmètre net',
+  NetHeight:'Hauteur nette', FinishCeilingHeight:'Hauteur sous plafond', FinishFloorHeight:'Hauteur de sol fini', NetWeight:'Poids net', GrossWeight:'Poids brut',
+};
+const IFC_KU = { L:'m', A:'m²', V:'m³', N:'u', W:'kg' };
+const IFC_KORD = { V:0, A:1, L:2, W:3, N:4 };
+// entités de géométrie et de présentation : ignorées (c'est l'essentiel du fichier)
+const IFC_SKIP = /^IFC(CARTESIAN|POLY|FACE|DIRECTION|AXIS[12]|LOCALPLACEMENT|SHAPEREPRESENTATION|PRODUCTDEFINITIONSHAPE|EXTRUDED|INDEXED|TRIANGULATED|STYLEDITEM|PRESENTATION|SURFACESTYLE|COLOUR|MAPPEDITEM|REPRESENTATIONMAP|CLOSEDSHELL|OPENSHELL|FACETED|\w*PROFILEDEF|BOOLEAN|HALFSPACE|POLYGONAL|PLANE$|COMPOSITECURVE|TRIMMEDCURVE|CIRCLE|ELLIPSE|LINE$|VECTOR|\w*CURVE|ADVANCED|BSPLINE|\w*EDGE|VERTEX|ORIENTED|SHELLBASED|GEOMETRIC|OWNERHISTORY|PERSON|ORGANIZATION|APPLICATION|MATERIAL|SHAPEASPECT|DRAUGHTING|FILLAREA|TEXT|\w*STYLE$|CURVESTYLE|RELASSOCIATES|RELSPACEBOUNDARY|RELCONNECTS|RELVOIDS|RELFILLS|CONNECTION|SURFACEOF|SWEPT|BLOCK|SPHERE|RIGHTCIRCULAR)/;
+const IFC_NOTELEM = /^IFC(PROJECT|SITE|BUILDING|BUILDINGSTOREY|OPENINGELEMENT|ANNOTATION|GRID|VIRTUALELEMENT|\w*TYPE|\w*STYLE|\w*PORT|SYSTEM|ZONE|GROUP|SPATIALZONE|EXTERNALSPATIALELEMENT)$/;
+const IFC_PFX = { EXA:1e18, PETA:1e15, TERA:1e12, GIGA:1e9, MEGA:1e6, KILO:1e3, HECTO:100, DECA:10, DECI:.1, CENTI:.01, MILLI:.001, MICRO:1e-6, NANO:1e-9 };
+let ifcModel = null, ifcSel = null;
+const ifcOpenCats = new Set();
+
+function ifcStr(s) {
+  if (s.indexOf('\\') < 0) return s;
+  return s.replace(/\\X2\\([0-9A-F]+)\\X0\\/gi, (_, h) => (h.match(/.{4}/g) || []).map(x => String.fromCharCode(parseInt(x, 16))).join(''))
+    .replace(/\\X\\([0-9A-F]{2})/gi, (_, h) => String.fromCharCode(parseInt(h, 16)))
+    .replace(/\\S\\(.)/g, (_, ch) => String.fromCharCode(ch.charCodeAt(0) + 128))
+    .replace(/\\\\/g, '\\');
+}
+// lecture du fichier STEP (ISO 10303-21) : repère chaque entité « #id = TYPE(...); » sans lire la géométrie
+function ifcParse(text) {
+  const n = text.length, ent = new Map();
+  const schema = (/FILE_SCHEMA\s*\(\s*\(\s*'([^']*)'/i.exec(text.slice(0, 5000)) || [])[1] || '';
+  let p = text.indexOf('DATA;');
+  if (p < 0 || !/ISO-10303-21/.test(text.slice(0, 200))) throw new Error('not-ifc');
+  p += 5;
+  while (p < n) {
+    p = text.indexOf('#', p); if (p < 0) break;
+    let q = p + 1; while (q < n) { const c = text.charCodeAt(q); if (c < 48 || c > 57) break; q++; }
+    if (q === p + 1) { p++; continue; }
+    const id = +text.slice(p + 1, q);
+    while (q < n && text.charCodeAt(q) !== 61) q++;          // =
+    q++; while (q < n && text.charCodeAt(q) <= 32) q++;
+    const t0 = q; while (q < n && text.charCodeAt(q) !== 40 && text.charCodeAt(q) > 32) q++;
+    const type = text.slice(t0, q).toUpperCase();
+    while (q < n && text.charCodeAt(q) !== 40) q++;
+    const a = q;
+    // fin de l'entité : « ; » hors des textes entre apostrophes
+    let semi = text.indexOf(';', q); if (semi < 0) semi = n;
+    let ap = text.indexOf("'", q);
+    if (ap >= 0 && ap < semi) {
+      let k = q, inStr = false;
+      for (; k < n; k++) { const c = text.charCodeAt(k); if (inStr) { if (c === 39) { if (text.charCodeAt(k + 1) === 39) k++; else inStr = false; } } else if (c === 39) inStr = true; else if (c === 59) break; }
+      semi = k;
+    }
+    if (!IFC_SKIP.test(type)) ent.set(id, { t: type, a, b: semi });
+    p = semi + 1;
+  }
+  return { text, ent, schema };
+}
+// arguments d'une entité : nombres, textes, {r:id} (référence), {e:'X'} (énumération), {t:TYPE, v} (valeur typée), listes
+function ifcArgs(M, id) {
+  const e = typeof id === 'object' ? id : M.ent.get(id); if (!e) return null;
+  if (e.args) return e.args;
+  const s = M.text; let p = e.a + 1;
+  const ws = () => { while (s.charCodeAt(p) <= 32) p++; };
+  function val() {
+    ws(); const c = s[p];
+    if (c === "'") { let out = ''; p++; for (;;) { const k = s.indexOf("'", p); out += s.slice(p, k); p = k + 1; if (s[p] === "'") { out += "'"; p++; } else break; } return ifcStr(out); }
+    if (c === '#') { let q = p + 1; while (s.charCodeAt(q) >= 48 && s.charCodeAt(q) <= 57) q++; const r = { r: +s.slice(p + 1, q) }; p = q; return r; }
+    if (c === '(') { p++; const l = []; ws(); if (s[p] === ')') { p++; return l; } for (;;) { l.push(val()); ws(); if (s[p] === ',') { p++; continue; } p++; return l; } }
+    if (c === '$' || c === '*') { p++; return null; }
+    if (c === '.') { const q = s.indexOf('.', p + 1); const en = s.slice(p + 1, q); p = q + 1; return { e: en }; }
+    if (/[A-Za-z]/.test(c)) { let q = p; while (/[A-Za-z0-9_]/.test(s[q])) q++; const t = s.slice(p, q).toUpperCase(); p = q; ws(); p++; const v = val(); ws(); p++; return { t, v }; }
+    let q = p; while (/[-+0-9.eE]/.test(s[q])) q++; const num = +s.slice(p, q); p = q > p ? q : p + 1; return num;
+  }
+  const out = []; ws();
+  if (s[p] !== ')') for (;;) { out.push(val()); ws(); if (s[p] === ',') { p++; continue; } break; }
+  e.args = out; return out;
+}
+const ifcRef = v => v && typeof v === 'object' && 'r' in v ? v.r : null;
+const ifcRefs = v => Array.isArray(v) ? v.map(ifcRef).filter(x => x != null) : [];
+// facteur d'une unité vers le mètre / m² / m³ / kg
+function ifcUnit(M, id, depth = 0) {
+  const e = M.ent.get(id); if (!e || depth > 4) return null;
+  const a = ifcArgs(M, e);
+  if (e.t === 'IFCSIUNIT') {
+    const type = a[1] && a[1].e, pre = a[2] && a[2].e, name = a[3] && a[3].e || '';
+    let f = pre ? IFC_PFX[pre] || 1 : 1;
+    if (/^SQUARE/.test(name)) f = f * f; else if (/^CUBIC/.test(name)) f = f * f * f;
+    if (name === 'GRAM') f = f / 1000;
+    return { type, f };
+  }
+  if (e.t === 'IFCCONVERSIONBASEDUNIT') {
+    const type = a[1] && a[1].e, mw = ifcArgs(M, ifcRef(a[3]));
+    if (!mw) return { type, f: 1 };
+    const v = mw[0] && typeof mw[0] === 'object' ? mw[0].v : mw[0], base = ifcUnit(M, ifcRef(mw[1]), depth + 1);
+    return { type, f: (+v || 1) * (base ? base.f : 1) };
+  }
+  return null;
+}
+function ifcBuild(M, fileName, size) {
+  const units = { LENGTHUNIT: 1, AREAUNIT: 1, VOLUMEUNIT: 1, MASSUNIT: 1 };
+  const rel = { cont: new Map(), agg: new Map(), type: new Map(), props: new Map() };
+  const cand = new Set();
+  for (const [id, e] of M.ent) {
+    switch (e.t) {
+      case 'IFCUNITASSIGNMENT': for (const u of ifcRefs(ifcArgs(M, e)[0])) { const x = ifcUnit(M, u); if (x && x.type in units) units[x.type] = x.f; } break;
+      case 'IFCRELCONTAINEDINSPATIALSTRUCTURE': { const a = ifcArgs(M, e); const s = ifcRef(a[5]); for (const r of ifcRefs(a[4])) { rel.cont.set(r, s); cand.add(r); } break; }
+      case 'IFCRELAGGREGATES': { const a = ifcArgs(M, e); const s = ifcRef(a[4]); for (const r of ifcRefs(a[5])) { rel.agg.set(r, s); cand.add(r); } break; }
+      case 'IFCRELDEFINESBYTYPE': { const a = ifcArgs(M, e); const s = ifcRef(a[5]); for (const r of ifcRefs(a[4])) { rel.type.set(r, s); cand.add(r); } break; }
+      case 'IFCRELDEFINESBYPROPERTIES': { const a = ifcArgs(M, e); const s = ifcRef(a[5]); for (const r of ifcRefs(a[4])) { if (!rel.props.has(r)) rel.props.set(r, []); rel.props.get(r).push(s); cand.add(r); } break; }
+    }
+  }
+  const nameOf = id => { const a = ifcArgs(M, id); return a ? String(a[2] || '') : ''; };
+  function storey(id) {
+    for (let k = 0, cur = id; k < 12 && cur != null; k++) {
+      const c = rel.cont.get(cur);
+      if (c != null) { const e = M.ent.get(c); if (e && e.t === 'IFCBUILDINGSTOREY') return nameOf(c); cur = c; continue; }
+      const g = rel.agg.get(cur); if (g == null) return ''; const e = M.ent.get(g);
+      if (e && e.t === 'IFCBUILDINGSTOREY') return nameOf(g);
+      cur = g;
+    }
+    return '';
+  }
+  const LEN_PROP = /^(length|longueur|height|hauteur|width|largeur|thickness|épaisseur|epaisseur|perimeter|périmètre|perimetre|depth|profondeur|unconnected height|hauteur non contrainte)$/i;
+  const elements = [], levels = new Map();
+  for (const id of cand) {
+    const e = M.ent.get(id); if (!e || IFC_NOTELEM.test(e.t)) continue;
+    const a = ifcArgs(M, e); if (!a) continue;
+    const q = {}, pq = {};
+    for (const pid of rel.props.get(id) || []) {
+      const pe = M.ent.get(pid); if (!pe) continue;
+      const pa = ifcArgs(M, pe);
+      if (pe.t === 'IFCELEMENTQUANTITY') {
+        for (const qid of ifcRefs(pa[5])) {
+          const qe = M.ent.get(qid); if (!qe) continue;
+          const k = { IFCQUANTITYLENGTH: 'L', IFCQUANTITYAREA: 'A', IFCQUANTITYVOLUME: 'V', IFCQUANTITYCOUNT: 'N', IFCQUANTITYWEIGHT: 'W' }[qe.t]; if (!k) continue;
+          const qa = ifcArgs(M, qe), v = +qa[3]; if (!Number.isFinite(v)) continue;
+          const own = ifcRef(qa[2]) != null ? ifcUnit(M, ifcRef(qa[2])) : null;
+          const f = own ? own.f : k === 'L' ? units.LENGTHUNIT : k === 'A' ? units.AREAUNIT : k === 'V' ? units.VOLUMEUNIT : k === 'W' ? units.MASSUNIT : 1;
+          const nm = String(qa[0] || ''); if (!(nm in q)) q[nm] = { k, v: v * f };
+        }
+      } else if (pe.t === 'IFCPROPERTYSET') {
+        for (const sid of ifcRefs(pa[4])) {
+          const se = M.ent.get(sid); if (!se || se.t !== 'IFCPROPERTYSINGLEVALUE') continue;
+          const sa = ifcArgs(M, se), nv = sa[2]; if (!nv || typeof nv !== 'object' || !nv.t) continue;
+          const nm = String(sa[0] || ''), v = +nv.v; if (!Number.isFinite(v)) continue;
+          let k = null;
+          if (nv.t === 'IFCAREAMEASURE') k = 'A'; else if (nv.t === 'IFCVOLUMEMEASURE') k = 'V';
+          else if (nv.t === 'IFCCOUNTMEASURE') k = 'N'; else if (nv.t === 'IFCMASSMEASURE') k = 'W';
+          else if ((nv.t === 'IFCLENGTHMEASURE' || nv.t === 'IFCPOSITIVELENGTHMEASURE') && LEN_PROP.test(nm)) k = 'L';
+          if (!k || nm in pq) continue;
+          pq[nm] = { k, v: v * (k === 'L' ? units.LENGTHUNIT : k === 'A' ? units.AREAUNIT : k === 'V' ? units.VOLUMEUNIT : k === 'W' ? units.MASSUNIT : 1) };
+        }
+      }
+    }
+    const quants = Object.keys(q).length ? q : pq;      // quantités de base (Qto) d'abord, sinon propriétés Revit
+    const isSpace = e.t === 'IFCSPACE';
+    const name = String(a[2] || ''), objType = String(a[4] || ''), tid = rel.type.get(id);
+    const typeName = tid != null ? nameOf(tid) : '';
+    const longName = isSpace ? String(a[7] || '') : '';
+    let des = isSpace ? (longName || name) : (typeName || objType || name.replace(/:\d+$/, ''));
+    if (!des) des = trText('Sans désignation');
+    const lvl = storey(id); if (lvl && !levels.has(lvl)) levels.set(lvl, 0);
+    elements.push({ id, cls: e.t, cat: IFC_CATS[e.t] || e.t.replace(/^IFC/, '').toLowerCase().replace(/^./, c => c.toUpperCase()),
+      des, name: isSpace ? [name, longName].filter(Boolean).join(' ') : name, tag: isSpace ? '' : String(a[7] || ''), lvl, q: quants });
+  }
+  const groups = new Map();
+  for (const el of elements) {
+    const key = el.cat + '\u0001' + el.des;
+    if (!groups.has(key)) groups.set(key, { key, cat: el.cat, des: el.des, items: [] });
+    groups.get(key).items.push(el);
+  }
+  const collator = new Intl.Collator(LOCALES[LANG], { numeric: true, sensitivity: 'base' });
+  return { fileName, size, schema: M.schema, units, elements, groups: [...groups.values()].sort((x, y) => collator.compare(x.cat, y.cat) || collator.compare(x.des, y.des)),
+    levels: (() => { for (const [, e] of M.ent) if (e.t === 'IFCBUILDINGSTOREY') { const a = ifcArgs(M, e), nm = String(a[2] || ''); if (levels.has(nm)) levels.set(nm, +a[9] || 0); }
+      return [...levels.keys()].sort((x, y) => levels.get(x) - levels.get(y) || collator.compare(x, y)); })() };
+}
+const ifcLabel = nm => trText(IFC_QN[nm] || nm);
+const ifcAdd = c => c.k !== 'L' || /length|longueur|perimeter|périmètre|perimetre/i.test(c.nm);
+// colonnes de quantités d'un groupe (volume, surface, longueur…)
+function ifcCols(items) {
+  const seen = new Map();
+  for (const el of items) for (const [nm, x] of Object.entries(el.q)) if (!seen.has(nm)) seen.set(nm, x.k);
+  return [...seen.entries()].sort((a, b) => IFC_KORD[a[1]] - IFC_KORD[b[1]]).map(([nm, k]) => ({ nm, k }));
+}
+const ifcFmt = (v, k) => fmt(v, k === 'N' ? 0 : k === 'W' ? 1 : 2);
+function ifcItems(g) {
+  const lv = $('ifcLevel').value;
+  return lv ? g.items.filter(e => e.lvl === lv) : g.items;
+}
+// quantité principale d'un groupe : volume, sinon surface, sinon longueur, sinon nombre
+function ifcMain(items) {
+  const cols = ifcCols(items); if (!cols.length) return { v: items.length, k: 'N', nm: '' };
+  const pref = ['NetVolume', 'GrossVolume', 'Volume', 'NetArea', 'NetSideArea', 'GrossArea', 'GrossSideArea', 'Area', 'NetFloorArea', 'GrossFloorArea', 'Length'];
+  const c = cols.find(x => pref.includes(x.nm)) || cols.find(ifcAdd); if (!c) return { v: items.length, k: 'N', nm: '' };
+  return { v: items.reduce((s, e) => s + (e.q[c.nm] ? e.q[c.nm].v : 0), 0), k: c.k, nm: c.nm };
+}
+function renderIfc() {
+  const M = ifcModel;
+  $('ifcFileName').textContent = M ? M.fileName : '';
+  const sel = $('ifcLevel'); sel.hidden = !M || !M.levels.length;
+  if (M) { const cur = sel.value; sel.innerHTML = `<option value="">${esc(trText('Tous les niveaux'))}</option>` + M.levels.map(l => `<option${l === cur ? ' selected' : ''}>${esc(l)}</option>`).join(''); }
+  $('ifcSearch').hidden = !M;
+  renderIfcTree(); renderIfcMain();
+}
+function renderIfcTree() {
+  const M = ifcModel, box = $('ifcTree');
+  if (!M) { box.innerHTML = `<div class="tree-empty">${esc(trText('Aucune maquette ouverte.'))}</div>`; return; }
+  const q = ($('ifcSearch').value || '').trim().toLowerCase();
+  const cats = new Map();
+  for (const g of M.groups) {
+    const items = ifcItems(g); if (!items.length) continue;
+    if (q && !(g.des + ' ' + g.cat).toLowerCase().includes(q)) continue;
+    if (!cats.has(g.cat)) cats.set(g.cat, []);
+    cats.get(g.cat).push({ g, items });
+  }
+  if (!cats.size) { box.innerHTML = `<div class="tree-empty">${esc(trText(M.elements.length ? 'Aucun élément ne correspond.' : 'Aucun élément trouvé dans ce fichier.'))}</div>`; return; }
+  let h = '';
+  for (const [cat, list] of cats) {
+    const n = list.reduce((s, x) => s + x.items.length, 0), open = q || ifcOpenCats.has(cat) || list.some(x => x.g.key === ifcSel);
+    h += `<div class="ifc-cat${open ? ' open' : ''}" data-cat="${esc(cat)}"><div class="ch"><span class="tw">▶</span><span class="nm">${esc(trText(cat))}</span><span class="n">${n}</span></div><div class="rows">`;
+    for (const { g, items } of list) {
+      const m = ifcMain(items);
+      h += `<div class="ifc-g${g.key === ifcSel ? ' sel' : ''}" data-k="${esc(g.key)}" title="${esc(g.des)}"><span class="nm">${esc(g.des)}</span><span class="n">${items.length} u</span>${m.k !== 'N' ? `<span class="v">${ifcFmt(m.v, m.k)} ${IFC_KU[m.k]}</span>` : ''}</div>`;
+    }
+    h += '</div></div>';
+  }
+  box.innerHTML = h;
+  box.querySelectorAll('.ifc-cat > .ch').forEach(el => el.onclick = () => {
+    const c = el.parentNode.dataset.cat, on = el.parentNode.classList.toggle('open');
+    if (on) ifcOpenCats.add(c); else ifcOpenCats.delete(c);
+  });
+  box.querySelectorAll('.ifc-g').forEach(el => el.onclick = () => { ifcSel = el.dataset.k; renderIfcTree(); renderIfcMain(); });
+}
+const IFC_ICO_COPY = '<svg viewBox="0 0 16 16"><rect x="5.5" y="5.5" width="8" height="8.5" rx="1.5"/><path d="M10.5 5.5V3.5A1.5 1.5 0 0 0 9 2H4A1.5 1.5 0 0 0 2.5 3.5v6A1.5 1.5 0 0 0 4 11h1.5"/></svg>';
+const ifcNum = (v, k) => String(Math.round(v * (k === 'N' ? 1 : 1000)) / (k === 'N' ? 1 : 1000)).replace('.', tuDec());
+function ifcCopyBtn(btn, text) {
+  copyText(text); toast(trText('Copié') + ' : ' + text);
+  btn.classList.add('ok'); setTimeout(() => btn.classList.remove('ok'), 1200);
+}
+function ifcHelp(rvt) {
+  return `<div class="card${rvt ? ' warn' : ''}">
+    ${rvt ? `<h4 style="margin-top:0">${esc(trText('Les fichiers .rvt ne peuvent pas être lus directement'))}</h4><p class="hint">${esc(trText('Le format .rvt appartient à Autodesk et n’est lisible que par Revit. Exportez la maquette en IFC (format ouvert), puis ouvrez le fichier .ifc ici.'))}</p>` : ''}
+    <h4${rvt ? '' : ' style="margin-top:0"'}>${esc(trText('Exporter la maquette depuis Revit'))}</h4>
+    <ol>
+      <li>${esc(trText('Dans Revit, ouvrez le projet puis Fichier → Exporter → IFC.'))}</li>
+      <li>${esc(trText('Cliquez sur « Modifier la configuration… », onglet « Ensembles de propriétés » : cochez « Exporter les quantités de base » (et « Exporter les ensembles de propriétés Revit »).'))}</li>
+      <li>${esc(trText('Enregistrez le fichier .ifc, puis ouvrez-le ici avec « Ouvrir un fichier IFC… ».'))}</li>
+    </ol>
+    <p class="hint">${esc(trText('Le fichier est lu sur cet appareil : rien n’est envoyé sur internet.'))}</p></div>`;
+}
+function renderIfcMain() {
+  const M = ifcModel, box = $('ifcMain');
+  const g = M && M.groups.find(x => x.key === ifcSel);
+  if (!M) { $('ifcTitle').textContent = trText('Maquette Revit'); box.innerHTML = `<div class="ifc-main"><h2>${esc(trText('Métrés d’une maquette Revit'))}</h2><p class="sub">${esc(trText('Ouvrez une maquette IFC exportée de Revit : Métrix liste tous les éléments trouvés avec leur désignation et leurs quantités.'))}</p>${ifcHelp(false)}</div>`; return; }
+  if (!g) {
+    $('ifcTitle').textContent = M.fileName;
+    const cats = new Map();
+    for (const gg of M.groups) { const it = ifcItems(gg); if (!it.length) continue; const c = cats.get(gg.cat) || { d: 0, n: 0 }; c.d++; c.n += it.length; cats.set(gg.cat, c); }
+    const total = [...cats.values()].reduce((s, c) => s + c.n, 0);
+    box.innerHTML = `<div class="ifc-main"><h2>${esc(M.fileName)}</h2>
+      <p class="sub">${esc(M.schema)} · ${total} ${esc(trText('éléments'))} · ${M.levels.length} ${esc(trText('niveaux'))}</p>
+      ${M.elements.length ? `<p class="hint">${esc(trText('Choisissez une désignation dans la barre latérale pour voir ses éléments et ses quantités.'))}</p>
+      <table class="ifct"><tr><th>${esc(trText('Catégorie'))}</th><th class="n">${esc(trText('Désignations'))}</th><th class="n">${esc(trText('Éléments'))}</th></tr>
+      ${[...cats.entries()].map(([c, x]) => `<tr class="clk" data-cat="${esc(c)}"><td>${esc(trText(c))}</td><td class="n">${x.d}</td><td class="n">${x.n}</td></tr>`).join('')}
+      <tr class="tot"><td>${esc(trText('Total'))}</td><td class="n">${[...cats.values()].reduce((s, c) => s + c.d, 0)}</td><td class="n">${total}</td></tr></table>` : ifcHelp(false)}
+      ${M.elements.length && !M.elements.some(e => Object.keys(e.q).length) ? `<div class="card warn" style="margin-top:14px"><p class="hint" style="margin:0">${esc(trText('Ce fichier ne contient pas de quantités (surfaces, volumes…). Dans Revit, réexportez-le en cochant « Exporter les quantités de base ».'))}</p></div>` : ''}</div>`;
+    box.querySelectorAll('tr.clk').forEach(tr => tr.onclick = () => { ifcOpenCats.add(tr.dataset.cat); renderIfcTree(); const el = document.querySelector(`.ifc-cat[data-cat="${CSS.escape(tr.dataset.cat)}"]`); if (el) el.scrollIntoView({ block: 'nearest' }); });
+    return;
+  }
+  const items = ifcItems(g), cols = ifcCols(items);
+  $('ifcTitle').textContent = g.des;
+  const tot = cols.map(c => items.reduce((s, e) => s + (e.q[c.nm] ? e.q[c.nm].v : 0), 0));
+  const sums = cols.filter(ifcAdd);
+  box.innerHTML = `<div class="ifc-main"><h2>${esc(g.des)}</h2>
+    <p class="sub">${esc(trText(g.cat))} · ${items.length} ${esc(trText(items.length > 1 ? 'éléments' : 'élément'))}${$('ifcLevel').value ? ' · ' + esc($('ifcLevel').value) : ''}</p>
+    <h4>${esc(trText('Quantités totales'))}</h4>
+    <table class="ifct" style="max-width:560px"><tr><th>${esc(trText('Quantité'))}</th><th class="n">${esc(trText('Total'))}</th><th>${esc(trText('Unité'))}</th><th style="width:34px"></th></tr>
+      <tr><td>${esc(trText('Nombre'))}</td><td class="n">${items.length}</td><td>u</td><td><button class="ib" data-c="${items.length}" title="${esc(trText('Copier la valeur'))}">${IFC_ICO_COPY}</button></td></tr>
+      ${cols.map((c, i) => !ifcAdd(c) ? '' : `<tr><td>${esc(ifcLabel(c.nm))}</td><td class="n">${ifcFmt(tot[i], c.k)}</td><td>${IFC_KU[c.k]}</td><td><button class="ib" data-c="${ifcNum(tot[i], c.k)}" title="${esc(trText('Copier la valeur'))}">${IFC_ICO_COPY}</button></td></tr>`).join('')}
+    </table>
+    ${sums.length ? '' : `<p class="hint">${esc(trText('Pas de surface ni de volume pour ces éléments dans le fichier : seul le nombre est connu.'))}</p>`}
+    <div class="acts"><button class="pbtn" id="ifcCopyTab" style="margin:0">${esc(trText('Copier le tableau pour Excel'))}</button></div>
+    <h4>${esc(trText('Éléments'))}</h4>
+    <div class="ifc-scroll"><table class="ifct"><tr><th>${esc(trText('Nom'))}</th><th>${esc(trText('ID Revit'))}</th><th>${esc(trText('Niveau'))}</th>${cols.map(c => `<th class="n">${esc(ifcLabel(c.nm))} (${IFC_KU[c.k]})</th>`).join('')}</tr>
+      ${items.map(e => `<tr><td>${esc(e.name)}</td><td>${esc(e.tag)}</td><td>${esc(e.lvl)}</td>${cols.map(c => `<td class="n">${e.q[c.nm] ? ifcFmt(e.q[c.nm].v, c.k) : ''}</td>`).join('')}</tr>`).join('')}
+      <tr class="tot"><td colspan="3">${esc(trText('Total'))} (${items.length})</td>${cols.map((c, i) => `<td class="n">${ifcAdd(c) ? ifcFmt(tot[i], c.k) : ''}</td>`).join('')}</tr>
+    </table></div></div>`;
+  box.querySelectorAll('.ib[data-c]').forEach(b => b.onclick = () => ifcCopyBtn(b, b.dataset.c));
+  $('ifcCopyTab').onclick = () => {
+    const head = [trText('Désignation'), trText('Nom'), trText('ID Revit'), trText('Niveau'), ...cols.map(c => `${ifcLabel(c.nm)} (${IFC_KU[c.k]})`)];
+    const rows = [head, ...items.map(e => [g.des, e.name, e.tag, e.lvl, ...cols.map(c => e.q[c.nm] ? ifcNum(e.q[c.nm].v, c.k) : '')]),
+      [trText('Total'), '', '', '', ...cols.map((c, i) => ifcAdd(c) ? ifcNum(tot[i], c.k) : '')]];
+    copyText(rows.map(r => r.join('\t')).join('\r\n') + '\r\n'); toast(trText('Tableau copié : collez-le dans Excel.'));
+  };
+}
+async function ifcOpenFile(f) {
+  if (!f) return;
+  showTab('ifc');
+  if (/\.rvt$/i.test(f.name)) {
+    $('ifcTitle').textContent = f.name;
+    $('ifcMain').innerHTML = `<div class="ifc-main"><h2>${esc(f.name)}</h2>${ifcHelp(true)}</div>`;
+    return;
+  }
+  $('ifcMain').innerHTML = `<div class="ifc-main"><p class="hint">${esc(trText('Lecture de la maquette…'))} (${(f.size / 1048576).toFixed(1)} Mo)</p></div>`;
+  await new Promise(r => setTimeout(r, 30));
+  try {
+    const text = await f.text();
+    const M = ifcParse(text);
+    ifcModel = ifcBuild(M, f.name, f.size); ifcSel = null; ifcOpenCats.clear();
+    $('ifcLevel').value = ''; $('ifcSearch').value = '';
+    renderIfc();
+    toast(trText(`${ifcModel.elements.length} éléments trouvés`));
+  } catch (err) {
+    console.error(err);
+    $('ifcMain').innerHTML = `<div class="ifc-main"><div class="card warn"><p class="hint" style="margin:0">${esc(trText('Ce fichier n’est pas une maquette IFC lisible.'))}</p></div>${ifcHelp(false)}</div>`;
+  }
+}
+$('ifcFile').onchange = e => { const f = e.target.files[0]; e.target.value = ''; ifcOpenFile(f); };
+$('ifcSearch').oninput = renderIfcTree;
+$('ifcLevel').onchange = () => { renderIfcTree(); renderIfcMain(); };
+// glisser-déposer un fichier .ifc ou .rvt sur l'onglet
+$('ifcPage').addEventListener('dragover', e => e.preventDefault());
+$('ifcPage').addEventListener('drop', e => { e.preventDefault(); e.stopPropagation(); const f = e.dataTransfer.files[0]; if (f) ifcOpenFile(f); });
+// appli Mac : sélecteur de fichiers du Mac (la fenêtre web ne peut pas lire Documents, Bureau… elle-même)
+if (NATIVE) $('ifcFile').addEventListener('click', async e => {
+  e.preventDefault();
+  const r = await nativeCall({ cmd: 'open', kind: 'ifc' });
+  if (r.error) notify(r.error); else if (r.path) readNativeFile('ifc', r.path, r.name, r.src);
+});
 function renderSettings() {
   $('updUrlIn').value = updUrl(); $('updAutoIn').checked = updAuto(); renderUpdState();
   $('setVersion').textContent = 'Version installée : ' + METRIX_VERSION;
@@ -3738,6 +4345,7 @@ function renderLibrary() {
 $('tabLib').onclick = () => showTab('lib');
 $('tabSet').onclick = () => showTab('set');
 $('tabTu').onclick = () => showTab('tu');
+$('tabIfc').onclick = () => showTab('ifc');
 // cartes de l'onglet Paramètres
 document.querySelectorAll('.lang-opt').forEach(b => b.onclick = () => { setLang(b.dataset.lang); renderSettings(); });
 document.querySelectorAll('.theme-opt').forEach(b => b.onclick = () => {
