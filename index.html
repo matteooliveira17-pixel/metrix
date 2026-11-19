@@ -247,6 +247,16 @@
   .ifc-pbar button:hover { background:var(--hover); border-color:#a9c6ea; }
   .ifc-tip { position:absolute; pointer-events:none; background:rgba(25,30,38,.92); color:#fff; font-size:11.5px; padding:4px 8px; border-radius:5px; white-space:nowrap; max-width:60%; overflow:hidden; text-overflow:ellipsis; }
   .ifc-phint { position:absolute; right:8px; bottom:6px; font-size:11px; color:var(--muted); background:rgba(255,255,255,.8); padding:1px 6px; border-radius:4px; pointer-events:none; }
+#ifcGl { position:absolute; inset:0; width:100%; height:100%; cursor:grab; touch-action:none; }
+#ifcGl[hidden], .ifc-plan canvas[hidden] { display:none; }
+.ifc-seg, .ifc-seg2 { display:inline-flex; border:1px solid var(--line); border-radius:6px; overflow:hidden; margin-right:2px; }
+.ifc-seg2[hidden] { display:none; }
+.ifc-seg button, .ifc-seg2 button { border:0 !important; border-radius:0 !important; padding:3px 9px !important; }
+.ifc-seg button + button, .ifc-seg2 button + button { border-left:1px solid var(--line) !important; }
+.ifc-seg button.on { background:#2b579a !important; color:#fff !important; }
+.ifc-lvls { position:absolute; top:8px; right:8px; background:rgba(255,255,255,.94); border:1px solid var(--line); border-radius:7px; padding:6px 10px; box-shadow:0 2px 6px rgba(0,0,0,.08); font-size:12px; color:#222; display:flex; flex-direction:column; gap:3px; max-height:70%; overflow:auto; }
+.ifc-lvls[hidden] { display:none; }
+.ifc-lvls label { display:flex; align-items:center; gap:6px; cursor:pointer; white-space:nowrap; }
   .ifc-pempty { position:absolute; inset:0; display:grid; place-items:center; color:var(--muted); pointer-events:none; }
   .ifc-pempty[hidden] { display:none; }
   .ifct tr[data-id] { cursor:pointer; }
@@ -943,8 +953,10 @@
     <h3 id="ifcTitle">Maquette Revit</h3>
     <div class="ifc-plan" id="ifcPlan" hidden>
       <canvas id="ifcCv"></canvas>
+      <canvas id="ifcGl" hidden></canvas>
+      <div class="ifc-lvls" id="ifc3dLvls" hidden></div>
       <div class="ifc-pempty" id="ifcPlanEmpty" hidden>Aucun élément dessiné sur ce niveau.</div>
-      <div class="ifc-pbar"><select id="ifcPlanLvl" title="Niveau affiché sur le plan"></select><button id="ifcFit" title="Afficher tout le niveau">Ajuster</button><button id="ifcZin" title="Zoom avant">+</button><button id="ifcZout" title="Zoom arrière">−</button></div>
+      <div class="ifc-pbar"><span class="ifc-seg"><button id="ifcModePlan" class="on" title="Vue en plan">Plan</button><button id="ifcMode3d" title="Vue 3D">3D</button></span><span id="ifc3dBar" class="ifc-seg2" hidden><button data-v="iso" title="Vue en perspective">Perspective</button><button data-v="top" title="Vue de dessus">Dessus</button><button data-v="front" title="Vue de face">Face</button><button data-v="side" title="Vue de côté">Côté</button></span><select id="ifcPlanLvl" title="Niveau affiché sur le plan"></select><button id="ifcFit" title="Afficher tout le niveau">Ajuster</button><button id="ifcZin" title="Zoom avant">+</button><button id="ifcZout" title="Zoom arrière">−</button></div>
       <div class="ifc-tip" id="ifcTip" hidden></div>
       <div class="ifc-phint" id="ifcHint">Molette : zoom · glisser : déplacer · clic : sélectionner</div>
     </div>
@@ -1106,7 +1118,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.7';
+const METRIX_VERSION = '3.8';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -1818,6 +1830,22 @@ addTr([
   ["Fermer la comparaison","Close the comparison","Fechar a comparação","Cerrar la comparación"],
   ["Écart","Difference","Diferença","Diferencia"],
   ["Niveau de détail","Level of detail","Nível de detalhe","Nivel de detalle"],
+  // vue 3D de la maquette
+  ["3D","3D","3D","3D"],
+  ["Perspective","Perspective","Perspetiva","Perspectiva"],
+  ["Dessus","Top","Topo","Superior"],
+  ["Face","Front","Frente","Frontal"],
+  ["Côté","Side","Lado","Lateral"],
+  ["Niveaux","Levels","Pisos","Niveles"],
+  ["Vue en plan","Plan view","Vista em planta","Vista en planta"],
+  ["Vue 3D","3D view","Vista 3D","Vista 3D"],
+  ["Vue en perspective","Perspective view","Vista em perspetiva","Vista en perspectiva"],
+  ["Vue de dessus","Top view","Vista de topo","Vista superior"],
+  ["Vue de face","Front view","Vista de frente","Vista frontal"],
+  ["Vue de côté","Side view","Vista lateral","Vista lateral"],
+  ["Glisser : tourner · clic droit ou Maj : déplacer · molette : zoom · clic : sélectionner","Drag: rotate · right-click or Shift: pan · wheel: zoom · click: select","Arrastar: rodar · clique direito ou Shift: mover · roda: zoom · clique: selecionar","Arrastrar: girar · clic derecho o Mayús: mover · rueda: zoom · clic: seleccionar"],
+  ["Un doigt : tourner · deux doigts : zoom et déplacer · toucher : sélectionner","One finger: rotate · two fingers: zoom and pan · tap: select","Um dedo: rodar · dois dedos: zoom e mover · tocar: selecionar","Un dedo: girar · dos dedos: zoom y mover · tocar: seleccionar"],
+  ["La vue 3D n’est pas disponible sur cet appareil.","The 3D view is not available on this device.","A vista 3D não está disponível neste dispositivo.","La vista 3D no está disponible en este dispositivo."],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -2470,6 +2498,21 @@ addTr2([
   ["Fermer la comparaison","Vergleich schließen","Vergelijking sluiten","关闭比较","إغلاق المقارنة","Chiudi il confronto","Закрыть сравнение"],
   ["Écart","Abweichung","Verschil","差异","الفرق","Scarto","Отклонение"],
   ["Niveau de détail","Detailebene","Detailniveau","明细级别","مستوى التفصيل","Livello di dettaglio","Уровень детализации"],
+  ["3D","3D","3D","3D","3D","3D","3D"],
+  ["Perspective","Perspektive","Perspectief","透视","منظور","Prospettiva","Перспектива"],
+  ["Dessus","Oben","Boven","顶视","علوي","Dall'alto","Сверху"],
+  ["Face","Vorne","Voor","正面","أمامي","Fronte","Спереди"],
+  ["Côté","Seite","Zijkant","侧面","جانبي","Lato","Сбоку"],
+  ["Niveaux","Ebenen","Niveaus","楼层","المستويات","Livelli","Уровни"],
+  ["Vue en plan","Grundriss","Plattegrond","平面图","مسقط أفقي","Vista in pianta","План"],
+  ["Vue 3D","3D-Ansicht","3D-weergave","三维视图","عرض ثلاثي الأبعاد","Vista 3D","3D-вид"],
+  ["Vue en perspective","Perspektivansicht","Perspectiefweergave","透视图","عرض منظوري","Vista prospettica","Перспективный вид"],
+  ["Vue de dessus","Draufsicht","Bovenaanzicht","俯视图","عرض علوي","Vista dall'alto","Вид сверху"],
+  ["Vue de face","Vorderansicht","Vooraanzicht","正视图","عرض أمامي","Vista frontale","Вид спереди"],
+  ["Vue de côté","Seitenansicht","Zijaanzicht","侧视图","عرض جانبي","Vista laterale","Вид сбоку"],
+  ["Glisser : tourner · clic droit ou Maj : déplacer · molette : zoom · clic : sélectionner","Ziehen: drehen · Rechtsklick oder Umschalt: verschieben · Mausrad: Zoom · Klick: auswählen","Slepen: draaien · rechtsklik of Shift: verschuiven · wiel: zoomen · klik: selecteren","拖动：旋转 · 右键或 Shift：平移 · 滚轮：缩放 · 单击：选择","السحب: تدوير · النقر الأيمن أو Shift: تحريك · العجلة: تكبير · النقر: تحديد","Trascina: ruota · clic destro o Maiusc: sposta · rotella: zoom · clic: seleziona","Перетаскивание: вращение · правый щелчок или Shift: сдвиг · колесо: масштаб · щелчок: выбор"],
+  ["Un doigt : tourner · deux doigts : zoom et déplacer · toucher : sélectionner","Ein Finger: drehen · zwei Finger: Zoom und verschieben · Tippen: auswählen","Eén vinger: draaien · twee vingers: zoomen en verschuiven · tikken: selecteren","单指：旋转 · 双指：缩放和平移 · 轻点：选择","إصبع واحد: تدوير · إصبعان: تكبير وتحريك · اللمس: تحديد","Un dito: ruota · due dita: zoom e sposta · tocca: seleziona","Один палец: вращение · два пальца: масштаб и сдвиг · касание: выбор"],
+  ["La vue 3D n’est pas disponible sur cet appareil.","Die 3D-Ansicht ist auf diesem Gerät nicht verfügbar.","De 3D-weergave is niet beschikbaar op dit apparaat.","此设备不支持三维视图。","العرض ثلاثي الأبعاد غير متاح على هذا الجهاز.","La vista 3D non è disponibile su questo dispositivo.","3D-вид недоступен на этом устройстве."],
 ]);
 // --- fin des langues ajoutées ---
 
@@ -4584,6 +4627,98 @@ function ifcOutline(shapes) {
   const out = []; for (const e of cnt.values()) if (e.n === 1) out.push([e.a[0], e.a[1], e.b[0], e.b[1]]);
   return out;
 }
+// triangulation d'un polygone plan avec trous (méthode des « oreilles », d'après earcut, licence ISC)
+// data : [x0, y0, x1, y1, …] ; holes : n° du premier point de chaque trou → indices des triangles
+function ifcEarcut(data, holes) {
+  const N = data.length / 2, tris = [];
+  const node = (i, x, y) => ({ i, x, y, prev: null, next: null, steiner: false });
+  const insert = (i, last) => { const p = node(i, data[2 * i], data[2 * i + 1]); if (!last) { p.prev = p; p.next = p; } else { p.next = last.next; p.prev = last; last.next.prev = p; last.next = p; } return p; };
+  const remove = p => { p.next.prev = p.prev; p.prev.next = p.next; };
+  const equals = (a, b) => a.x === b.x && a.y === b.y;
+  const area = (p, q, r) => (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
+  const signed = (a, b) => { let s = 0; for (let i = a, j = b - 1; i < b; j = i++) s += (data[2 * j] - data[2 * i]) * (data[2 * i + 1] + data[2 * j + 1]); return s; };
+  function list(a, b, cw) {
+    let last = null;
+    if (cw === (signed(a, b) > 0)) for (let i = a; i < b; i++) last = insert(i, last); else for (let i = b - 1; i >= a; i--) last = insert(i, last);
+    if (last && equals(last, last.next)) { remove(last); last = last.next; }
+    return last;
+  }
+  function filter(start, end) {
+    if (!start) return start; if (!end) end = start;
+    let p = start, again;
+    do { again = false; if (!p.steiner && (equals(p, p.next) || area(p.prev, p, p.next) === 0)) { remove(p); p = end = p.prev; if (p === p.next) break; again = true; } else p = p.next; } while (again || p !== end);
+    return end;
+  }
+  const inTri = (ax, ay, bx, by, cx, cy, px, py) => (cx - px) * (ay - py) >= (ax - px) * (cy - py) && (ax - px) * (by - py) >= (bx - px) * (ay - py) && (bx - px) * (cy - py) >= (cx - px) * (by - py);
+  function isEar(e) {
+    const a = e.prev, b = e, c = e.next; if (area(a, b, c) >= 0) return false;
+    for (let p = e.next.next; p !== e.prev; p = p.next) if (inTri(a.x, a.y, b.x, b.y, c.x, c.y, p.x, p.y) && area(p.prev, p, p.next) >= 0) return false;
+    return true;
+  }
+  function cut(ear, pass) {
+    if (!ear) return;
+    let stop = ear, guard = 0;
+    while (ear.prev !== ear.next && guard++ < 5e6) {
+      const prev = ear.prev, next = ear.next;
+      if (isEar(ear)) { tris.push(prev.i, ear.i, next.i); remove(ear); ear = next.next; stop = next.next; continue; }
+      ear = next;
+      if (ear === stop) {
+        if (!pass) cut(filter(ear), 1);
+        else { for (let q = ear.next; q.next !== ear; q = q.next) tris.push(ear.i, q.i, q.next.i); }   // dernier recours : éventail
+        break;
+      }
+    }
+  }
+  const locIn = (a, b) => area(a.prev, a, a.next) < 0 ? area(a, b, a.next) >= 0 && area(a, a.prev, b) >= 0 : area(a, b, a.prev) < 0 || area(a, a.next, b) < 0;
+  const sector = (m, p) => area(m.prev, m, p.prev) < 0 && area(p.next, m, m.next) < 0;
+  function bridge(hole, outer) {
+    let p = outer, qx = -Infinity, m = null; const hx = hole.x, hy = hole.y;
+    do {
+      if (hy <= p.y && hy >= p.next.y && p.next.y !== p.y) { const x = p.x + (hy - p.y) * (p.next.x - p.x) / (p.next.y - p.y); if (x <= hx && x > qx) { qx = x; m = p.x < p.next.x ? p : p.next; if (x === hx) return m; } }
+      p = p.next;
+    } while (p !== outer);
+    if (!m) return null;
+    const stop = m, mx = m.x, my = m.y; let tanMin = Infinity; p = m;
+    do {
+      if (hx >= p.x && p.x >= mx && hx !== p.x && inTri(hy < my ? hx : qx, hy, mx, my, hy < my ? qx : hx, hy, p.x, p.y)) {
+        const tan = Math.abs(hy - p.y) / (hx - p.x);
+        if (locIn(p, hole) && (tan < tanMin || (tan === tanMin && (p.x > m.x || (p.x === m.x && sector(m, p)))))) { m = p; tanMin = tan; }
+      }
+      p = p.next;
+    } while (p !== stop);
+    return m;
+  }
+  function split(a, b) {
+    const a2 = node(a.i, a.x, a.y), b2 = node(b.i, b.x, b.y), an = a.next, bp = b.prev;
+    a.next = b; b.prev = a; a2.next = an; an.prev = a2; b2.next = a2; a2.prev = b2; bp.next = b2; b2.prev = bp; return b2;
+  }
+  let outer = list(0, holes.length ? holes[0] : N, true);
+  if (!outer || outer.next === outer.prev) return tris;
+  if (holes.length) {
+    const q = [];
+    holes.forEach((s, k) => { const l = list(s, k < holes.length - 1 ? holes[k + 1] : N, false); if (!l) return; if (l === l.next) l.steiner = true; let lm = l, p = l; do { if (p.x < lm.x || (p.x === lm.x && p.y < lm.y)) lm = p; p = p.next; } while (p !== l); q.push(lm); });
+    q.sort((a, b) => a.x - b.x);
+    for (const h of q) { const br = bridge(h, outer); if (!br) continue; const b2 = split(br, h); filter(b2, b2.next); outer = filter(br, br.next); }
+  }
+  cut(outer, 0);
+  return tris;
+}
+// triangles 3D d'un polygone (contour + trous), en mètres, ajoutés à T
+function ifcPolyTris(T, rings, LU) {
+  rings = rings.map(r => { const o = r.slice(); while (o.length > 1) { const a = o[0], b = o[o.length - 1]; if (Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]) < 1e-9) o.pop(); else break; } return o; }).filter(r => r.length >= 3);
+  if (!rings.length) return;
+  const push = p => T.push(p[0] * LU, p[1] * LU, p[2] * LU);
+  const R = rings[0];
+  if (rings.length === 1 && R.length === 3) { push(R[0]); push(R[1]); push(R[2]); return; }
+  let nx = 0, ny = 0, nz = 0;
+  for (let i = 0; i < R.length; i++) { const a = R[i], b = R[(i + 1) % R.length]; nx += (a[1] - b[1]) * (a[2] + b[2]); ny += (a[2] - b[2]) * (a[0] + b[0]); nz += (a[0] - b[0]) * (a[1] + b[1]); }
+  const ax = Math.abs(nx), ay = Math.abs(ny), az = Math.abs(nz);
+  const [i0, i1] = az >= ax && az >= ay ? [0, 1] : ax >= ay ? [1, 2] : [2, 0];
+  const all = [], data = [], holes = [];
+  rings.forEach((r, k) => { if (k) holes.push(all.length); for (const p of r) { all.push(p); data.push(p[i0], p[i1]); } });
+  const idx = ifcEarcut(data, holes);
+  for (const i of idx) push(all[i]);
+}
 function ifcGeom(model, M) {
   const ANG = model.units.PLANEANGLEUNIT || 1, place = new Map(), mapCache = new Map();
   let budget = 4e6;   // nombre maximal de points lus : au-delà, les formes très détaillées sont simplifiées
@@ -4735,6 +4870,7 @@ function ifcGeom(model, M) {
     return lo.slice(0, -1).concat(up.slice(0, -1));
   };
   const LU = model.units.LENGTHUNIT || 1;
+  let tri3d = 0;   // nombre de triangles gardés pour la vue 3D (limité pour les très grosses maquettes)
   for (const el of model.elements) {
     if (budget < 0) break;
     if (el.rep == null) continue;
@@ -4745,9 +4881,22 @@ function ifcGeom(model, M) {
     let shapes = [];
     for (const x of reps) { if (/^(Axis|FootPrint|Annotation|Profile|Clearance)$/i.test(x.a[1] || '')) continue; shapes = rep(x.r); if (shapes.length) break; }
     if (!shapes.length) continue;
-    const m = placement(el.pl), polys = [];
+    const m = placement(el.pl), polys = [], T = [];
     for (const s0 of shapes) {
       const s = xf(m, s0);
+      // faces 3D (vue 3D)
+      if (tri3d < 3e6) {
+        if (s.k === 'ext') {
+          const top = s.rings.map(r => r.map(p => [p[0] + s.d[0], p[1] + s.d[1], p[2] + s.d[2]]));
+          ifcPolyTris(T, s.rings, LU); ifcPolyTris(T, top, LU);
+          for (const r of s.rings) for (let i = 0; i < r.length; i++) { const a = r[i], b = r[(i + 1) % r.length], c = [b[0] + s.d[0], b[1] + s.d[1], b[2] + s.d[2]], d = [a[0] + s.d[0], a[1] + s.d[1], a[2] + s.d[2]]; ifcPolyTris(T, [[a, b, c]], LU); ifcPolyTris(T, [[a, c, d]], LU); }
+        } else if (s.k === 'face') ifcPolyTris(T, [s.ring], LU);
+        else if (s.k === 'pts' && s.ring.length) {   // forme très détaillée : sa boîte englobante
+          const lo = [0, 1, 2].map(k => Math.min(...s.ring.map(p => p[k]))), hi = [0, 1, 2].map(k => Math.max(...s.ring.map(p => p[k])));
+          const c = (i, j, k) => [i ? hi[0] : lo[0], j ? hi[1] : lo[1], k ? hi[2] : lo[2]];
+          for (const f of [[c(0,0,0), c(1,0,0), c(1,1,0), c(0,1,0)], [c(0,0,1), c(1,0,1), c(1,1,1), c(0,1,1)], [c(0,0,0), c(1,0,0), c(1,0,1), c(0,0,1)], [c(0,1,0), c(1,1,0), c(1,1,1), c(0,1,1)], [c(0,0,0), c(0,1,0), c(0,1,1), c(0,0,1)], [c(1,0,0), c(1,1,0), c(1,1,1), c(1,0,1)]]) ifcPolyTris(T, [f], LU);
+        }
+      }
       if (s.k === 'ext') {
         const dh = Math.hypot(s.d[0], s.d[1]), dl = Math.hypot(s.d[0], s.d[1], s.d[2]);
         if (dh <= dl * 0.02) polys.push({ r: s.rings.map(r => r.map(p => [p[0] * LU, p[1] * LU])), s: 1 });
@@ -4767,9 +4916,11 @@ function ifcGeom(model, M) {
     el.shapes = ifcTopFaces(polys); el.bb = [x0, y0, x1, y1];
     el.outline = ifcOutline(el.shapes);
     el.ax = [m.x[0], m.x[1]]; el.ay = [m.y[0], m.y[1]];
+    if (T.length) { el.tri = new Float64Array(T); tri3d += T.length / 9; }
   }
   model.planOk = model.elements.some(e => e.shapes);
   model.planCut = budget < 0;
+  model.cut3d = tri3d >= 3e6;
 }
 /* ---------- vue en plan de la maquette (dessus, un niveau à la fois) ---------- */
 let ifcView = null, ifcHot = null, ifcHover = null;
@@ -4855,6 +5006,7 @@ function ifcFit(els) {
   ifcView = { s, tx: W / 2 - (x0 + x1) / 2 * s, ty: H / 2 + (y0 + y1) / 2 * s };
 }
 function ifcDraw() {
+  if (ifcMode === '3d') { ifc3dRender(); return; }
   const cv = $('ifcCv'), M = ifcModel; if (!cv || !M || $('ifcPlan').hidden) return;
   const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
   if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
@@ -4969,8 +5121,11 @@ function ifcPlanSetup() {
   const sel = $('ifcPlanLvl'), cur = sel.value;
   sel.innerHTML = lvls.map(l => `<option value="${esc(l)}">${esc(l)}</option>`).join('') + `<option value="*">${esc(trText('Tous les niveaux'))}</option>`;
   sel.value = [...sel.options].some(o => o.value === cur) ? cur : (lvls[0] ?? '*');
+  let m = ifcMode; try { m = localStorage.getItem('metrix:ifcMode') || ifcMode; } catch {}
+  ifcSetMode(m === '3d' ? '3d' : 'plan');
 }
 function ifcPlanFocus(e) {   // centre le plan sur un élément
+  if (ifcMode === '3d') return ifc3dFocus(e);
   if (!e || !e.shapes) return;
   if ($('ifcPlanLvl').value !== '*' && e.lvl && $('ifcPlanLvl').value !== e.lvl) { $('ifcPlanLvl').value = e.lvl; ifcFit(); }
   const cv = $('ifcCv'), W = cv.clientWidth, H = cv.clientHeight, { s } = ifcView;
@@ -5015,11 +5170,275 @@ function ifcSelectEl(e) {
   };
   cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
   cv.addEventListener('pointerleave', () => { if (ifcHover) { ifcHover = null; ifcDraw(); } $('ifcTip').hidden = true; });
-  $('ifcFit').onclick = () => { ifcFit(); ifcDraw(); };
-  $('ifcZin').onclick = () => zoomAt(cv.clientWidth / 2, cv.clientHeight / 2, 1.4);
-  $('ifcZout').onclick = () => zoomAt(cv.clientWidth / 2, cv.clientHeight / 2, 1 / 1.4);
+  $('ifcFit').onclick = () => { if (ifcMode === '3d') { ifc3dCam.target = [0, 0, 0]; if (ifc3d && ifc3d.radius) ifc3dCam.dist = ifc3d.radius / Math.sin(0.4) * 1.08; ifc3dRender(); return; } ifcFit(); ifcDraw(); };
+  $('ifcZin').onclick = () => { if (ifcMode === '3d') { ifc3dCam.dist /= 1.4; ifc3dRender(); } else zoomAt(cv.clientWidth / 2, cv.clientHeight / 2, 1.4); };
+  $('ifcZout').onclick = () => { if (ifcMode === '3d') { ifc3dCam.dist *= 1.4; ifc3dRender(); } else zoomAt(cv.clientWidth / 2, cv.clientHeight / 2, 1 / 1.4); };
   $('ifcPlanLvl').onchange = () => { $('ifcTip').hidden = true; ifcHover = null; ifcFit(); ifcDraw(); };
   if (window.ResizeObserver) new ResizeObserver(() => ifcDraw()).observe(cv);
+})();
+/* ---------- vue 3D de la maquette (WebGL, intégré à tous les navigateurs : rien à installer) ---------- */
+let ifcMode = 'plan';            // 'plan' ou '3d'
+let ifc3d = null;                // contexte WebGL et tampons de la maquette affichée
+const ifc3dCam = { yaw: -Math.PI / 4, pitch: 0.5, dist: 30, target: [0, 0, 0] };
+const IFC3D_COL = {
+  conc: [0.78, 0.79, 0.80], mas: [0.86, 0.79, 0.69], part: [0.93, 0.93, 0.91], wall: [0.88, 0.87, 0.84],
+  slab: [0.80, 0.79, 0.76], roof: [0.66, 0.36, 0.28], column: [0.62, 0.64, 0.67], beam: [0.66, 0.63, 0.58],
+  door: [0.63, 0.46, 0.31], window: [0.58, 0.78, 0.92], stair: [0.82, 0.80, 0.76], rail: [0.36, 0.37, 0.40], other: [0.76, 0.75, 0.72],
+};
+const ifc3dGlass = e => { const k = ifcKind(e); return k === 'window' || (e.cls === 'IFCPLATE' && /vitr|glass|glaz|panneau/i.test(e.des + ' ' + e.name)); };
+function ifc3dBaseColor(e) {
+  const k = ifcKind(e);
+  if (ifc3dGlass(e)) return IFC3D_COL.window;
+  if (k === 'wall') { if (e.cls === 'IFCMEMBER') return [0.45, 0.47, 0.50]; return IFC3D_COL[ifcWallMat(e)]; }
+  return IFC3D_COL[k] || IFC3D_COL.other;
+}
+const M4 = {
+  persp(fov, asp, n, f) { const t = 1 / Math.tan(fov / 2); return [t / asp, 0, 0, 0, 0, t, 0, 0, 0, 0, (f + n) / (n - f), -1, 0, 0, 2 * f * n / (n - f), 0]; },
+  look(e, c, u) {
+    const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]], nrm = a => { const l = Math.hypot(...a) || 1; return a.map(v => v / l); };
+    const cr = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]], dt = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    const z = nrm(sub(e, c)), x = nrm(cr(u, z)), y = cr(z, x);
+    return [x[0], y[0], z[0], 0, x[1], y[1], z[1], 0, x[2], y[2], z[2], 0, -dt(x, e), -dt(y, e), -dt(z, e), 1];
+  },
+  mul(a, b) { const o = new Array(16); for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { let s = 0; for (let k = 0; k < 4; k++) s += a[k * 4 + j] * b[i * 4 + k]; o[i * 4 + j] = s; } return o; },
+};
+function ifc3dInit() {
+  if (ifc3d && ifc3d.gl) return ifc3d;
+  const cv = $('ifcGl'), gl = cv.getContext('webgl', { antialias: true, preserveDrawingBuffer: false }) || cv.getContext('experimental-webgl');
+  if (!gl) return (ifc3d = { gl: null });
+  const sh = (t, src) => { const s = gl.createShader(t); gl.shaderSource(s, src); gl.compileShader(s); return s; };
+  const prog = (vs, fs) => { const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p); return p; };
+  const P = {
+    mesh: prog(`attribute vec3 p; attribute vec3 n; attribute vec3 c; uniform mat4 mvp; varying vec3 v;
+      void main(){ vec3 N = normalize(n); float l = 0.56 + 0.30*abs(dot(N, normalize(vec3(0.45,0.3,0.84)))) + 0.18*abs(dot(N, normalize(vec3(-0.6,0.7,0.2))));
+      v = c*l; gl_Position = mvp*vec4(p,1.0); }`,
+      `precision mediump float; varying vec3 v; uniform float a; void main(){ gl_FragColor = vec4(v, a); }`),
+    pick: prog(`attribute vec3 p; attribute vec3 k; uniform mat4 mvp; varying vec3 v; void main(){ v = k; gl_Position = mvp*vec4(p,1.0); }`,
+      `precision mediump float; varying vec3 v; void main(){ gl_FragColor = vec4(v, 1.0); }`),
+    line: prog(`attribute vec3 p; uniform mat4 mvp; void main(){ gl_Position = mvp*vec4(p,1.0); }`,
+      `precision mediump float; uniform vec4 col; void main(){ gl_FragColor = col; }`),
+  };
+  return (ifc3d = { gl, P, model: null });
+}
+// tampons de la maquette : sommets regroupés par niveau (opaques puis vitrages), arêtes vives pour le dessin
+function ifc3dBuild() {
+  const G = ifc3dInit(), gl = G.gl, M = ifcModel; if (!gl || !M) return;
+  if (G.model === M) return;
+  const els = M.elements.filter(e => e.tri && e.cls !== 'IFCSPACE');
+  let lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+  for (const e of els) for (let i = 0; i < e.tri.length; i += 3) for (let k = 0; k < 3; k++) { const v = e.tri[i + k]; if (v < lo[k]) lo[k] = v; if (v > hi[k]) hi[k] = v; }
+  const C = lo.map((v, k) => (v + hi[k]) / 2);
+  G.radius = Math.max(1, Math.hypot(hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]) / 2); G.center = C; G.zmin = lo[2] - C[2];
+  const lvls = [...M.levels, ''], groups = [];
+  for (const lv of lvls) for (const glass of [false, true]) groups.push({ lv, glass, els: els.filter(e => (e.lvl || '') === lv && ifc3dGlass(e) === glass) });
+  const nTri = els.reduce((s, e) => s + e.tri.length / 9, 0);
+  const pos = new Float32Array(nTri * 9), nor = new Float32Array(nTri * 9), key = new Float32Array(nTri * 9);
+  G.ranges = []; G.byEl = new Map(); G.idOf = [];
+  let o = 0;
+  for (const g of groups) {
+    const start = o / 3;
+    for (const e of g.els) {
+      const t = e.tri, s0 = o / 3, id = G.idOf.length + 1; G.idOf.push(e);
+      const kr = (id & 255) / 255, kg = ((id >> 8) & 255) / 255, kb = ((id >> 16) & 255) / 255;
+      for (let i = 0; i < t.length; i += 9) {
+        const ax = t[i] - C[0], ay = t[i + 1] - C[1], az = t[i + 2] - C[2], bx = t[i + 3] - C[0], by = t[i + 4] - C[1], bz = t[i + 5] - C[2], cx = t[i + 6] - C[0], cy = t[i + 7] - C[1], cz = t[i + 8] - C[2];
+        const ux = bx - ax, uy = by - ay, uz = bz - az, vx = cx - ax, vy = cy - ay, vz = cz - az;
+        const nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+        pos.set([ax, ay, az, bx, by, bz, cx, cy, cz], o);
+        for (let k = 0; k < 9; k += 3) { nor[o + k] = nx; nor[o + k + 1] = ny; nor[o + k + 2] = nz; key[o + k] = kr; key[o + k + 1] = kg; key[o + k + 2] = kb; }
+        o += 9;
+      }
+      G.byEl.set(e.id, [s0, o / 3 - s0]);
+    }
+    G.ranges.push({ lv: g.lv, glass: g.glass, start, count: o / 3 - start });
+  }
+  G.nVert = o / 3;
+  // arêtes vives (contours des volumes) : arêtes de bord ou entre faces formant un angle marqué
+  const edges = [], eRange = new Map();
+  if (nTri < 1.5e6) for (const lv of lvls) {
+    const s0 = edges.length / 3;
+    for (const e of els) {
+      if ((e.lvl || '') !== lv) continue;
+      const [st, cnt] = G.byEl.get(e.id), map = new Map(), q = v => Math.round(v * 500);
+      for (let i = st; i < st + cnt; i += 3) {
+        const n = [nor[i * 3], nor[i * 3 + 1], nor[i * 3 + 2]], ln = Math.hypot(...n) || 1;
+        for (let k = 0; k < 3; k++) {
+          const a = (i + k) * 3, b = (i + (k + 1) % 3) * 3;
+          const ka = q(pos[a]) + ',' + q(pos[a + 1]) + ',' + q(pos[a + 2]), kb = q(pos[b]) + ',' + q(pos[b + 1]) + ',' + q(pos[b + 2]);
+          if (ka === kb) continue;
+          const kk = ka < kb ? ka + '|' + kb : kb + '|' + ka, x = map.get(kk);
+          if (x) x.n.push(n.map(v => v / ln)); else map.set(kk, { a, b, n: [n.map(v => v / ln)] });
+        }
+      }
+      for (const x of map.values()) {
+        let sharp = x.n.length === 1;
+        if (!sharp) { const [n1, n2] = x.n; sharp = Math.abs(n1[0] * n2[0] + n1[1] * n2[1] + n1[2] * n2[2]) < 0.94; }
+        if (sharp) edges.push(pos[x.a], pos[x.a + 1], pos[x.a + 2], pos[x.b], pos[x.b + 1], pos[x.b + 2]);
+      }
+    }
+    eRange.set(lv, [s0, edges.length / 3 - s0]);
+  }
+  G.eRange = eRange;
+  const buf = (data) => { const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW); return b; };
+  ['pos', 'nor', 'key', 'col', 'edge'].forEach(k => { if (G[k]) gl.deleteBuffer(G[k]); });
+  G.pos = buf(pos); G.nor = buf(nor); G.key = buf(key); G.edge = buf(new Float32Array(edges));
+  G.colArr = new Float32Array(G.nVert * 3); G.col = gl.createBuffer(); G.colKey = null;
+  G.model = M; G.hidden = new Set();
+  ifc3dLevels(); ifc3dView('iso');
+}
+function ifc3dColors() {   // couleurs : par matériau, la désignation choisie en bleu, l'élément choisi en orange
+  const G = ifc3d, gl = G.gl, k = ifcSel + '|' + ifcHot;
+  if (G.colKey === k) return; G.colKey = k;
+  const a = G.colArr;
+  for (const e of G.idOf) {
+    const r = G.byEl.get(e.id); if (!r) continue;
+    const c = e.id === ifcHot ? [0.93, 0.42, 0.12] : (e.cat + '\u0001' + e.des) === ifcSel ? [0.22, 0.48, 0.92] : ifc3dBaseColor(e);
+    for (let i = r[0]; i < r[0] + r[1]; i++) { a[i * 3] = c[0]; a[i * 3 + 1] = c[1]; a[i * 3 + 2] = c[2]; }
+  }
+  gl.bindBuffer(gl.ARRAY_BUFFER, G.col); gl.bufferData(gl.ARRAY_BUFFER, a, gl.DYNAMIC_DRAW);
+}
+function ifc3dMvp() {
+  const G = ifc3d, c = ifc3dCam, cv = $('ifcGl');
+  const eye = [c.target[0] + c.dist * Math.cos(c.pitch) * Math.cos(c.yaw), c.target[1] + c.dist * Math.cos(c.pitch) * Math.sin(c.yaw), c.target[2] + c.dist * Math.sin(c.pitch)];
+  const up = Math.abs(c.pitch) > 1.55 ? [-Math.cos(c.yaw), -Math.sin(c.yaw), 0] : [0, 0, 1];
+  const near = Math.max(0.02, c.dist - G.radius * 2.2) * 0.5, far = c.dist + G.radius * 3;
+  return M4.mul(M4.persp(0.8, cv.clientWidth / Math.max(1, cv.clientHeight), near, far), M4.look(eye, c.target, up));
+}
+function ifc3dDraw(pickMode) {
+  if (ifc3d && ifc3d.gl && ifcModel && ifc3d.model !== ifcModel) ifc3dBuild();
+  const G = ifc3d; if (!G || !G.gl || !G.model) return;
+  const gl = G.gl, cv = $('ifcGl'), dpr = window.devicePixelRatio || 1, W = Math.round(cv.clientWidth * dpr), H = Math.round(cv.clientHeight * dpr);
+  if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+  gl.viewport(0, 0, W, H);
+  const mvp = ifc3dMvp(), vis = r => !G.hidden.has(r.lv);
+  const attr = (prog, name, b) => { const l = gl.getAttribLocation(prog, name); if (l < 0) return; gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.enableVertexAttribArray(l); gl.vertexAttribPointer(l, 3, gl.FLOAT, false, 0, 0); };
+  const off = prog => ['p', 'n', 'c', 'k'].forEach(n => { const l = gl.getAttribLocation(prog, n); if (l >= 0) gl.disableVertexAttribArray(l); });
+  gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL);
+  if (pickMode) {
+    gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); gl.disable(gl.BLEND);
+    const p = G.P.pick; gl.useProgram(p); attr(p, 'p', G.pos); attr(p, 'k', G.key);
+    gl.uniformMatrix4fv(gl.getUniformLocation(p, 'mvp'), false, mvp);
+    for (const r of G.ranges) if (vis(r) && r.count) gl.drawArrays(gl.TRIANGLES, r.start, r.count);
+    off(p); return;
+  }
+  ifc3dColors();
+  gl.clearColor(0.965, 0.962, 0.95, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  const p = G.P.mesh; gl.useProgram(p); attr(p, 'p', G.pos); attr(p, 'n', G.nor); attr(p, 'c', G.col);
+  gl.uniformMatrix4fv(gl.getUniformLocation(p, 'mvp'), false, mvp);
+  gl.enable(gl.POLYGON_OFFSET_FILL); gl.polygonOffset(1, 1);
+  gl.disable(gl.BLEND); gl.uniform1f(gl.getUniformLocation(p, 'a'), 1);
+  for (const r of G.ranges) if (vis(r) && !r.glass && r.count) gl.drawArrays(gl.TRIANGLES, r.start, r.count);
+  off(p);
+  // arêtes
+  const l = G.P.line; gl.useProgram(l); attr(l, 'p', G.edge);
+  gl.uniformMatrix4fv(gl.getUniformLocation(l, 'mvp'), false, mvp); gl.uniform4f(gl.getUniformLocation(l, 'col'), 0.18, 0.19, 0.21, 0.85);
+  gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  for (const [lv, [s, n]] of G.eRange) if (!G.hidden.has(lv) && n) gl.drawArrays(gl.LINES, s, n);
+  off(l);
+  // vitrages : transparents, après le reste
+  gl.useProgram(p); attr(p, 'p', G.pos); attr(p, 'n', G.nor); attr(p, 'c', G.col);
+  gl.uniform1f(gl.getUniformLocation(p, 'a'), 0.38); gl.depthMask(false);
+  for (const r of G.ranges) if (vis(r) && r.glass && r.count) gl.drawArrays(gl.TRIANGLES, r.start, r.count);
+  gl.depthMask(true); gl.disable(gl.POLYGON_OFFSET_FILL); off(p);
+}
+let ifc3dQueued = false;
+function ifc3dRender() { if (ifc3dQueued) return; ifc3dQueued = true; requestAnimationFrame(() => { ifc3dQueued = false; ifc3dDraw(false); }); }
+function ifc3dPick(mx, my) {   // élément sous le pointeur : dessin des n° d'éléments en couleurs, lecture du pixel
+  const G = ifc3d; if (!G || !G.gl || !G.model) return null;
+  const gl = G.gl, dpr = window.devicePixelRatio || 1;
+  ifc3dDraw(true);
+  const px = new Uint8Array(4); gl.readPixels(Math.round(mx * dpr), Math.round(gl.drawingBufferHeight - my * dpr), 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+  const id = px[0] | (px[1] << 8) | (px[2] << 16);
+  ifc3dDraw(false);
+  return id ? G.idOf[id - 1] || null : null;
+}
+function ifc3dView(v) {
+  const G = ifc3d, c = ifc3dCam; if (!G || !G.model) return;
+  c.target = [0, 0, 0]; c.dist = G.radius / Math.sin(0.4) * 1.08;
+  if (v === 'top') { c.yaw = -Math.PI / 2; c.pitch = 1.5699; }
+  else if (v === 'front') { c.yaw = -Math.PI / 2; c.pitch = 0.08; }
+  else if (v === 'side') { c.yaw = 0; c.pitch = 0.08; }
+  else { c.yaw = -Math.PI / 4 - 0.35; c.pitch = 0.5; }
+  ifc3dRender();
+}
+function ifc3dFocus(e) {
+  const G = ifc3d; if (!G || !G.model || !e || !e.tri) return;
+  let s = [0, 0, 0], n = 0; for (let i = 0; i < e.tri.length; i += 3) { s[0] += e.tri[i]; s[1] += e.tri[i + 1]; s[2] += e.tri[i + 2]; n++; }
+  ifc3dCam.target = s.map((v, k) => v / n - G.center[k]); ifc3dRender();
+}
+function ifc3dLevels() {   // cases à cocher des niveaux affichés
+  const G = ifc3d, box = $('ifc3dLvls'), M = ifcModel; if (!M) return;
+  const lv = M.levels.filter(l => G.ranges.some(r => r.lv === l && r.count));
+  box.innerHTML = `<b>${esc(trText('Niveaux'))}</b>` + lv.map(l => `<label><input type="checkbox" data-lv="${esc(l)}"${G.hidden.has(l) ? '' : ' checked'}> ${esc(l)}</label>`).join('');
+  box.hidden = ifcMode !== '3d' || lv.length < 2;
+  box.querySelectorAll('input').forEach(i => i.onchange = () => { if (i.checked) G.hidden.delete(i.dataset.lv); else G.hidden.add(i.dataset.lv); ifc3dRender(); });
+}
+function ifcSetMode(m) {
+  ifcMode = m;
+  $('ifcModePlan').classList.toggle('on', m === 'plan'); $('ifcMode3d').classList.toggle('on', m === '3d');
+  $('ifcCv').hidden = m === '3d'; $('ifcGl').hidden = m !== '3d';
+  $('ifc3dBar').hidden = m !== '3d'; $('ifcPlanLvl').hidden = m === '3d'; $('ifcTip').hidden = true;
+  $('ifcHint').textContent = trText(m === '3d' ? (IS_TOUCH ? 'Un doigt : tourner · deux doigts : zoom et déplacer · toucher : sélectionner' : 'Glisser : tourner · clic droit ou Maj : déplacer · molette : zoom · clic : sélectionner')
+    : (IS_TOUCH ? 'Pincer : zoom · glisser : déplacer · toucher : sélectionner' : 'Molette : zoom · glisser : déplacer · clic : sélectionner'));
+  if (m === '3d') {
+    const G = ifc3dInit();
+    $('ifcPlanEmpty').hidden = true;
+    if (!G.gl) { $('ifcPlanEmpty').hidden = false; $('ifcPlanEmpty').textContent = trText('La vue 3D n’est pas disponible sur cet appareil.'); return; }
+    ifc3dBuild(); ifc3dLevels(); ifc3dRender();
+  } else { $('ifc3dLvls').hidden = true; $('ifcPlanEmpty').textContent = trText('Aucun élément dessiné sur ce niveau.'); ifcDraw(); }
+  try { localStorage.setItem('metrix:ifcMode', m); } catch {}
+}
+(() => {
+  const cv = $('ifcGl'), ptrs = new Map(); let drag = null, pinch = null, moved = false, hoverT = 0;
+  const pos = e => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  const pan = (dx, dy) => {
+    const c = ifc3dCam, k = c.dist * 0.0016, cy = Math.cos(c.yaw), sy = Math.sin(c.yaw), sp = Math.sin(c.pitch), cp = Math.cos(c.pitch);
+    const right = [-sy, cy, 0], up = [-sp * cy, -sp * sy, cp];
+    c.target = c.target.map((v, i) => v - right[i] * dx * k + up[i] * dy * k);
+  };
+  cv.addEventListener('contextmenu', e => e.preventDefault());
+  cv.addEventListener('wheel', e => { e.preventDefault(); ifc3dCam.dist = Math.min(1e5, Math.max(0.3, ifc3dCam.dist * Math.exp(e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)))); ifc3dRender(); }, { passive: false });
+  cv.addEventListener('pointerdown', e => {
+    cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, pos(e)); moved = false;
+    if (ptrs.size === 1) drag = { p: pos(e), pan: e.button === 2 || e.button === 1 || e.shiftKey };
+    else if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), m: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], dist: ifc3dCam.dist }; drag = null; }
+  });
+  cv.addEventListener('pointermove', e => {
+    const p = pos(e);
+    if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, p);
+    if (pinch && ptrs.size === 2) {
+      const [a, b] = [...ptrs.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]), m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+      ifc3dCam.dist = Math.max(0.3, pinch.dist * pinch.d / Math.max(1, d)); pan(m[0] - pinch.m[0], m[1] - pinch.m[1]); pinch.m = m; moved = true; ifc3dRender(); return;
+    }
+    if (drag) {
+      const dx = p[0] - drag.p[0], dy = p[1] - drag.p[1]; if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
+      if (moved) {
+        if (drag.pan) pan(dx, dy);
+        else { ifc3dCam.yaw -= dx * 0.008; ifc3dCam.pitch = Math.max(-1.5699, Math.min(1.5699, ifc3dCam.pitch + dy * 0.008)); }
+        drag.p = p; ifc3dRender();
+      }
+      return;
+    }
+    if (e.pointerType === 'mouse' && ifc3d && ifc3d.nVert < 3e6 && Date.now() - hoverT > 60) {
+      hoverT = Date.now();
+      const h = ifc3dPick(p[0], p[1]), tip = $('ifcTip');
+      if (h) { tip.hidden = false; tip.textContent = `${trText(h.cat)} · ${h.des}${h.lvl ? ' · ' + h.lvl : ''}`; tip.style.left = Math.min(p[0] + 14, cv.clientWidth - tip.offsetWidth - 6) + 'px'; tip.style.top = (p[1] + 16) + 'px'; }
+      else tip.hidden = true;
+      cv.style.cursor = h ? 'pointer' : 'grab';
+    }
+  });
+  const up = e => {
+    const p = pos(e), was = ptrs.has(e.pointerId); ptrs.delete(e.pointerId);
+    if (ptrs.size < 2) pinch = null;
+    if (was && !moved && ptrs.size === 0 && drag && !drag.pan) ifcSelectEl(ifc3dPick(p[0], p[1]));
+    if (ptrs.size === 0) drag = null;
+  };
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+  cv.addEventListener('pointerleave', () => { $('ifcTip').hidden = true; });
+  $('ifcModePlan').onclick = () => ifcSetMode('plan');
+  $('ifcMode3d').onclick = () => ifcSetMode('3d');
+  document.querySelectorAll('#ifc3dBar [data-v]').forEach(b => b.onclick = () => ifc3dView(b.dataset.v));
+  if (window.ResizeObserver) new ResizeObserver(() => { if (ifcMode === '3d') ifc3dRender(); }).observe(cv);
 })();
 /* ---------- import Revit (.rvt) : conversion en IFC par un convertisseur installé (DDC), puis lecture IFC ---------- */
 // Module isolé : chaque « moteur » sait seulement fabriquer sa ligne de commande. Le reste (lancement, délai,
@@ -5173,7 +5592,7 @@ async function rvtConvertPicked(pick, c = rvtCfg()) {
 }
 $('rvtImportBtn').onclick = rvtImport;
 // accès pour les tests automatiques
-window.__metrixRvt = { rvtCommand, rvtClassify, rvtWinPath, rvtEngineOf, rvtText, rvtConvertPicked, rvtCfg, rvtSaveCfg, ifcCompareRows: (...a) => ifcCompareRows(...a), model: () => ifcModel, ifcParse: t => ifcParse(t), ifcBuild: (M, n) => ifcBuild(M, n, 0) };
+window.__metrixRvt = { rvtCommand, rvtClassify, rvtWinPath, rvtEngineOf, rvtText, rvtConvertPicked, rvtCfg, rvtSaveCfg, ifcCompareRows: (...a) => ifcCompareRows(...a), model: () => ifcModel, pick3d: (x, y) => { const e = ifc3dPick(x, y); return e ? e.des : null; }, ifcParse: t => ifcParse(t), ifcBuild: (M, n) => ifcBuild(M, n, 0) };
 
 // Paramètres → Revit (.rvt)
 function rvtGoSettings() { const cards = [...document.querySelectorAll('#settings .set-card')], i = cards.indexOf($('setRvtCard')); if (i >= 0 && setSection) setSection(i); }
