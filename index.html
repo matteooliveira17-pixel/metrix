@@ -125,6 +125,14 @@
   #empty { position:absolute; inset:24px; display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:center; text-align:center; color:#3a4a63; padding:20px; font-size:13px;
            border:2px dashed #2b579a; border-radius:10px; background:rgba(43,87,154,.04); cursor:pointer; transition:background .15s, border-color .15s; }
   #empty:hover { background:rgba(43,87,154,.10); border-color:#1e4580; }
+  .ifc-drop { display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:center; text-align:center; color:#3a4a63; padding:20px; font-size:13px; line-height:1.5; min-height:200px; margin:6px 0 16px;
+              border:2px dashed #2b579a; border-radius:10px; background:rgba(43,87,154,.04); cursor:pointer; transition:background .15s, border-color .15s; user-select:none; }
+  .ifc-drop:hover, .ifc-drop:focus-visible { background:rgba(43,87,154,.10); border-color:#1e4580; outline:none; }
+  .ifc-drop.drag { background:rgba(43,87,154,.16); border-width:3px; border-color:#1e4580; }
+  .ifc-drop svg { width:60px; height:60px; }
+  html.dark .ifc-drop { color:#b7c3d6; border-color:#4c86d8; background:rgba(76,134,216,.06); }
+  html.dark .ifc-drop:hover { background:rgba(76,134,216,.13); border-color:#7fb0f0; }
+  html.dark .ifc-drop svg path:first-child { fill:#262b33; }
   #empty svg { width:60px; height:60px; }
   #empty.drag { background:rgba(43,87,154,.16); border-width:3px; border-color:#1e4580; }
 
@@ -304,7 +312,7 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
   .ifc-rec { border:1px solid var(--line); border-radius:5px; background:#fff; }
   .ifc-rec > summary { cursor:pointer; padding:4px 8px; font-size:12px; font-weight:600; color:var(--muted); user-select:none; }
   .ifc-rec > summary b { font-weight:400; }
-  .ifc-rec > div { max-height:210px; overflow:auto; padding:0 3px 3px; }
+  .ifc-rec > div { max-height:340px; overflow:auto; padding:0 3px 3px; }
   .ifc-rec .rc-item { padding:4px 5px; gap:7px; }
   .ifc-rec .rc-item.cur { background:rgba(43,111,214,.12); }
   .ifc-rec .rc-thumb { width:30px; height:30px; }
@@ -1147,7 +1155,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.12';
+const METRIX_VERSION = '3.13';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -1906,6 +1914,9 @@ addTr([
   // couleurs Revit (vue 3D)
   ["Couleurs Revit","Revit colours","Cores do Revit","Colores de Revit"],
   ["Afficher les couleurs des matériaux définies dans Revit (sinon : couleurs de Métrix par matériau)","Show the material colours defined in Revit (otherwise: Métrix colours by material)","Mostrar as cores dos materiais definidas no Revit (senão: cores do Métrix por material)","Mostrar los colores de los materiales definidos en Revit (si no: colores de Métrix por material)"],
+  // zone « Cliquez ici » (Revit / IFC)
+  ["pour ouvrir une maquette IFC, ou déposez-la dans cette zone.","to open an IFC model, or drop it in this area.","para abrir um modelo IFC, ou largue-o nesta zona.","para abrir un modelo IFC, o suéltelo en esta zona."],
+  ["Fichier Revit (.rvt) : bouton « Importer Revit (.rvt)… » à gauche.","Revit file (.rvt): « Import Revit (.rvt)… » button on the left.","Ficheiro Revit (.rvt): botão « Importar Revit (.rvt)… » à esquerda.","Archivo Revit (.rvt): botón « Importar Revit (.rvt)… » a la izquierda."],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -2599,6 +2610,8 @@ addTr2([
   ["Fermer cette maquette (elle reste dans les fichiers récents)","Dieses Modell schließen (es bleibt in den zuletzt geöffneten Dateien)","Dit model sluiten (het blijft in de recente bestanden)","关闭此模型（仍保留在最近的文件中）","إغلاق هذا النموذج (يبقى في الملفات الأخيرة)","Chiudi questo modello (resta nei file recenti)","Закрыть эту модель (она останется в недавних файлах)"],
   ["Couleurs Revit","Revit-Farben","Revit-kleuren","Revit 颜色","ألوان Revit","Colori Revit","Цвета Revit"],
   ["Afficher les couleurs des matériaux définies dans Revit (sinon : couleurs de Métrix par matériau)","Die in Revit definierten Materialfarben anzeigen (sonst: Métrix-Farben nach Material)","De in Revit gedefinieerde materiaalkleuren tonen (anders: Métrix-kleuren per materiaal)","显示 Revit 中定义的材质颜色（否则：Métrix 按材质的颜色）","عرض ألوان المواد المحددة في Revit (وإلا: ألوان Métrix حسب المادة)","Mostra i colori dei materiali definiti in Revit (altrimenti: colori di Métrix per materiale)","Показывать цвета материалов, заданные в Revit (иначе — цвета Métrix по материалу)"],
+  ["pour ouvrir une maquette IFC, ou déposez-la dans cette zone.","um ein IFC-Modell zu öffnen, oder ziehen Sie es in diesen Bereich.","om een IFC-model te openen, of sleep het naar dit vak.","以打开 IFC 模型，或将其拖放到此区域。","لفتح نموذج IFC، أو أفلته في هذه المنطقة.","per aprire un modello IFC, oppure trascinalo in questa zona.","чтобы открыть модель IFC, или перетащите её в эту область."],
+  ["Fichier Revit (.rvt) : bouton « Importer Revit (.rvt)… » à gauche.","Revit-Datei (.rvt): Schaltfläche « Revit importieren (.rvt)… » links.","Revit-bestand (.rvt): knop « Revit importeren (.rvt)… » links.","Revit 文件 (.rvt)：左侧的「导入 Revit (.rvt)…」按钮。","ملف Revit (.rvt): زر « استيراد Revit (.rvt)… » على اليسار.","File Revit (.rvt): pulsante « Importa Revit (.rvt)… » a sinistra.","Файл Revit (.rvt): кнопка «Импорт Revit (.rvt)…» слева."],
 ]);
 // --- fin des langues ajoutées ---
 
@@ -4581,7 +4594,15 @@ function ifcHelp(rvt) {
 function renderIfcMain() {
   const M = ifcModel, box = $('ifcMain');
   const g = M && M.groups.find(x => x.key === ifcSel);
-  if (!M) { $('ifcTitle').textContent = trText('Maquette Revit'); box.innerHTML = `<div class="ifc-main"><h2>${esc(trText('Métrés d’une maquette Revit'))}</h2><p class="sub">${esc(trText('Ouvrez une maquette IFC exportée de Revit : Métrix liste tous les éléments trouvés avec leur désignation et leurs quantités.'))}</p>${ifcHelp(false)}</div>`; return; }
+  if (!M) { $('ifcTitle').textContent = trText('Maquette Revit'); box.innerHTML = `<div class="ifc-main"><h2>${esc(trText('Métrés d’une maquette Revit'))}</h2><p class="sub">${esc(trText('Ouvrez une maquette IFC exportée de Revit : Métrix liste tous les éléments trouvés avec leur désignation et leurs quantités.'))}</p>
+      <div class="ifc-drop" id="ifcDrop" role="button" tabindex="0"><svg viewBox="0 0 32 32"><path d="M7 3h13l6 6v20H7z" fill="#f4f6fa" stroke="#9aa4b2"/><path d="M20 3v6h6M11 15h11M11 19h11M11 23h7" stroke="#9aa4b2"/></svg>
+        <div><b>${esc(trText('Cliquez ici'))}</b> ${esc(trText('pour ouvrir une maquette IFC, ou déposez-la dans cette zone.'))}<br>${esc(trText('Fichier Revit (.rvt) : bouton « Importer Revit (.rvt)… » à gauche.'))}</div></div>
+      ${ifcHelp(false)}</div>`;
+    const d = $('ifcDrop');
+    d.onclick = () => $('ifcFile').click();
+    d.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('ifcFile').click(); } };
+    d.ondragenter = d.ondragover = () => d.classList.add('drag'); d.ondragleave = d.ondrop = () => d.classList.remove('drag');
+    return; }
   if (!g) {
     $('ifcTitle').textContent = M.fileName;
     const cats = new Map();
