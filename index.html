@@ -482,11 +482,12 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
   #splash .sp-in { display:flex; flex-direction:column; align-items:center; text-align:center; }
   #splash .sp-mark { width:210px; height:210px; overflow:visible; }
   #splash .sp-m { transform-origin:627px 627px; animation:spPop .9s cubic-bezier(.2,.9,.25,1.15) both; }
-  #splash .r-base { fill:none; stroke:url(#spGold); stroke-width:24; stroke-dasharray:100; stroke-dashoffset:100; animation:spDraw 1s .35s cubic-bezier(.4,0,.2,1) forwards; }
-  #splash .back .r-base { opacity:.4; }
-  #splash .r-edge { fill:none; stroke:#0d0f12; stroke-width:44; stroke-dasharray:100; stroke-dashoffset:100; animation:spDraw 1s .35s cubic-bezier(.4,0,.2,1) forwards; }
-  #splash .r-comet { fill:none; stroke:#fff4c2; stroke-width:30; stroke-linecap:round; stroke-dasharray:9 91; opacity:0; animation:spOrbit 1.5s linear infinite, spShow .4s 1.2s forwards; filter:drop-shadow(0 0 14px rgba(255,210,80,.95)); }
-  #splash .back .r-comet { --o:.45; }
+  /* anneau : bande jaune cernée de noir, épaisse devant, fine derrière (perspective), un reflet qui tourne */
+  #splash .r-band { fill:url(#spGold); fill-rule:evenodd; stroke:#0b0c0e; stroke-width:11; stroke-linejoin:round; }
+  #splash .sp-ring { transform-box:view-box; animation:spRingIn .9s .3s cubic-bezier(.2,.8,.25,1) both; }
+  #splash .r-comet { fill:none; stroke:#fffbe6; stroke-width:80; stroke-linecap:round; stroke-dasharray:6 94; opacity:0; animation:spOrbit 1.6s linear infinite, spShow .4s 1.2s forwards; --o:.8; }
+  #splash .back .r-comet { --o:.35; }
+  @keyframes spRingIn { from { opacity:0; transform:scale(.82); } to { opacity:1; transform:none; } }
   @keyframes spDraw { to { stroke-dashoffset:0; } }
   @keyframes spOrbit { from { stroke-dashoffset:0; } to { stroke-dashoffset:-100; } }
   @keyframes spShow { to { opacity:var(--o, 1); } }
@@ -735,12 +736,16 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
         <linearGradient id="spGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd84a"/><stop offset="1" stop-color="#ffb300"/></linearGradient>
         <clipPath id="spBack"><rect x="-720" y="-420" width="1440" height="420"/></clipPath>
         <clipPath id="spFront"><rect x="-720" y="0" width="1440" height="420"/></clipPath>
+        <clipPath id="spBand"><path clip-rule="evenodd" d="M-590 0A590 175 0 1 0 590 0A590 175 0 1 0-590 0ZM-522-25A522 140 0 1 0 522-25A522 140 0 1 0-522-25Z"/></clipPath>
+        <!-- partie arrière de l'anneau : s'estompe au milieu, comme vue de loin -->
+        <linearGradient id="spFadeG" gradientUnits="userSpaceOnUse" x1="-600" y1="0" x2="600" y2="0"><stop offset="0" stop-color="#fff"/><stop offset=".22" stop-color="#fff" stop-opacity=".2"/><stop offset=".5" stop-color="#fff" stop-opacity=".05"/><stop offset=".78" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff"/></linearGradient>
+        <mask id="spFade" maskUnits="userSpaceOnUse" x="-720" y="-420" width="1440" height="840"><rect x="-720" y="-420" width="1440" height="840" fill="url(#spFadeG)"/></mask>
       </defs>
       <g transform="translate(627 640) rotate(-24)">
-        <g class="sp-ring back" clip-path="url(#spBack)">
-          <path class="r-base" pathLength="100" d="M-590 0A590 175 0 1 0 590 0A590 175 0 1 0-590 0"/>
-          <path class="r-comet" pathLength="100" d="M-590 0A590 175 0 1 0 590 0A590 175 0 1 0-590 0"/>
-        </g>
+        <g class="sp-ring back" clip-path="url(#spBack)"><g mask="url(#spFade)">
+          <path class="r-band" d="M-590 0A590 175 0 1 0 590 0A590 175 0 1 0-590 0ZM-522-25A522 140 0 1 0 522-25A522 140 0 1 0-522-25Z"/>
+          <g clip-path="url(#spBand)"><path class="r-comet" pathLength="100" d="M-556-12A556 158 0 1 0 556-12A556 158 0 1 0-556-12"/></g>
+        </g></g>
       </g>
       <g class="sp-m">
         <polygon fill="#fff" points="257,320 708,632 593,703 388,553 388,778 257,850"/>
@@ -749,9 +754,8 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
       </g>
       <g transform="translate(627 640) rotate(-24)">
         <g class="sp-ring front" clip-path="url(#spFront)">
-          <path class="r-edge" pathLength="100" d="M-590 0A590 175 0 1 0 590 0A590 175 0 1 0-590 0"/>
-          <path class="r-base" pathLength="100" d="M-590 0A590 175 0 1 0 590 0A590 175 0 1 0-590 0"/>
-          <path class="r-comet" pathLength="100" d="M-590 0A590 175 0 1 0 590 0A590 175 0 1 0-590 0"/>
+          <path class="r-band" d="M-590 0A590 175 0 1 0 590 0A590 175 0 1 0-590 0ZM-522-25A522 140 0 1 0 522-25A522 140 0 1 0-522-25Z"/>
+          <g clip-path="url(#spBand)"><path class="r-comet" pathLength="100" d="M-556-12A556 158 0 1 0 556-12A556 158 0 1 0-556-12"/></g>
         </g>
       </g>
     </svg>
@@ -1155,7 +1159,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.14';
+const METRIX_VERSION = '3.15';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
