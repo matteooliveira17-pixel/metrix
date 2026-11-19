@@ -254,6 +254,9 @@
 .ifc-seg button, .ifc-seg2 button { border:0 !important; border-radius:0 !important; padding:3px 9px !important; }
 .ifc-seg button + button, .ifc-seg2 button + button { border-left:1px solid var(--line) !important; }
 .ifc-seg button.on { background:#2b579a !important; color:#fff !important; }
+#ifc3dColBtn.on { background:#e8eef8 !important; color:#2b579a !important; font-weight:600; }
+#ifc3dColBtn[hidden] { display:none; }
+html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !important; }
 .ifc-lvls { position:absolute; top:8px; right:8px; background:rgba(255,255,255,.94); border:1px solid var(--line); border-radius:7px; padding:6px 10px; box-shadow:0 2px 6px rgba(0,0,0,.08); font-size:12px; color:#222; display:flex; flex-direction:column; gap:3px; max-height:70%; overflow:auto; }
 .ifc-lvls[hidden] { display:none; }
 .ifc-lvls label { display:flex; align-items:center; gap:6px; cursor:pointer; white-space:nowrap; }
@@ -982,7 +985,7 @@
       <canvas id="ifcGl" hidden></canvas>
       <div class="ifc-lvls" id="ifc3dLvls" hidden></div>
       <div class="ifc-pempty" id="ifcPlanEmpty" hidden>Aucun élément dessiné sur ce niveau.</div>
-      <div class="ifc-pbar"><span class="ifc-seg"><button id="ifcModePlan" class="on" title="Vue en plan">Plan</button><button id="ifcMode3d" title="Vue 3D">3D</button></span><span id="ifc3dBar" class="ifc-seg2" hidden><button data-v="iso" title="Vue en perspective">Perspective</button><button data-v="top" title="Vue de dessus">Dessus</button><button data-v="front" title="Vue de face">Face</button><button data-v="side" title="Vue de côté">Côté</button></span><select id="ifcPlanLvl" title="Niveau affiché sur le plan"></select><button id="ifcFit" title="Afficher tout le niveau">Ajuster</button><button id="ifcZin" title="Zoom avant">+</button><button id="ifcZout" title="Zoom arrière">−</button></div>
+      <div class="ifc-pbar"><span class="ifc-seg"><button id="ifcModePlan" class="on" title="Vue en plan">Plan</button><button id="ifcMode3d" title="Vue 3D">3D</button></span><span id="ifc3dBar" class="ifc-seg2" hidden><button data-v="iso" title="Vue en perspective">Perspective</button><button data-v="top" title="Vue de dessus">Dessus</button><button data-v="front" title="Vue de face">Face</button><button data-v="side" title="Vue de côté">Côté</button><button id="ifc3dColBtn" title="Afficher les couleurs des matériaux définies dans Revit (sinon : couleurs de Métrix par matériau)">Couleurs Revit</button></span><select id="ifcPlanLvl" title="Niveau affiché sur le plan"></select><button id="ifcFit" title="Afficher tout le niveau">Ajuster</button><button id="ifcZin" title="Zoom avant">+</button><button id="ifcZout" title="Zoom arrière">−</button></div>
       <div class="ifc-tip" id="ifcTip" hidden></div>
       <div class="ifc-phint" id="ifcHint">Molette : zoom · glisser : déplacer · clic : sélectionner</div>
     </div>
@@ -1144,7 +1147,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.11';
+const METRIX_VERSION = '3.12';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -1900,6 +1903,9 @@ addTr([
   // maquettes récentes (Revit / IFC)
   ["✕ Fermer","✕ Close","✕ Fechar","✕ Cerrar"],
   ["Fermer cette maquette (elle reste dans les fichiers récents)","Close this model (it stays in the recent files)","Fechar este modelo (fica nos ficheiros recentes)","Cerrar este modelo (permanece en los archivos recientes)"],
+  // couleurs Revit (vue 3D)
+  ["Couleurs Revit","Revit colours","Cores do Revit","Colores de Revit"],
+  ["Afficher les couleurs des matériaux définies dans Revit (sinon : couleurs de Métrix par matériau)","Show the material colours defined in Revit (otherwise: Métrix colours by material)","Mostrar as cores dos materiais definidas no Revit (senão: cores do Métrix por material)","Mostrar los colores de los materiales definidos en Revit (si no: colores de Métrix por material)"],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -2591,6 +2597,8 @@ addTr2([
   ["Les maquettes que vous ouvrez apparaîtront ici.","Die Modelle, die Sie öffnen, erscheinen hier.","De modellen die u opent, verschijnen hier.","您打开的模型将显示在这里。","ستظهر هنا النماذج التي تفتحها.","I modelli che apri appariranno qui.","Открытые вами модели появятся здесь."],
   ["✕ Fermer","✕ Schließen","✕ Sluiten","✕ 关闭","✕ إغلاق","✕ Chiudi","✕ Закрыть"],
   ["Fermer cette maquette (elle reste dans les fichiers récents)","Dieses Modell schließen (es bleibt in den zuletzt geöffneten Dateien)","Dit model sluiten (het blijft in de recente bestanden)","关闭此模型（仍保留在最近的文件中）","إغلاق هذا النموذج (يبقى في الملفات الأخيرة)","Chiudi questo modello (resta nei file recenti)","Закрыть эту модель (она останется в недавних файлах)"],
+  ["Couleurs Revit","Revit-Farben","Revit-kleuren","Revit 颜色","ألوان Revit","Colori Revit","Цвета Revit"],
+  ["Afficher les couleurs des matériaux définies dans Revit (sinon : couleurs de Métrix par matériau)","Die in Revit definierten Materialfarben anzeigen (sonst: Métrix-Farben nach Material)","De in Revit gedefinieerde materiaalkleuren tonen (anders: Métrix-kleuren per materiaal)","显示 Revit 中定义的材质颜色（否则：Métrix 按材质的颜色）","عرض ألوان المواد المحددة في Revit (وإلا: ألوان Métrix حسب المادة)","Mostra i colori dei materiali definiti in Revit (altrimenti: colori di Métrix per materiale)","Показывать цвета материалов, заданные в Revit (иначе — цвета Métrix по материалу)"],
 ]);
 // --- fin des langues ajoutées ---
 
@@ -4476,7 +4484,7 @@ function ifcBuild(M, fileName, size) {
     if (!des) des = trText('Sans désignation');
     const lvl = storey(id); if (lvl && !levels.has(lvl)) levels.set(lvl, 0);
     elements.push({ id, pl: ifcRef(a[5]), rep: ifcRef(a[6]), cls: e.t, cat: IFC_CATS[e.t] || e.t.replace(/^IFC/, '').toLowerCase().replace(/^./, c => c.toUpperCase()),
-      des, name: isSpace ? [name, longName].filter(Boolean).join(' ') : name, tag: isSpace ? '' : String(a[7] || ''), lvl, q: quants });
+      des, name: isSpace ? [name, longName].filter(Boolean).join(' ') : name, tag: isSpace ? '' : String(a[7] || ''), lvl, q: quants, tid });
   }
   const groups = new Map();
   for (const el of elements) {
@@ -4632,7 +4640,7 @@ async function ifcRecAdd(f, info) {
   const l = ifcRecList().filter(r => r.key !== key);
   const old = ifcRecList().find(r => r.key === key);
   l.unshift({ key, name: f.name, rvt: info.rvt || null, size: f.size, date: Date.now(), n: ifcModel ? ifcModel.elements.length : 0,
-    src: info.src || (old && old.src) || null, stored: !!(old && old.stored) });
+    src: info.src || (old && old.src) || null, stored: !!(old && old.stored), mc: info.matCol || (old && old.mc) || null });
   const gone = l.splice(IFC_REC_MAX);
   ifcRecSave(l); renderIfcRecent(key);
   try { for (const r of gone) await recentDbDo('readwrite', s => s.delete(r.key)); } catch {}
@@ -4649,11 +4657,11 @@ function ifcRecRemove(key) {
 async function ifcRecOpen(key) {
   const r = ifcRecList().find(x => x.key === key); if (!r) return;
   if (ifcModel && ifcModel.recKey === key) return;
-  try { const b = await recentDbDo('readonly', s => s.get(key)); if (b) return ifcOpenFile(new File([b], r.name), { rvt: r.rvt, src: r.src, fromRec: true }); } catch {}
+  try { const b = await recentDbDo('readonly', s => s.get(key)); if (b) return ifcOpenFile(new File([b], r.name), { rvt: r.rvt, src: r.src, fromRec: true, matCol: r.mc }); } catch {}
   if (NATIVE && r.src) {
     const res = await nativeCall({ cmd: 'openPath', kind: /\.rvt$|\.rfa$/i.test(r.src) ? 'rvt' : 'ifc', path: r.src });
     if (res.path) {
-      if (/\.ifc$/i.test(res.name)) return readNativeFile('ifc', res.path, res.name, r.src, { rvt: r.rvt });
+      if (/\.ifc$/i.test(res.name)) return readNativeFile('ifc', res.path, res.name, r.src, { rvt: r.rvt, matCol: r.mc });
       if (rvtCan() && rvtCfg().exe) return rvtConvertPicked(res);
     }
   }
@@ -4704,7 +4712,8 @@ async function ifcOpenFile(f, info = {}) {
   try {
     const text = await f.text();
     const M = ifcParse(text);
-    ifcModel = ifcBuild(M, f.name, f.size); ifcSel = null; ifcHot = null; ifcHover = null; ifcView = null; ifcOpenCats.clear();
+    ifcModel = ifcBuild(M, f.name, f.size); ifcSel = null;
+    if (info.matCol) { ifcModel.matNameCol = info.matCol.names || null; ifcModel.catCol = info.matCol.cats || null; } ifcHot = null; ifcHover = null; ifcView = null; ifcOpenCats.clear();
     try { ifcGeom(ifcModel, M); } catch (err) { console.error(err); }
     $('ifcLevel').value = ''; $('ifcSearch').value = '';
     if (info.rvt) ifcModel.fromRvt = { name: info.rvt, warn: info.warn };
@@ -4875,8 +4884,67 @@ function ifcPolyTris(T, rings, LU) {
   const idx = ifcEarcut(data, holes);
   for (const i of idx) push(all[i]);
 }
+// couleurs d'origine de la maquette (celles de Revit) : styles des éléments de représentation et couleurs des matériaux
+function ifcColors(model, M) {
+  const styleCol = new Map(), matCol = new Map(), elMats = new Map();
+  const num = v => typeof v === 'number' ? v : v && v.v != null ? +v.v : null;
+  function colOf(refs, d = 0) {   // [r, g, b, opacité] d'une liste de styles
+    for (const r of refs) {
+      const e = ifcE(M, r, false); if (!e || d > 4) continue;
+      const a = ifcArgs(M, e); if (!a) continue;
+      if (e.t === 'IFCPRESENTATIONSTYLEASSIGNMENT') { const c = colOf(ifcRefs(a[0]), d + 1); if (c) return c; }
+      else if (e.t === 'IFCSURFACESTYLE') {
+        for (const x of ifcRefs(a[2])) {
+          const se = ifcE(M, x, false); if (!se || !/IFCSURFACESTYLE(RENDERING|SHADING)$/.test(se.t)) continue;
+          const sa = ifcArgs(M, se), ca = ifcArgs(M, ifcE(M, ifcRef(sa[0]), false)); if (!ca) continue;
+          const rgb = [num(ca[1]), num(ca[2]), num(ca[3])]; if (rgb.some(v => v == null || !isFinite(v))) continue;
+          return [...rgb.map(v => Math.min(1, Math.max(0, v))), 1 - Math.min(1, Math.max(0, num(sa[1]) || 0))];
+        }
+      }
+    }
+    return null;
+  }
+  const want = new Set(['IFCSTYLEDITEM', 'IFCMATERIALDEFINITIONREPRESENTATION', 'IFCRELASSOCIATESMATERIAL']);
+  const tk = M.types.map(t => want.has(t) ? t : null);
+  const each = fn => { for (let id = 1; id < M.gt.length; id++) { const t = M.gt[id] && tk[M.gt[id] - 1]; if (t) fn(id, t); } for (const [id, e] of M.ent) if (want.has(e.t)) fn(id, e.t); };
+  each((id, t) => {
+    const a = ifcArgsT(M, id); if (!a) return;
+    if (t === 'IFCSTYLEDITEM') { const it = ifcRef(a[0]); if (it != null && !styleCol.has(it)) { const c = colOf(ifcRefs(a[1])); if (c) styleCol.set(it, c); } }
+    else if (t === 'IFCMATERIALDEFINITIONREPRESENTATION') {
+      const mat = ifcRef(a[3]); if (mat == null || matCol.has(mat)) return;
+      for (const rp of ifcRefs(a[2])) { const ra = ifcArgsT(M, rp); if (!ra) continue;
+        for (const si of ifcRefs(ra[3])) { const sa = ifcArgsT(M, si); const c = sa && colOf(ifcRefs(sa[1])); if (c) { matCol.set(mat, c); return; } } }
+    } else if (t === 'IFCRELASSOCIATESMATERIAL') { const m = ifcRef(a[5]); for (const o of ifcRefs(a[4])) if (!elMats.has(o)) elMats.set(o, m); }
+  });
+  // matériaux d'un élément (couches d'un mur : de l'extérieur vers l'intérieur)
+  function mats(id, d = 0) {
+    const e = ifcE(M, id, false); if (!e || d > 5) return [];
+    const a = ifcArgs(M, e); if (!a) return [];
+    switch (e.t) {
+      case 'IFCMATERIAL': return [id];
+      case 'IFCMATERIALLAYERSETUSAGE': case 'IFCMATERIALPROFILESETUSAGE': case 'IFCMATERIALLAYER': return mats(ifcRef(a[0]), d + 1);
+      case 'IFCMATERIALLAYERSET': case 'IFCMATERIALLIST': return ifcRefs(a[0]).flatMap(x => mats(x, d + 1));
+      case 'IFCMATERIALCONSTITUENTSET': case 'IFCMATERIALPROFILESET': return ifcRefs(a[2]).flatMap(x => mats(x, d + 1));
+      case 'IFCMATERIALCONSTITUENT': case 'IFCMATERIALPROFILE': return mats(ifcRef(a[2]), d + 1);
+    }
+    return [];
+  }
+  const byName = model.matNameCol || null;   // couleurs lues à part (rapport du convertisseur DDC), par nom de matériau
+  const nmKey = s => String(s || '').normalize('NFC').trim().toLowerCase();
+  const colOfMat = m => { if (matCol.has(m)) return matCol.get(m); if (!byName) return null; const a = ifcArgs(M, ifcE(M, m, false)); const c = a && byName[nmKey(a[0])]; return c || null; };
+  const elCol = new Map();
+  for (const el of model.elements) {
+    let ms = elMats.has(el.id) ? mats(elMats.get(el.id)) : [];
+    if (!ms.length && el.tid != null && elMats.has(el.tid)) ms = mats(elMats.get(el.tid));
+    for (const m of ms) { const c = colOfMat(m); if (c) { elCol.set(el.id, c); break; } }
+    if (!elCol.has(el.id) && model.catCol) { const c = model.catCol[el.cls.replace(/(STANDARDCASE|ELEMENTEDCASE)$/, '')]; if (c) elCol.set(el.id, c); }
+  }
+  return { styleCol, elCol };
+}
 function ifcGeom(model, M) {
   const ANG = model.units.PLANEANGLEUNIT || 1, place = new Map(), mapCache = new Map();
+  let COL = { styleCol: new Map(), elCol: new Map() };
+  try { COL = ifcColors(model, M); } catch (err) { console.error(err); }
   let budget = 4e6;   // nombre maximal de points lus : au-delà, les formes très détaillées sont simplifiées
   function ax(id) {     // IfcAxis2Placement2D / 3D
     const e = ifcE(M, id); if (!e) return G3.I();
@@ -4955,7 +5023,13 @@ function ifcGeom(model, M) {
     return [];
   }
   // formes d'un élément de représentation, dans son propre repère : ext (profil + extrusion), face, pts (enveloppe)
+  // (avec sa couleur d'origine « col » quand la maquette en donne une)
   function item(id, depth = 0) {
+    const r = item0(id, depth), c = COL.styleCol.get(id);
+    if (c) for (const sh of r) if (!sh.col) sh.col = c;
+    return r;
+  }
+  function item0(id, depth = 0) {
     const e = ifcE(M, id); if (!e || depth > 10 || budget < 0) return [];
     const a = ifcArgs(M, e);
     switch (e.t) {
@@ -5012,7 +5086,7 @@ function ifcGeom(model, M) {
     if (step > 1) return [{ k: 'pts', ring: out.flatMap(f => f.ring) }];
     return out;
   }
-  const xf = (m, s) => s.k === 'ext' ? { k: 'ext', rings: s.rings.map(r => r.map(p => G3.ap(m, p))), d: G3.rot(m, s.d) } : { k: s.k, ring: s.ring.map(p => G3.ap(m, p)) };
+  const xf = (m, s) => s.k === 'ext' ? { k: 'ext', rings: s.rings.map(r => r.map(p => G3.ap(m, p))), d: G3.rot(m, s.d), col: s.col } : { k: s.k, ring: s.ring.map(p => G3.ap(m, p)), col: s.col };
   function rep(id) {   // IfcShapeRepresentation -> formes
     const a = ifcArgs(M, ifcE(M, id)); if (!a) return [];
     return ifcRefs(a[3]).flatMap(i => item(i));
@@ -5037,9 +5111,10 @@ function ifcGeom(model, M) {
     let shapes = [];
     for (const x of reps) { if (/^(Axis|FootPrint|Annotation|Profile|Clearance)$/i.test(x.a[1] || '')) continue; shapes = rep(x.r); if (shapes.length) break; }
     if (!shapes.length) continue;
-    const m = placement(el.pl), polys = [], T = [];
+    const m = placement(el.pl), polys = [], T = [], TC = [], ec = COL.elCol.get(el.id);
+    let colored = false;
     for (const s0 of shapes) {
-      const s = xf(m, s0);
+      const s = xf(m, s0), t0 = T.length;
       // faces 3D (vue 3D)
       if (tri3d < 3e6) {
         if (s.k === 'ext') {
@@ -5052,6 +5127,9 @@ function ifcGeom(model, M) {
           const c = (i, j, k) => [i ? hi[0] : lo[0], j ? hi[1] : lo[1], k ? hi[2] : lo[2]];
           for (const f of [[c(0,0,0), c(1,0,0), c(1,1,0), c(0,1,0)], [c(0,0,1), c(1,0,1), c(1,1,1), c(0,1,1)], [c(0,0,0), c(1,0,0), c(1,0,1), c(0,0,1)], [c(0,1,0), c(1,1,0), c(1,1,1), c(0,1,1)], [c(0,0,0), c(0,1,0), c(0,1,1), c(0,0,1)], [c(1,0,0), c(1,1,0), c(1,1,1), c(1,0,1)]]) ifcPolyTris(T, [f], LU);
         }
+        const sc = s.col || ec;   // couleur d'origine de ces triangles (-1 : aucune)
+        if (sc) colored = true;
+        for (let i = t0; i < T.length; i += 9) sc ? TC.push(sc[0], sc[1], sc[2], sc[3]) : TC.push(-1, -1, -1, 1);
       }
       if (s.k === 'ext') {
         const dh = Math.hypot(s.d[0], s.d[1]), dl = Math.hypot(s.d[0], s.d[1], s.d[2]);
@@ -5072,8 +5150,9 @@ function ifcGeom(model, M) {
     el.shapes = ifcTopFaces(polys); el.bb = [x0, y0, x1, y1];
     el.outline = ifcOutline(el.shapes);
     el.ax = [m.x[0], m.x[1]]; el.ay = [m.y[0], m.y[1]];
-    if (T.length) { el.tri = new Float64Array(T); tri3d += T.length / 9; }
+    if (T.length) { el.tri = new Float64Array(T); tri3d += T.length / 9; if (colored) el.triCol = new Float32Array(TC); }
   }
+  model.hasCol = model.elements.some(e => e.triCol);
   model.planOk = model.elements.some(e => e.shapes);
   model.planCut = budget < 0;
   model.cut3d = tri3d >= 3e6;
@@ -5386,17 +5465,23 @@ function ifc3dBuild() {
   const C = lo.map((v, k) => (v + hi[k]) / 2);
   G.radius = Math.max(1, Math.hypot(hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]) / 2); G.center = C; G.zmin = lo[2] - C[2];
   const lvls = [...M.levels, ''], groups = [];
-  for (const lv of lvls) for (const glass of [false, true]) groups.push({ lv, glass, els: els.filter(e => (e.lvl || '') === lv && ifc3dGlass(e) === glass) });
+  // triangle transparent (vitrage) : d'après la couleur d'origine si elle existe, sinon d'après le type d'élément
+  const glassOf = (e, j) => e.triCol && e.triCol[j * 4] >= 0 ? e.triCol[j * 4 + 3] < 0.9 : ifc3dGlass(e);
+  for (const lv of lvls) for (const glass of [false, true]) groups.push({ lv, glass, els: els.filter(e => (e.lvl || '') === lv) });
   const nTri = els.reduce((s, e) => s + e.tri.length / 9, 0);
   const pos = new Float32Array(nTri * 9), nor = new Float32Array(nTri * 9), key = new Float32Array(nTri * 9);
-  G.ranges = []; G.byEl = new Map(); G.idOf = [];
+  G.ranges = []; G.byEl = new Map(); G.idOf = []; G.triSrc = new Int32Array(nTri);
+  const idNum = new Map();
   let o = 0;
   for (const g of groups) {
     const start = o / 3;
     for (const e of g.els) {
-      const t = e.tri, s0 = o / 3, id = G.idOf.length + 1; G.idOf.push(e);
+      const t = e.tri, s0 = o / 3;
+      let id = idNum.get(e.id); if (!id) { id = G.idOf.length + 1; G.idOf.push(e); idNum.set(e.id, id); }
       const kr = (id & 255) / 255, kg = ((id >> 8) & 255) / 255, kb = ((id >> 16) & 255) / 255;
       for (let i = 0; i < t.length; i += 9) {
+        if (glassOf(e, i / 9) !== g.glass) continue;
+        G.triSrc[o / 9] = i / 9;
         const ax = t[i] - C[0], ay = t[i + 1] - C[1], az = t[i + 2] - C[2], bx = t[i + 3] - C[0], by = t[i + 4] - C[1], bz = t[i + 5] - C[2], cx = t[i + 6] - C[0], cy = t[i + 7] - C[1], cz = t[i + 8] - C[2];
         const ux = bx - ax, uy = by - ay, uz = bz - az, vx = cx - ax, vy = cy - ay, vz = cz - az;
         const nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
@@ -5404,7 +5489,7 @@ function ifc3dBuild() {
         for (let k = 0; k < 9; k += 3) { nor[o + k] = nx; nor[o + k + 1] = ny; nor[o + k + 2] = nz; key[o + k] = kr; key[o + k + 1] = kg; key[o + k + 2] = kb; }
         o += 9;
       }
-      G.byEl.set(e.id, [s0, o / 3 - s0]);
+      if (o / 3 > s0) { if (!G.byEl.has(e.id)) G.byEl.set(e.id, []); G.byEl.get(e.id).push([s0, o / 3 - s0]); }
     }
     G.ranges.push({ lv: g.lv, glass: g.glass, start, count: o / 3 - start });
   }
@@ -5415,8 +5500,8 @@ function ifc3dBuild() {
     const s0 = edges.length / 3;
     for (const e of els) {
       if ((e.lvl || '') !== lv) continue;
-      const [st, cnt] = G.byEl.get(e.id), map = new Map(), q = v => Math.round(v * 500);
-      for (let i = st; i < st + cnt; i += 3) {
+      const map = new Map(), q = v => Math.round(v * 500);
+      for (const [st, cnt] of G.byEl.get(e.id) || []) for (let i = st; i < st + cnt; i += 3) {
         const n = [nor[i * 3], nor[i * 3 + 1], nor[i * 3 + 2]], ln = Math.hypot(...n) || 1;
         for (let k = 0; k < 3; k++) {
           const a = (i + k) * 3, b = (i + (k + 1) % 3) * 3;
@@ -5442,14 +5527,21 @@ function ifc3dBuild() {
   G.model = M; G.hidden = new Set();
   ifc3dLevels(); ifc3dView('iso');
 }
-function ifc3dColors() {   // couleurs : par matériau, la désignation choisie en bleu, l'élément choisi en orange
-  const G = ifc3d, gl = G.gl, k = ifcSel + '|' + ifcHot;
+// couleurs de la vue 3D : « Revit » = couleurs d'origine de la maquette ; sinon couleurs de Métrix par matériau
+let ifc3dRevitCol = (() => { try { return localStorage.getItem('metrix:ifc3dCol') !== 'metrix'; } catch { return true; } })();
+function ifc3dColors() {   // couleurs : d'origine ou par matériau, la désignation choisie en bleu, l'élément choisi en orange
+  const G = ifc3d, gl = G.gl, k = ifcSel + '|' + ifcHot + '|' + ifc3dRevitCol;
   if (G.colKey === k) return; G.colKey = k;
-  const a = G.colArr;
+  const a = G.colArr, src = G.triSrc;
   for (const e of G.idOf) {
-    const r = G.byEl.get(e.id); if (!r) continue;
-    const c = e.id === ifcHot ? [0.93, 0.42, 0.12] : (e.cat + '\u0001' + e.des) === ifcSel ? [0.22, 0.48, 0.92] : ifc3dBaseColor(e);
-    for (let i = r[0]; i < r[0] + r[1]; i++) { a[i * 3] = c[0]; a[i * 3 + 1] = c[1]; a[i * 3 + 2] = c[2]; }
+    const rs = G.byEl.get(e.id); if (!rs) continue;
+    const fix = e.id === ifcHot ? [0.93, 0.42, 0.12] : (e.cat + '\u0001' + e.des) === ifcSel ? [0.22, 0.48, 0.92] : null;
+    const base = fix || ifc3dBaseColor(e), tc = !fix && ifc3dRevitCol ? e.triCol : null;
+    for (const [s0, n] of rs) for (let v = s0; v < s0 + n; v += 3) {
+      let r = base[0], g = base[1], b = base[2];
+      if (tc) { const j = src[v / 3] * 4; if (tc[j] >= 0) { r = tc[j]; g = tc[j + 1]; b = tc[j + 2]; } }
+      for (let i = v; i < v + 3; i++) { a[i * 3] = r; a[i * 3 + 1] = g; a[i * 3 + 2] = b; }
+    }
   }
   gl.bindBuffer(gl.ARRAY_BUFFER, G.col); gl.bufferData(gl.ARRAY_BUFFER, a, gl.DYNAMIC_DRAW);
 }
@@ -5534,6 +5626,7 @@ function ifcSetMode(m) {
   $('ifcModePlan').classList.toggle('on', m === 'plan'); $('ifcMode3d').classList.toggle('on', m === '3d');
   $('ifcCv').hidden = m === '3d'; $('ifcGl').hidden = m !== '3d';
   $('ifc3dBar').hidden = m !== '3d'; $('ifcPlanLvl').hidden = m === '3d'; $('ifcTip').hidden = true;
+  $('ifc3dColBtn').hidden = !(ifcModel && ifcModel.hasCol); $('ifc3dColBtn').classList.toggle('on', ifc3dRevitCol);
   $('ifcHint').textContent = trText(m === '3d' ? (IS_TOUCH ? 'Un doigt : tourner · deux doigts : zoom et déplacer · toucher : sélectionner' : 'Glisser : tourner · clic droit ou Maj : déplacer · molette : zoom · clic : sélectionner')
     : (IS_TOUCH ? 'Pincer : zoom · glisser : déplacer · toucher : sélectionner' : 'Molette : zoom · glisser : déplacer · clic : sélectionner'));
   if (m === '3d') {
@@ -5594,6 +5687,10 @@ function ifcSetMode(m) {
   $('ifcModePlan').onclick = () => ifcSetMode('plan');
   $('ifcMode3d').onclick = () => ifcSetMode('3d');
   document.querySelectorAll('#ifc3dBar [data-v]').forEach(b => b.onclick = () => ifc3dView(b.dataset.v));
+  $('ifc3dColBtn').onclick = () => {   // couleurs Revit ↔ couleurs de Métrix
+    ifc3dRevitCol = !ifc3dRevitCol; try { localStorage.setItem('metrix:ifc3dCol', ifc3dRevitCol ? 'revit' : 'metrix'); } catch {}
+    $('ifc3dColBtn').classList.toggle('on', ifc3dRevitCol); ifc3dRender();
+  };
   if (window.ResizeObserver) new ResizeObserver(() => { if (ifcMode === '3d') ifc3dRender(); }).observe(cv);
 })();
 /* ---------- import Revit (.rvt) : conversion en IFC par un convertisseur installé (DDC), puis lecture IFC ---------- */
@@ -5704,6 +5801,32 @@ function rvtShowError(k, vars, log, logSaved) {
   dialog(trText('Import Revit'), `<p style="margin:14px 16px;text-align:left">${esc(rvtText(k, vars))}</p>
     ${log ? `<details style="margin:0 16px 10px;text-align:left"><summary>${esc(trText('Journal de la conversion'))}</summary><pre class="rvt-log">${esc(String(log).slice(-6000))}</pre>${logSaved ? `<p class="hint">${esc(logSaved)}</p>` : ''}</details>` : ''}`, () => {}, false);
 }
+// Convertisseur DDC (Mac) : son rapport donne la couleur de chaque matériau Revit (l'IFC produit n'en a pas)
+const RVT_CAT_CLS = { '-2000011': 'IFCWALL', '-2000035': 'IFCROOF', '-2000032': 'IFCSLAB', '-2000023': 'IFCDOOR', '-2000014': 'IFCWINDOW', '-2000100': 'IFCCOLUMN',
+  '-2001330': 'IFCCOLUMN', '-2001320': 'IFCBEAM', '-2000126': 'IFCRAILING', '-2000120': 'IFCSTAIR', '-2000038': 'IFCCOVERING', '-2000170': 'IFCPLATE', '-2000171': 'IFCMEMBER' };
+function rvtReportColors(j) {
+  const ins = j && j.export && j.export.inspection; if (!ins || !ins.materials) return null;
+  const val = x => x && x.value != null ? x.value : null, byId = {}, names = {}, cats = {};
+  for (const v of Object.values(ins.materials.attempts || {})) {
+    const r = v && v.result; if (!r) continue;
+    const c = val(r.raw_color_u32), nm = val(r.name); if (typeof c !== 'number') continue;
+    const col = [(c & 255) / 255, ((c >> 8) & 255) / 255, ((c >> 16) & 255) / 255, 1 - Math.min(1, Math.max(0, +val(r.raw_transparency) || 0))];   // Revit : couleur rangée en BGR
+    byId[r.element_id] = col; if (nm) names[String(nm).normalize('NFC').trim().toLowerCase()] = col;
+  }
+  for (const v of Object.values((ins.styles && ins.styles.attempts) || {})) {   // couleur par défaut de chaque catégorie (styles d'objets)
+    const r = v && v.result; if (!r || val(r.owner_id) !== -1) continue;
+    const cls = RVT_CAT_CLS[String(val(r.category_id))], col = byId[val(r.material_id)];
+    if (cls && col && !cats[cls]) cats[cls] = col;
+  }
+  return Object.keys(names).length ? { names, cats } : null;
+}
+function rvtReadColors(dir) {
+  return new Promise(ok => {
+    const x = new XMLHttpRequest(); x.open('GET', fileUrl(dir + '/report.json')); x.responseType = 'text';
+    x.onload = () => { try { ok(rvtReportColors(JSON.parse(x.responseText))); } catch { ok(null); } };
+    x.onerror = () => ok(null); x.send();
+  });
+}
 async function rvtImport() {
   if (!NATIVE) return dialog(trText('Import Revit'), `<p style="margin:14px 16px;text-align:left">${esc(rvtText(IS_WIN ? 'windows' : 'noNative'))}</p>`, () => {}, false);
   if (!rvtCan()) return rvtShowError('oldApp');
@@ -5737,9 +5860,10 @@ async function rvtConvertPicked(pick, c = rvtCfg()) {
   const stem = pick.name.replace(/\.(rvt|rfa)$/i, '');
   let kept = null;
   if (c.keep) { const k = await nativeCall({ cmd: 'keepCopy', from: res.ifc, src: pick.src, name: stem + '.ifc' }); if (k.path && !k.error) { kept = k.path; toast(trText('IFC enregistré') + ' : ' + k.path); } }
+  const matCol = await rvtReadColors(res.ifc.replace(/\/[^/]*$/, ''));
   const x = new XMLHttpRequest(); x.open('GET', fileUrl(res.ifc)); x.responseType = 'blob';
   x.onload = async () => {
-    await ifcOpenFile(new File([x.response], stem + '.ifc'), { rvt: pick.name, warn: res.warn, src: kept || pick.src || null });
+    await ifcOpenFile(new File([x.response], stem + '.ifc'), { rvt: pick.name, warn: res.warn, src: kept || pick.src || null, matCol });
     if (res.warn) toast(rvtText(res.warn));
     nativeCall({ cmd: 'removeWork', path: work });
   };
@@ -5749,7 +5873,7 @@ async function rvtConvertPicked(pick, c = rvtCfg()) {
 }
 $('rvtImportBtn').onclick = rvtImport;
 // accès pour les tests automatiques
-window.__metrixRvt = { rvtCommand, rvtClassify, rvtWinPath, rvtEngineOf, rvtText, rvtConvertPicked, rvtCfg, rvtSaveCfg, ifcCompareRows: (...a) => ifcCompareRows(...a), model: () => ifcModel, xlsxB64: () => { const d = xlsxBuild(ifcXlsxSheets(ifcModel)); let b = ''; for (let i = 0; i < d.length; i += 0x8000) b += String.fromCharCode.apply(null, d.subarray(i, i + 0x8000)); return btoa(b); }, pick3d: (x, y) => { const e = ifc3dPick(x, y); return e ? e.des : null; }, ifcParse: t => ifcParse(t), ifcBuild: (M, n) => ifcBuild(M, n, 0), ifcRecList, ifcRecOpen, ifcRecRemove, ifcClose };
+window.__metrixRvt = { rvtCommand, rvtClassify, rvtWinPath, rvtEngineOf, rvtText, rvtConvertPicked, rvtCfg, rvtSaveCfg, ifcCompareRows: (...a) => ifcCompareRows(...a), model: () => ifcModel, xlsxB64: () => { const d = xlsxBuild(ifcXlsxSheets(ifcModel)); let b = ''; for (let i = 0; i < d.length; i += 0x8000) b += String.fromCharCode.apply(null, d.subarray(i, i + 0x8000)); return btoa(b); }, pick3d: (x, y) => { const e = ifc3dPick(x, y); return e ? e.des : null; }, ifcParse: t => ifcParse(t), ifcBuild: (M, n) => ifcBuild(M, n, 0), ifcRecList, ifcRecOpen, ifcRecRemove, ifcClose, rvtReportColors, openIfc: (f, info) => ifcOpenFile(f, info) };
 
 // Paramètres → Revit (.rvt)
 function rvtGoSettings() { const cards = [...document.querySelectorAll('#settings .set-card')], i = cards.indexOf($('setRvtCard')); if (i >= 0 && setSection) setSection(i); }
