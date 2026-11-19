@@ -255,6 +255,34 @@
   html.dark .ifc-plan { background:#15181d; }
   html.dark .ifc-pbar, html.dark .ifc-phint { background:rgba(30,34,40,.92); border-color:#3a414c; }
   html.dark .ifc-pbar select { background:#15181d; border-color:#4a5260; }
+  /* import Revit : réglages et conversion en cours */
+  .ic-rvt { background:linear-gradient(180deg, #4fb3ff 0%, #1f6fd1 100%); }
+  .rvt-form .row2 { display:grid; grid-template-columns:190px minmax(0, 1fr); gap:8px; align-items:center; margin-bottom:8px; }
+  .rvt-form .row2[hidden], .rvt-form .set-check[hidden] { display:none; }
+  .rvt-form input:not([type=checkbox]), .rvt-form select { font:inherit; padding:4px 7px; border:1px solid var(--line); border-radius:5px; background:#fff; color:var(--txt); width:100%; box-sizing:border-box; }
+  .rvt-path { display:flex; gap:6px; }
+  .rvt-path .pbtn { margin:0; white-space:nowrap; }
+  .rvt-note { margin:14px 0 0; font-size:11.5px; }
+  .ifc-rvt { display:flex; align-items:center; justify-content:center; gap:7px; padding:5px 10px; border:1px solid #2b579a; background:transparent; color:#2b579a; border-radius:5px; cursor:pointer; font:inherit; font-weight:600; }
+  .ifc-rvt:hover { background:rgba(43,87,154,.08); }
+  .rvt-run { display:flex; align-items:center; gap:14px; }
+  .rvt-spin { width:26px; height:26px; border-radius:50%; border:3px solid rgba(43,87,154,.2); border-top-color:#2b579a; animation:rvtSpin .9s linear infinite; flex:none; }
+  @keyframes rvtSpin { to { transform:rotate(360deg); } }
+  .rvt-last { font-family:ui-monospace, Menlo, Consolas, monospace; font-size:11px; max-width:520px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .rvt-log { max-height:300px; overflow:auto; background:#f4f5f7; border:1px solid var(--line); border-radius:6px; padding:8px; font:11px/1.45 ui-monospace, Menlo, Consolas, monospace; white-space:pre-wrap; word-break:break-all; text-align:left; }
+  html.dark .rvt-form input:not([type=checkbox]), html.dark .rvt-form select { background:#15181d; border-color:#4a5260; }
+  html.dark .rvt-log { background:#15181d; border-color:#3a414c; }
+  html.dark .ifc-rvt { color:#8fb6ee; border-color:#8fb6ee; }
+  .ifc-cmp { position:relative; overflow:hidden; display:block; text-align:center; font-size:12px; color:var(--blue); cursor:pointer; padding:2px 0; }
+  .ifc-cmp:hover { text-decoration:underline; }
+  .ifc-cmp[hidden] { display:none; }
+  .ifc-cmp input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+  .ifct.cmp tr.cmp-c td { font-weight:600; background:rgba(43,87,154,.04); }
+  .ifct.cmp tr.cmp-d td:first-child { padding-left:22px; color:var(--muted); }
+  .ifct.cmp.nodet tr.cmp-d { display:none; }
+  .cmp-det { display:flex; align-items:center; gap:6px; cursor:pointer; }
+  .ifct .cmp-ok { color:#107c10; } .ifct .cmp-mid { color:#c25e00; font-weight:600; } .ifct .cmp-bad { color:#c4262e; font-weight:700; }
+  html.dark .ifct .cmp-ok { color:#6ccb5f; } html.dark .ifct .cmp-mid { color:#f0a040; } html.dark .ifct .cmp-bad { color:#ff7b7b; }
   .tu-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px 16px; border-bottom:1px solid var(--line); background:var(--pane, #fff); }
   .tu-bar h2 { margin:0; font-size:15px; color:var(--txt); }
   .tu-bar .src { color:var(--muted); font-size:11.5px; }
@@ -903,6 +931,8 @@
     <h3>Métrés de la maquette</h3>
     <div class="ifc-tools">
       <label class="ifc-open" id="ifcOpenLbl" title="Ouvrir une maquette IFC exportée de Revit (fichier .ifc)"><svg viewBox="0 0 16 16"><path d="M2 4.5V12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H8L6.5 3.5H3A1 1 0 0 0 2 4.5z"/></svg><span>Ouvrir un fichier IFC…</span><input id="ifcFile" type="file" accept=".ifc,.rvt"></label>
+      <button class="ifc-rvt" id="rvtImportBtn" title="Convertir une maquette Revit (.rvt) en IFC avec le convertisseur DDC, puis l'ouvrir">Importer Revit (.rvt)…</button>
+      <label class="ifc-cmp" id="ifcCmpLbl" hidden title="Comparer les quantités de cette maquette avec un autre fichier IFC (par exemple l'export de Revit)">Comparer avec un autre IFC…<input id="ifcCmpFile" type="file" accept=".ifc"></label>
       <div class="ifc-file" id="ifcFileName"></div>
       <select id="ifcLevel" title="N'afficher que les éléments d'un niveau"></select>
       <input type="search" id="ifcSearch" placeholder="Rechercher une désignation…">
@@ -987,6 +1017,35 @@
       </div>
     </div>
 
+    <div class="set-card" id="setRvtCard">
+      <div class="set-card-h">
+        <div class="ci ic ic-rvt"><svg viewBox="0 0 24 24"><path d="M12 3.2 19.6 7.6v8.8L12 20.8 4.4 16.4V7.6z"/><path d="M4.4 7.6 12 12l7.6-4.4M12 12v8.8"/></svg></div>
+        <div><h3>Revit (.rvt)</h3><p>Conversion des maquettes Revit en IFC</p></div>
+      </div>
+      <p class="hint" id="rvtHint" style="margin:0 0 12px"></p>
+      <div id="rvtForm" class="rvt-form">
+        <div class="row2"><label for="rvtExe">Convertisseur</label><div class="rvt-path"><input id="rvtExe" spellcheck="false" placeholder="…/rvt-decode"><button class="pbtn" id="rvtExeBrowse">Parcourir…</button></div></div>
+        <div class="row2"><label></label><div class="hint" id="rvtEngineInfo"></div></div>
+        <div class="row2"><label for="rvtEngine">Moteur</label><select id="rvtEngine"><option value="auto">Automatique (d'après le programme choisi)</option><option value="ddc-mac">DDC rvt-decode (Mac)</option><option value="ddc-wine">DDC RVTconverter.exe (Windows, via Wine)</option><option value="ddc-legacy">DDC RVT2IFCconverter.exe 1.x (via Wine)</option></select></div>
+        <div class="row2 rvt-wine"><label for="rvtWine">Wine ou CrossOver</label><div class="rvt-path"><input id="rvtWine" spellcheck="false" placeholder="/opt/homebrew/bin/wine"><button class="pbtn" id="rvtWineBrowse">Parcourir…</button></div></div>
+        <div class="row2 rvt-w2"><label for="rvtProfile">Profil IFC</label><select id="rvtProfile"><option value="full">Toutes les données</option><option value="coordination">Coordination</option><option value="geometry">Géométrie seule</option></select></div>
+        <div class="row2 rvt-w2"><label for="rvtUnits">Unités</label><select id="rvtUnits"><option value="m">Mètres</option><option value="mm">Millimètres</option></select></div>
+        <div class="row2 rvt-w2"><label for="rvtOrigin">Origine</label><select id="rvtOrigin"><option value="internal">Origine interne</option><option value="project-base-point">Point de base du projet</option><option value="survey-point">Point topographique</option></select></div>
+        <div class="row2 rvt-l"><label for="rvtPreset">Préréglage</label><select id="rvtPreset"><option value="standard">Standard</option><option value="extended">Étendu</option></select></div>
+        <label class="set-check rvt-l"><input type="checkbox" id="rvtBaseQty"> <span><b>Exporter les quantités de base</b><small>ExportBaseQuantities=true : surfaces, volumes et longueurs calculés dans l'IFC.</small></span></label>
+        <div class="row2"><label for="rvtTimeout">Délai maximal (minutes)</label><input id="rvtTimeout" type="number" min="1" max="600" style="max-width:110px"></div>
+        <label class="set-check"><input type="checkbox" id="rvtKeep"> <span><b>Garder le fichier IFC</b><small>Enregistre l'IFC obtenu à côté du fichier .rvt. Sinon, les fichiers de conversion sont effacés après l'import.</small></span></label>
+        <div class="upd-actions" style="margin-top:12px">
+          <button class="pbtn" id="rvtFind" style="margin:0">Rechercher</button>
+          <button class="pbtn" id="rvtTest" style="margin:0">Tester le convertisseur</button>
+          <button class="pbtn" id="rvtUnq" style="margin:0" title="macOS bloque les programmes téléchargés qui ne viennent pas de l'App Store : autorise ce convertisseur">Autoriser le convertisseur</button>
+          <button class="pbtn" id="rvtLastLog" style="margin:0">Dernier journal</button>
+        </div>
+        <p class="hint" id="rvtStatus" style="margin:10px 0 0"></p>
+      </div>
+      <p class="hint rvt-note">Format produit : IFC4 (le seul que propose DDC 2.0). Convertisseur DDC : gratuit pour un usage non commercial seulement ; un usage professionnel demande une licence DDC. Il se télécharge sur la page officielle de DDC (il ne peut pas être fourni avec Métrix).</p>
+    </div>
+
     <p class="set-foot">Le changement s'applique immédiatement. Les noms de vos métrés, de vos ouvrages et vos formules ne sont pas traduits : ce sont vos données.</p>
   </div>
 </section>
@@ -1047,7 +1106,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.5';
+const METRIX_VERSION = '3.6';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -1675,6 +1734,90 @@ addTr([
   ["Pincer : zoom · glisser : déplacer · toucher : sélectionner","Pinch: zoom · drag: move · tap: select","Pinçar: zoom · arrastar: mover · tocar: selecionar","Pellizcar: zoom · arrastrar: mover · tocar: seleccionar"],
   ["Voir sur le plan","Show on the plan","Ver na planta","Ver en el plano"],
   ["Pas de dessin pour cet élément","No drawing for this element","Sem desenho para este elemento","Sin dibujo para este elemento"],
+  // import Revit (.rvt) et comparaison IFC
+  ["Indiquez d’abord le convertisseur Revit dans Paramètres → Revit (.rvt).","First set the Revit converter in Settings → Revit (.rvt).","Indique primeiro o conversor Revit em Definições → Revit (.rvt).","Indique primero el convertidor Revit en Ajustes → Revit (.rvt)."],
+  ["Ce programme n’est pas un convertisseur Revit connu. Choisissez rvt-decode (Mac) ou RVTconverter.exe (Windows) de DDC.","This program is not a known Revit converter. Choose DDC's rvt-decode (Mac) or RVTconverter.exe (Windows).","Este programa não é um conversor Revit conhecido. Escolha rvt-decode (Mac) ou RVTconverter.exe (Windows) da DDC.","Este programa no es un convertidor Revit conocido. Elija rvt-decode (Mac) o RVTconverter.exe (Windows) de DDC."],
+  ["Ce fichier n’est pas une maquette Revit (.rvt ou .rfa).","This file is not a Revit model (.rvt or .rfa).","Este ficheiro não é um modelo Revit (.rvt ou .rfa).","Este archivo no es un modelo Revit (.rvt o .rfa)."],
+  ["Convertisseur introuvable. Vérifiez son emplacement dans Paramètres → Revit (.rvt).","Converter not found. Check its location in Settings → Revit (.rvt).","Conversor não encontrado. Verifique a sua localização em Definições → Revit (.rvt).","Convertidor no encontrado. Compruebe su ubicación en Ajustes → Revit (.rvt)."],
+  ["Le convertisseur ne peut pas être lancé (fichier non exécutable).","The converter cannot be started (file is not executable).","O conversor não pode ser iniciado (ficheiro não executável).","El convertidor no se puede iniciar (archivo no ejecutable)."],
+  ["Wine (ou CrossOver) est introuvable : il est nécessaire pour lancer un convertisseur Windows sur Mac. Installez-le, ou utilisez plutôt rvt-decode, le convertisseur DDC pour Mac.","Wine (or CrossOver) was not found: it is needed to run a Windows converter on a Mac. Install it, or use rvt-decode, the DDC converter for Mac, instead.","O Wine (ou CrossOver) não foi encontrado: é necessário para executar um conversor Windows no Mac. Instale-o, ou use antes o rvt-decode, o conversor DDC para Mac.","No se encuentra Wine (o CrossOver): es necesario para ejecutar un convertidor de Windows en Mac. Instálelo, o use mejor rvt-decode, el convertidor DDC para Mac."],
+  ["Wine n’a pas réussi à lancer le convertisseur Windows. Utilisez plutôt rvt-decode, le convertisseur DDC pour Mac.","Wine could not run the Windows converter. Use rvt-decode, the DDC converter for Mac, instead.","O Wine não conseguiu executar o conversor Windows. Use antes o rvt-decode, o conversor DDC para Mac.","Wine no pudo ejecutar el convertidor de Windows. Use mejor rvt-decode, el convertidor DDC para Mac."],
+  ["Métrix ne lance que les convertisseurs DDC (rvt-decode, RVTconverter.exe) et Wine.","Métrix only runs the DDC converters (rvt-decode, RVTconverter.exe) and Wine.","O Métrix só executa os conversores DDC (rvt-decode, RVTconverter.exe) e o Wine.","Métrix solo ejecuta los convertidores DDC (rvt-decode, RVTconverter.exe) y Wine."],
+  ["Le convertisseur n’a pas pu démarrer.","The converter could not start.","O conversor não conseguiu iniciar.","El convertidor no pudo iniciarse."],
+  ["macOS a bloqué le convertisseur, téléchargé sur internet. Cliquez sur « Autoriser le convertisseur » dans Paramètres → Revit (.rvt), puis réessayez.","macOS blocked the converter downloaded from the internet. Click “Allow the converter” in Settings → Revit (.rvt), then try again.","O macOS bloqueou o conversor descarregado da internet. Clique em « Autorizar o conversor » em Definições → Revit (.rvt) e tente novamente.","macOS ha bloqueado el convertidor descargado de internet. Haga clic en « Permitir el convertidor » en Ajustes → Revit (.rvt) y vuelva a intentarlo."],
+  ["Conversion annulée.","Conversion cancelled.","Conversão cancelada.","Conversión cancelada."],
+  ["La conversion a dépassé {n} minutes et a été arrêtée. Augmentez le délai maximal dans Paramètres → Revit (.rvt).","The conversion took more than {n} minutes and was stopped. Increase the time limit in Settings → Revit (.rvt).","A conversão ultrapassou {n} minutos e foi interrompida. Aumente o tempo máximo em Definições → Revit (.rvt).","La conversión superó {n} minutos y se detuvo. Aumente el tiempo máximo en Ajustes → Revit (.rvt)."],
+  ["Version de Revit non prise en charge (fichiers enregistrés avec Revit 2019 à 2027). Ouvrez et enregistrez la maquette dans une version plus récente de Revit.","Unsupported Revit version (files saved with Revit 2019 to 2027). Open and save the model in a newer version of Revit.","Versão do Revit não suportada (ficheiros guardados com o Revit 2019 a 2027). Abra e guarde o modelo numa versão mais recente do Revit.","Versión de Revit no compatible (archivos guardados con Revit 2019 a 2027). Abra y guarde el modelo en una versión más reciente de Revit."],
+  ["Fichier Revit illisible ou endommagé.","Revit file unreadable or damaged.","Ficheiro Revit ilegível ou danificado.","Archivo Revit ilegible o dañado."],
+  ["Le fichier IFC produit est vide.","The IFC file produced is empty.","O ficheiro IFC produzido está vazio.","El archivo IFC generado está vacío."],
+  ["La conversion s’est terminée sans produire de fichier IFC.","The conversion ended without producing an IFC file.","A conversão terminou sem produzir um ficheiro IFC.","La conversión terminó sin generar un archivo IFC."],
+  ["La conversion a échoué (code {code}). Consultez le journal.","The conversion failed (code {code}). See the log.","A conversão falhou (código {code}). Consulte o registo.","La conversión ha fallado (código {code}). Consulte el registro."],
+  ["Maquette convertie avec des remarques : certains éléments peuvent manquer (voir le journal).","Model converted with notes: some elements may be missing (see the log).","Modelo convertido com observações: alguns elementos podem faltar (ver o registo).","Modelo convertido con observaciones: pueden faltar algunos elementos (ver el registro)."],
+  ["Cette version de l’appli Mac ne sait pas lancer de convertisseur. Réinstallez Métrix à partir du fichier Metrix-Mac.zip (version complète).","This version of the Mac app cannot run a converter. Reinstall Métrix from the Metrix-Mac.zip file (full version).","Esta versão da app Mac não consegue executar um conversor. Reinstale o Métrix a partir do ficheiro Metrix-Mac.zip (versão completa).","Esta versión de la app de Mac no puede ejecutar un convertidor. Reinstale Métrix desde el archivo Metrix-Mac.zip (versión completa)."],
+  ["La conversion Revit fonctionne dans l’appli Mac et, sur Windows, avec « Convertir Revit » dans le dossier de Métrix. Elle n’est pas possible sur iPhone, iPad ni dans la version en ligne.","Revit conversion works in the Mac app and, on Windows, with “Convertir Revit” in the Métrix folder. It is not possible on iPhone, iPad or in the online version.","A conversão Revit funciona na app Mac e, no Windows, com « Convertir Revit » na pasta do Métrix. Não é possível no iPhone, iPad nem na versão online.","La conversión Revit funciona en la app de Mac y, en Windows, con « Convertir Revit » en la carpeta de Métrix. No es posible en iPhone, iPad ni en la versión en línea."],
+  ["Sur Windows, glissez le fichier .rvt sur « Convertir Revit » (dans le dossier de Métrix) : la maquette est convertie puis s’ouvre ici automatiquement.","On Windows, drag the .rvt file onto “Convertir Revit” (in the Métrix folder): the model is converted and then opens here automatically.","No Windows, arraste o ficheiro .rvt para « Convertir Revit » (na pasta do Métrix): o modelo é convertido e abre aqui automaticamente.","En Windows, arrastre el archivo .rvt sobre « Convertir Revit » (en la carpeta de Métrix): el modelo se convierte y se abre aquí automáticamente."],
+  ["Conversion de la maquette Revit en IFC…","Converting the Revit model to IFC…","A converter o modelo Revit em IFC…","Convirtiendo el modelo Revit a IFC…"],
+  ["Les grosses maquettes peuvent demander plusieurs minutes. Tout se passe sur cet ordinateur : rien n’est envoyé sur internet.","Large models can take several minutes. Everything happens on this computer: nothing is sent over the internet.","Modelos grandes podem demorar vários minutos. Tudo acontece neste computador: nada é enviado pela internet.","Los modelos grandes pueden tardar varios minutos. Todo ocurre en este ordenador: no se envía nada por internet."],
+  ["Temps écoulé","Elapsed time","Tempo decorrido","Tiempo transcurrido"],
+  ["Import Revit","Revit import","Importação Revit","Importación Revit"],
+  ["Journal de la conversion","Conversion log","Registo da conversão","Registro de la conversión"],
+  ["Ouvrir les paramètres","Open settings","Abrir definições","Abrir ajustes"],
+  ["IFC enregistré","IFC saved","IFC guardado","IFC guardado"],
+  ["Métrix lance le convertisseur DDC installé sur ce Mac, puis ouvre l’IFC obtenu dans l’onglet Revit / IFC. Rien n’est envoyé sur internet.","Métrix runs the DDC converter installed on this Mac, then opens the resulting IFC in the Revit / IFC tab. Nothing is sent over the internet.","O Métrix executa o conversor DDC instalado neste Mac e depois abre o IFC obtido no separador Revit / IFC. Nada é enviado pela internet.","Métrix ejecuta el convertidor DDC instalado en este Mac y abre el IFC obtenido en la pestaña Revit / IFC. No se envía nada por internet."],
+  ["Moteur","Engine","Motor","Motor"],
+  ["Recherche…","Searching…","A procurar…","Buscando…"],
+  ["Convertisseur trouvé","Converter found","Conversor encontrado","Convertidor encontrado"],
+  ["Aucun convertisseur trouvé aux emplacements habituels : indiquez-le avec « Parcourir… ».","No converter found in the usual locations: select it with “Browse…”.","Nenhum conversor encontrado nos locais habituais: indique-o com « Procurar… ».","No se encontró ningún convertidor en las ubicaciones habituales: indíquelo con « Examinar… »."],
+  ["Convertisseur autorisé. Cliquez sur « Tester le convertisseur ».","Converter allowed. Click “Test the converter”.","Conversor autorizado. Clique em « Testar o conversor ».","Convertidor permitido. Haga clic en « Probar el convertidor »."],
+  ["Test en cours…","Testing…","A testar…","Probando…"],
+  ["Le convertisseur répond","The converter responds","O conversor responde","El convertidor responde"],
+  ["Aucune conversion pour l’instant.","No conversion yet.","Ainda nenhuma conversão.","Ninguna conversión por ahora."],
+  ["Impossible de lire le fichier","Cannot read the file","Não é possível ler o ficheiro","No se puede leer el archivo"],
+  ["Revit (.rvt)","Revit (.rvt)","Revit (.rvt)","Revit (.rvt)"],
+  ["Conversion des maquettes Revit en IFC","Converting Revit models to IFC","Conversão de modelos Revit em IFC","Conversión de modelos Revit a IFC"],
+  ["Convertisseur","Converter","Conversor","Convertidor"],
+  ["Parcourir…","Browse…","Procurar…","Examinar…"],
+  ["Automatique (d'après le programme choisi)","Automatic (based on the chosen program)","Automático (conforme o programa escolhido)","Automático (según el programa elegido)"],
+  ["DDC RVTconverter.exe (Windows, via Wine)","DDC RVTconverter.exe (Windows, via Wine)","DDC RVTconverter.exe (Windows, via Wine)","DDC RVTconverter.exe (Windows, vía Wine)"],
+  ["DDC RVT2IFCconverter.exe 1.x (via Wine)","DDC RVT2IFCconverter.exe 1.x (via Wine)","DDC RVT2IFCconverter.exe 1.x (via Wine)","DDC RVT2IFCconverter.exe 1.x (vía Wine)"],
+  ["Wine ou CrossOver","Wine or CrossOver","Wine ou CrossOver","Wine o CrossOver"],
+  ["Profil IFC","IFC profile","Perfil IFC","Perfil IFC"],
+  ["Toutes les données","All data","Todos os dados","Todos los datos"],
+  ["Coordination","Coordination","Coordenação","Coordinación"],
+  ["Géométrie seule","Geometry only","Só geometria","Solo geometría"],
+  ["Unités","Units","Unidades","Unidades"],
+  ["Mètres","Metres","Metros","Metros"],
+  ["Millimètres","Millimetres","Milímetros","Milímetros"],
+  ["Origine","Origin","Origem","Origen"],
+  ["Origine interne","Internal origin","Origem interna","Origen interno"],
+  ["Point de base du projet","Project base point","Ponto base do projeto","Punto base del proyecto"],
+  ["Point topographique","Survey point","Ponto de levantamento","Punto de reconocimiento"],
+  ["Préréglage","Preset","Predefinição","Ajuste predefinido"],
+  ["Standard","Standard","Padrão","Estándar"],
+  ["Étendu","Extended","Alargado","Extendido"],
+  ["Exporter les quantités de base","Export base quantities","Exportar quantidades base","Exportar cantidades base"],
+  ["ExportBaseQuantities=true : surfaces, volumes et longueurs calculés dans l'IFC.","ExportBaseQuantities=true: areas, volumes and lengths calculated in the IFC.","ExportBaseQuantities=true: áreas, volumes e comprimentos calculados no IFC.","ExportBaseQuantities=true: superficies, volúmenes y longitudes calculados en el IFC."],
+  ["Délai maximal (minutes)","Time limit (minutes)","Tempo máximo (minutos)","Tiempo máximo (minutos)"],
+  ["Garder le fichier IFC","Keep the IFC file","Guardar o ficheiro IFC","Conservar el archivo IFC"],
+  ["Enregistre l'IFC obtenu à côté du fichier .rvt. Sinon, les fichiers de conversion sont effacés après l'import.","Saves the resulting IFC next to the .rvt file. Otherwise, the conversion files are deleted after the import.","Guarda o IFC obtido ao lado do ficheiro .rvt. Caso contrário, os ficheiros de conversão são apagados após a importação.","Guarda el IFC obtenido junto al archivo .rvt. Si no, los archivos de conversión se borran tras la importación."],
+  ["Rechercher","Search","Procurar","Buscar"],
+  ["Tester le convertisseur","Test the converter","Testar o conversor","Probar el convertidor"],
+  ["Autoriser le convertisseur","Allow the converter","Autorizar o conversor","Permitir el convertidor"],
+  ["macOS bloque les programmes téléchargés qui ne viennent pas de l'App Store : autorise ce convertisseur","macOS blocks downloaded programs that do not come from the App Store: allows this converter","O macOS bloqueia programas descarregados que não vêm da App Store: autoriza este conversor","macOS bloquea los programas descargados que no vienen de la App Store: permite este convertidor"],
+  ["Dernier journal","Last log","Último registo","Último registro"],
+  ["Format produit : IFC4 (le seul que propose DDC 2.0). Convertisseur DDC : gratuit pour un usage non commercial seulement ; un usage professionnel demande une licence DDC. Il se télécharge sur la page officielle de DDC (il ne peut pas être fourni avec Métrix).","Output format: IFC4 (the only one DDC 2.0 offers). DDC converter: free for non-commercial use only; professional use requires a DDC licence. Download it from DDC's official page (it cannot be supplied with Métrix).","Formato produzido: IFC4 (o único que o DDC 2.0 oferece). Conversor DDC: gratuito apenas para uso não comercial; o uso profissional exige uma licença DDC. Descarrega-se na página oficial da DDC (não pode ser fornecido com o Métrix).","Formato generado: IFC4 (el único que ofrece DDC 2.0). Convertidor DDC: gratuito solo para uso no comercial; el uso profesional requiere una licencia DDC. Se descarga en la página oficial de DDC (no puede incluirse con Métrix)."],
+  ["Importer Revit (.rvt)…","Import Revit (.rvt)…","Importar Revit (.rvt)…","Importar Revit (.rvt)…"],
+  ["Convertir une maquette Revit (.rvt) en IFC avec le convertisseur DDC, puis l'ouvrir","Convert a Revit model (.rvt) to IFC with the DDC converter, then open it","Converter um modelo Revit (.rvt) em IFC com o conversor DDC e abri-lo","Convertir un modelo Revit (.rvt) a IFC con el convertidor DDC y abrirlo"],
+  ["Comparer avec un autre IFC…","Compare with another IFC…","Comparar com outro IFC…","Comparar con otro IFC…"],
+  ["Comparer les quantités de cette maquette avec un autre fichier IFC (par exemple l'export de Revit)","Compare this model's quantities with another IFC file (for example the Revit export)","Comparar as quantidades deste modelo com outro ficheiro IFC (por exemplo, a exportação do Revit)","Comparar las cantidades de este modelo con otro archivo IFC (por ejemplo, la exportación de Revit)"],
+  ["Comparaison de deux IFC","Comparison of two IFC files","Comparação de dois IFC","Comparación de dos IFC"],
+  ["Écart = A − B, en % de B. Vert : moins de 5 % · orange : 5 à 15 % · rouge : plus de 15 %.","Difference = A − B, as % of B. Green: under 5 % · orange: 5 to 15 % · red: over 15 %.","Diferença = A − B, em % de B. Verde: menos de 5 % · laranja: 5 a 15 % · vermelho: mais de 15 %.","Diferencia = A − B, en % de B. Verde: menos del 5 % · naranja: 5 a 15 % · rojo: más del 15 %."],
+  ["{n} catégories avec plus de 5 % d'écart.","{n} categories with more than 5 % difference.","{n} categorias com mais de 5 % de diferença.","{n} categorías con más del 5 % de diferencia."],
+  ["Aucune catégorie avec plus de 5 % d’écart.","No category with more than 5 % difference.","Nenhuma categoria com mais de 5 % de diferença.","Ninguna categoría con más del 5 % de diferencia."],
+  ["Détail par désignation","Detail by name","Detalhe por designação","Detalle por designación"],
+  ["Fermer la comparaison","Close the comparison","Fechar a comparação","Cerrar la comparación"],
+  ["Écart","Difference","Diferença","Diferencia"],
+  ["Niveau de détail","Level of detail","Nível de detalhe","Nivel de detalle"],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -2244,6 +2387,89 @@ addTr2([
   ["Pincer : zoom · glisser : déplacer · toucher : sélectionner","Zusammenziehen: Zoom · Ziehen: verschieben · Tippen: auswählen","Knijpen: zoomen · slepen: verplaatsen · tikken: selecteren","捏合：缩放 · 拖动：移动 · 轻点：选择","القرص: تكبير · السحب: تحريك · اللمس: تحديد","Pizzica: zoom · trascina: sposta · tocca: seleziona","Щипок: масштаб · перетаскивание: сдвиг · касание: выбор"],
   ["Voir sur le plan","Im Plan zeigen","Op de plattegrond tonen","在平面图上显示","عرض على المخطط","Mostra in pianta","Показать на плане"],
   ["Pas de dessin pour cet élément","Keine Zeichnung für dieses Element","Geen tekening voor dit element","此构件没有图形","لا يوجد رسم لهذا العنصر","Nessun disegno per questo elemento","Нет чертежа для этого элемента"],
+  ["Indiquez d’abord le convertisseur Revit dans Paramètres → Revit (.rvt).","Legen Sie zuerst den Revit-Konverter unter Einstellungen → Revit (.rvt) fest.","Stel eerst de Revit-converter in bij Instellingen → Revit (.rvt).","请先在“设置 → Revit (.rvt)”中指定 Revit 转换器。","حدّد أولًا محوّل Revit في الإعدادات ← Revit (.rvt).","Indica prima il convertitore Revit in Impostazioni → Revit (.rvt).","Сначала укажите конвертер Revit в разделе «Настройки → Revit (.rvt)»."],
+  ["Ce programme n’est pas un convertisseur Revit connu. Choisissez rvt-decode (Mac) ou RVTconverter.exe (Windows) de DDC.","Dieses Programm ist kein bekannter Revit-Konverter. Wählen Sie rvt-decode (Mac) oder RVTconverter.exe (Windows) von DDC.","Dit programma is geen bekende Revit-converter. Kies rvt-decode (Mac) of RVTconverter.exe (Windows) van DDC.","此程序不是已知的 Revit 转换器。请选择 DDC 的 rvt-decode（Mac）或 RVTconverter.exe（Windows）。","هذا البرنامج ليس محوّل Revit معروفًا. اختر rvt-decode (ماك) أو RVTconverter.exe (ويندوز) من DDC.","Questo programma non è un convertitore Revit noto. Scegli rvt-decode (Mac) o RVTconverter.exe (Windows) di DDC.","Эта программа не является известным конвертером Revit. Выберите rvt-decode (Mac) или RVTconverter.exe (Windows) от DDC."],
+  ["Ce fichier n’est pas une maquette Revit (.rvt ou .rfa).","Diese Datei ist kein Revit-Modell (.rvt oder .rfa).","Dit bestand is geen Revit-model (.rvt of .rfa).","此文件不是 Revit 模型（.rvt 或 .rfa）。","هذا الملف ليس نموذج Revit (.rvt أو .rfa).","Questo file non è un modello Revit (.rvt o .rfa).","Этот файл не является моделью Revit (.rvt или .rfa)."],
+  ["Convertisseur introuvable. Vérifiez son emplacement dans Paramètres → Revit (.rvt).","Konverter nicht gefunden. Prüfen Sie den Speicherort unter Einstellungen → Revit (.rvt).","Converter niet gevonden. Controleer de locatie bij Instellingen → Revit (.rvt).","找不到转换器。请在“设置 → Revit (.rvt)”中检查其位置。","المحوّل غير موجود. تحقّق من موقعه في الإعدادات ← Revit (.rvt).","Convertitore non trovato. Verifica la sua posizione in Impostazioni → Revit (.rvt).","Конвертер не найден. Проверьте его расположение в разделе «Настройки → Revit (.rvt)»."],
+  ["Le convertisseur ne peut pas être lancé (fichier non exécutable).","Der Konverter kann nicht gestartet werden (Datei nicht ausführbar).","De converter kan niet worden gestart (bestand niet uitvoerbaar).","无法启动转换器（文件不可执行）。","لا يمكن تشغيل المحوّل (الملف غير قابل للتنفيذ).","Il convertitore non può essere avviato (file non eseguibile).","Невозможно запустить конвертер (файл не является исполняемым)."],
+  ["Wine (ou CrossOver) est introuvable : il est nécessaire pour lancer un convertisseur Windows sur Mac. Installez-le, ou utilisez plutôt rvt-decode, le convertisseur DDC pour Mac.","Wine (oder CrossOver) wurde nicht gefunden: es wird benötigt, um einen Windows-Konverter auf dem Mac auszuführen. Installieren Sie es oder verwenden Sie stattdessen rvt-decode, den DDC-Konverter für Mac.","Wine (of CrossOver) is niet gevonden: dit is nodig om een Windows-converter op een Mac te gebruiken. Installeer het, of gebruik liever rvt-decode, de DDC-converter voor Mac.","找不到 Wine（或 CrossOver）：在 Mac 上运行 Windows 转换器需要它。请安装它，或改用 DDC 的 Mac 转换器 rvt-decode。","لم يُعثر على Wine (أو CrossOver): وهو لازم لتشغيل محوّل ويندوز على ماك. ثبّته، أو استخدم بدلًا منه rvt-decode، محوّل DDC لماك.","Wine (o CrossOver) non trovato: serve per eseguire un convertitore Windows su Mac. Installalo, oppure usa rvt-decode, il convertitore DDC per Mac.","Wine (или CrossOver) не найден: он нужен для запуска конвертера Windows на Mac. Установите его или используйте rvt-decode — конвертер DDC для Mac."],
+  ["Wine n’a pas réussi à lancer le convertisseur Windows. Utilisez plutôt rvt-decode, le convertisseur DDC pour Mac.","Wine konnte den Windows-Konverter nicht starten. Verwenden Sie stattdessen rvt-decode, den DDC-Konverter für Mac.","Wine kon de Windows-converter niet starten. Gebruik liever rvt-decode, de DDC-converter voor Mac.","Wine 无法运行 Windows 转换器。请改用 DDC 的 Mac 转换器 rvt-decode。","لم ينجح Wine في تشغيل محوّل ويندوز. استخدم بدلًا منه rvt-decode، محوّل DDC لماك.","Wine non è riuscito ad avviare il convertitore Windows. Usa invece rvt-decode, il convertitore DDC per Mac.","Wine не смог запустить конвертер Windows. Используйте rvt-decode — конвертер DDC для Mac."],
+  ["Métrix ne lance que les convertisseurs DDC (rvt-decode, RVTconverter.exe) et Wine.","Métrix startet nur die DDC-Konverter (rvt-decode, RVTconverter.exe) und Wine.","Métrix start alleen de DDC-converters (rvt-decode, RVTconverter.exe) en Wine.","Métrix 只运行 DDC 转换器（rvt-decode、RVTconverter.exe）和 Wine。","لا يشغّل Métrix إلا محوّلات DDC (rvt-decode وRVTconverter.exe) وWine.","Métrix avvia solo i convertitori DDC (rvt-decode, RVTconverter.exe) e Wine.","Métrix запускает только конвертеры DDC (rvt-decode, RVTconverter.exe) и Wine."],
+  ["Le convertisseur n’a pas pu démarrer.","Der Konverter konnte nicht starten.","De converter kon niet starten.","转换器无法启动。","تعذّر بدء تشغيل المحوّل.","Il convertitore non è riuscito ad avviarsi.","Не удалось запустить конвертер."],
+  ["macOS a bloqué le convertisseur, téléchargé sur internet. Cliquez sur « Autoriser le convertisseur » dans Paramètres → Revit (.rvt), puis réessayez.","macOS hat den aus dem Internet geladenen Konverter blockiert. Klicken Sie unter Einstellungen → Revit (.rvt) auf „Konverter zulassen“ und versuchen Sie es erneut.","macOS heeft de van internet gedownloade converter geblokkeerd. Klik op „Converter toestaan” bij Instellingen → Revit (.rvt) en probeer het opnieuw.","macOS 已阻止从互联网下载的转换器。请在“设置 → Revit (.rvt)”中点击“允许转换器”，然后重试。","حظر macOS المحوّل الذي نُزّل من الإنترنت. انقر «السماح بالمحوّل» في الإعدادات ← Revit (.rvt)، ثم أعد المحاولة.","macOS ha bloccato il convertitore scaricato da internet. Fai clic su «Consenti il convertitore» in Impostazioni → Revit (.rvt), poi riprova.","macOS заблокировал конвертер, загруженный из интернета. Нажмите «Разрешить конвертер» в разделе «Настройки → Revit (.rvt)» и повторите попытку."],
+  ["Conversion annulée.","Konvertierung abgebrochen.","Conversie geannuleerd.","转换已取消。","أُلغي التحويل.","Conversione annullata.","Преобразование отменено."],
+  ["La conversion a dépassé {n} minutes et a été arrêtée. Augmentez le délai maximal dans Paramètres → Revit (.rvt).","Die Konvertierung hat {n} Minuten überschritten und wurde abgebrochen. Erhöhen Sie das Zeitlimit unter Einstellungen → Revit (.rvt).","De conversie duurde langer dan {n} minuten en is gestopt. Verhoog de maximale duur bij Instellingen → Revit (.rvt).","转换超过 {n} 分钟，已停止。请在“设置 → Revit (.rvt)”中增加最长时间。","تجاوز التحويل {n} دقيقة وأُوقف. زِد المهلة القصوى في الإعدادات ← Revit (.rvt).","La conversione ha superato {n} minuti ed è stata interrotta. Aumenta il tempo massimo in Impostazioni → Revit (.rvt).","Преобразование длилось более {n} мин и было остановлено. Увеличьте лимит времени в разделе «Настройки → Revit (.rvt)»."],
+  ["Version de Revit non prise en charge (fichiers enregistrés avec Revit 2019 à 2027). Ouvrez et enregistrez la maquette dans une version plus récente de Revit.","Nicht unterstützte Revit-Version (Dateien aus Revit 2019 bis 2027). Öffnen und speichern Sie das Modell in einer neueren Revit-Version.","Niet-ondersteunde Revit-versie (bestanden opgeslagen met Revit 2019 t/m 2027). Open en sla het model op in een nieuwere Revit-versie.","不支持的 Revit 版本（支持 Revit 2019 至 2027 保存的文件）。请在较新版本的 Revit 中打开并保存模型。","إصدار Revit غير مدعوم (الملفات المحفوظة بـ Revit من 2019 إلى 2027). افتح النموذج واحفظه بإصدار أحدث من Revit.","Versione di Revit non supportata (file salvati con Revit 2019–2027). Apri e salva il modello in una versione più recente di Revit.","Версия Revit не поддерживается (файлы Revit 2019–2027). Откройте и сохраните модель в более новой версии Revit."],
+  ["Fichier Revit illisible ou endommagé.","Revit-Datei unlesbar oder beschädigt.","Revit-bestand onleesbaar of beschadigd.","Revit 文件无法读取或已损坏。","ملف Revit غير مقروء أو تالف.","File Revit illeggibile o danneggiato.","Файл Revit не читается или повреждён."],
+  ["Le fichier IFC produit est vide.","Die erzeugte IFC-Datei ist leer.","Het gemaakte IFC-bestand is leeg.","生成的 IFC 文件为空。","ملف IFC الناتج فارغ.","Il file IFC prodotto è vuoto.","Созданный файл IFC пуст."],
+  ["La conversion s’est terminée sans produire de fichier IFC.","Die Konvertierung wurde ohne IFC-Datei beendet.","De conversie is beëindigd zonder IFC-bestand.","转换已结束，但未生成 IFC 文件。","انتهى التحويل دون إنتاج ملف IFC.","La conversione è terminata senza produrre un file IFC.","Преобразование завершилось без создания файла IFC."],
+  ["La conversion a échoué (code {code}). Consultez le journal.","Die Konvertierung ist fehlgeschlagen (Code {code}). Siehe Protokoll.","De conversie is mislukt (code {code}). Bekijk het logboek.","转换失败（代码 {code}）。请查看日志。","فشل التحويل (الرمز {code}). راجع السجل.","La conversione non è riuscita (codice {code}). Consulta il registro.","Преобразование не удалось (код {code}). См. журнал."],
+  ["Maquette convertie avec des remarques : certains éléments peuvent manquer (voir le journal).","Modell mit Hinweisen konvertiert: einige Elemente können fehlen (siehe Protokoll).","Model geconverteerd met opmerkingen: sommige elementen kunnen ontbreken (zie het logboek).","模型已转换，但有提示：部分构件可能缺失（见日志）。","حُوّل النموذج مع ملاحظات: قد تنقص بعض العناصر (راجع السجل).","Modello convertito con note: alcuni elementi potrebbero mancare (vedi il registro).","Модель преобразована с замечаниями: некоторые элементы могут отсутствовать (см. журнал)."],
+  ["Cette version de l’appli Mac ne sait pas lancer de convertisseur. Réinstallez Métrix à partir du fichier Metrix-Mac.zip (version complète).","Diese Version der Mac-App kann keinen Konverter starten. Installieren Sie Métrix neu aus der Datei Metrix-Mac.zip (Vollversion).","Deze versie van de Mac-app kan geen converter starten. Installeer Métrix opnieuw vanuit Metrix-Mac.zip (volledige versie).","此版本的 Mac 应用无法运行转换器。请使用 Metrix-Mac.zip（完整版）重新安装 Métrix。","لا يستطيع هذا الإصدار من تطبيق ماك تشغيل محوّل. أعد تثبيت Métrix من ملف Metrix-Mac.zip (الإصدار الكامل).","Questa versione dell'app Mac non può avviare un convertitore. Reinstalla Métrix dal file Metrix-Mac.zip (versione completa).","Эта версия приложения для Mac не умеет запускать конвертер. Переустановите Métrix из файла Metrix-Mac.zip (полная версия)."],
+  ["La conversion Revit fonctionne dans l’appli Mac et, sur Windows, avec « Convertir Revit » dans le dossier de Métrix. Elle n’est pas possible sur iPhone, iPad ni dans la version en ligne.","Die Revit-Konvertierung funktioniert in der Mac-App und unter Windows mit „Convertir Revit“ im Métrix-Ordner. Auf iPhone, iPad und in der Online-Version ist sie nicht möglich.","Revit-conversie werkt in de Mac-app en, op Windows, met „Convertir Revit” in de Métrix-map. Op iPhone, iPad en in de online versie is het niet mogelijk.","Revit 转换可在 Mac 应用中使用；在 Windows 上，请使用 Métrix 文件夹中的“Convertir Revit”。iPhone、iPad 和在线版不支持。","يعمل تحويل Revit في تطبيق ماك، وعلى ويندوز عبر «Convertir Revit» في مجلد Métrix. ولا يمكن على iPhone وiPad ولا في النسخة عبر الإنترنت.","La conversione Revit funziona nell'app Mac e, su Windows, con «Convertir Revit» nella cartella di Métrix. Non è possibile su iPhone, iPad né nella versione online.","Преобразование Revit работает в приложении для Mac, а в Windows — через «Convertir Revit» в папке Métrix. На iPhone, iPad и в онлайн-версии оно недоступно."],
+  ["Sur Windows, glissez le fichier .rvt sur « Convertir Revit » (dans le dossier de Métrix) : la maquette est convertie puis s’ouvre ici automatiquement.","Ziehen Sie unter Windows die .rvt-Datei auf „Convertir Revit“ (im Métrix-Ordner): das Modell wird konvertiert und öffnet sich hier automatisch.","Sleep op Windows het .rvt-bestand op „Convertir Revit” (in de Métrix-map): het model wordt geconverteerd en opent hier automatisch.","在 Windows 上，将 .rvt 文件拖到“Convertir Revit”（Métrix 文件夹中）：模型转换后会自动在此打开。","على ويندوز، اسحب ملف .rvt إلى «Convertir Revit» (في مجلد Métrix): يُحوَّل النموذج ثم يُفتح هنا تلقائيًا.","Su Windows, trascina il file .rvt su «Convertir Revit» (nella cartella di Métrix): il modello viene convertito e si apre qui automaticamente.","В Windows перетащите файл .rvt на «Convertir Revit» (в папке Métrix): модель будет преобразована и автоматически откроется здесь."],
+  ["Conversion de la maquette Revit en IFC…","Revit-Modell wird in IFC konvertiert…","Revit-model wordt naar IFC geconverteerd…","正在将 Revit 模型转换为 IFC…","جارٍ تحويل نموذج Revit إلى IFC…","Conversione del modello Revit in IFC…","Преобразование модели Revit в IFC…"],
+  ["Les grosses maquettes peuvent demander plusieurs minutes. Tout se passe sur cet ordinateur : rien n’est envoyé sur internet.","Große Modelle können mehrere Minuten dauern. Alles geschieht auf diesem Computer: nichts wird ins Internet gesendet.","Grote modellen kunnen enkele minuten duren. Alles gebeurt op deze computer: er wordt niets via internet verzonden.","大型模型可能需要几分钟。一切都在本机完成：不会通过互联网发送任何内容。","قد تستغرق النماذج الكبيرة عدة دقائق. يجري كل شيء على هذا الحاسوب: لا يُرسل أي شيء عبر الإنترنت.","I modelli grandi possono richiedere alcuni minuti. Tutto avviene su questo computer: nulla viene inviato su internet.","Большие модели могут обрабатываться несколько минут. Всё происходит на этом компьютере: ничего не отправляется в интернет."],
+  ["Temps écoulé","Verstrichene Zeit","Verstreken tijd","已用时间","الوقت المنقضي","Tempo trascorso","Прошло времени"],
+  ["Import Revit","Revit-Import","Revit-import","Revit 导入","استيراد Revit","Importazione Revit","Импорт Revit"],
+  ["Journal de la conversion","Konvertierungsprotokoll","Conversielogboek","转换日志","سجل التحويل","Registro della conversione","Журнал преобразования"],
+  ["Ouvrir les paramètres","Einstellungen öffnen","Instellingen openen","打开设置","فتح الإعدادات","Apri le impostazioni","Открыть настройки"],
+  ["IFC enregistré","IFC gespeichert","IFC opgeslagen","IFC 已保存","تم حفظ IFC","IFC salvato","IFC сохранён"],
+  ["Métrix lance le convertisseur DDC installé sur ce Mac, puis ouvre l’IFC obtenu dans l’onglet Revit / IFC. Rien n’est envoyé sur internet.","Métrix startet den auf diesem Mac installierten DDC-Konverter und öffnet die erzeugte IFC-Datei im Reiter Revit / IFC. Nichts wird ins Internet gesendet.","Métrix start de op deze Mac geïnstalleerde DDC-converter en opent de verkregen IFC in het tabblad Revit / IFC. Er wordt niets via internet verzonden.","Métrix 运行此 Mac 上安装的 DDC 转换器，然后在“Revit / IFC”选项卡中打开生成的 IFC。不会通过互联网发送任何内容。","يشغّل Métrix محوّل DDC المثبّت على هذا الماك، ثم يفتح ملف IFC الناتج في تبويب Revit / IFC. لا يُرسل أي شيء عبر الإنترنت.","Métrix avvia il convertitore DDC installato su questo Mac, poi apre l'IFC ottenuto nella scheda Revit / IFC. Nulla viene inviato su internet.","Métrix запускает конвертер DDC, установленный на этом Mac, и открывает полученный IFC на вкладке «Revit / IFC». Ничего не отправляется в интернет."],
+  ["Moteur","Engine","Engine","引擎","المحرّك","Motore","Движок"],
+  ["Recherche…","Suche…","Zoeken…","正在搜索…","جارٍ البحث…","Ricerca…","Поиск…"],
+  ["Convertisseur trouvé","Konverter gefunden","Converter gevonden","已找到转换器","تم العثور على المحوّل","Convertitore trovato","Конвертер найден"],
+  ["Aucun convertisseur trouvé aux emplacements habituels : indiquez-le avec « Parcourir… ».","Kein Konverter an den üblichen Orten gefunden: wählen Sie ihn mit „Durchsuchen…“ aus.","Geen converter gevonden op de gebruikelijke plaatsen: kies hem met „Bladeren…”.","在常用位置未找到转换器：请用“浏览…”指定。","لم يُعثر على محوّل في المواقع المعتادة: حدّده عبر «استعراض…».","Nessun convertitore trovato nelle posizioni abituali: indicalo con «Sfoglia…».","Конвертер не найден в обычных местах: укажите его кнопкой «Обзор…»."],
+  ["Convertisseur autorisé. Cliquez sur « Tester le convertisseur ».","Konverter zugelassen. Klicken Sie auf „Konverter testen“.","Converter toegestaan. Klik op „Converter testen”.","已允许转换器。请点击“测试转换器”。","تم السماح بالمحوّل. انقر «اختبار المحوّل».","Convertitore consentito. Fai clic su «Prova il convertitore».","Конвертер разрешён. Нажмите «Проверить конвертер»."],
+  ["Test en cours…","Test läuft…","Bezig met testen…","正在测试…","جارٍ الاختبار…","Test in corso…","Проверка…"],
+  ["Le convertisseur répond","Der Konverter antwortet","De converter reageert","转换器有响应","المحوّل يستجيب","Il convertitore risponde","Конвертер отвечает"],
+  ["Aucune conversion pour l’instant.","Noch keine Konvertierung.","Nog geen conversie.","暂无转换。","لا يوجد تحويل حتى الآن.","Nessuna conversione per ora.","Преобразований пока не было."],
+  ["Impossible de lire le fichier","Datei kann nicht gelesen werden","Kan het bestand niet lezen","无法读取文件","تعذّرت قراءة الملف","Impossibile leggere il file","Не удаётся прочитать файл"],
+  ["Revit (.rvt)","Revit (.rvt)","Revit (.rvt)","Revit (.rvt)","Revit (.rvt)","Revit (.rvt)","Revit (.rvt)"],
+  ["Conversion des maquettes Revit en IFC","Konvertierung von Revit-Modellen in IFC","Revit-modellen naar IFC converteren","将 Revit 模型转换为 IFC","تحويل نماذج Revit إلى IFC","Conversione dei modelli Revit in IFC","Преобразование моделей Revit в IFC"],
+  ["Convertisseur","Konverter","Converter","转换器","المحوّل","Convertitore","Конвертер"],
+  ["Parcourir…","Durchsuchen…","Bladeren…","浏览…","استعراض…","Sfoglia…","Обзор…"],
+  ["Automatique (d'après le programme choisi)","Automatisch (nach gewähltem Programm)","Automatisch (op basis van het gekozen programma)","自动（根据所选程序）","تلقائي (حسب البرنامج المختار)","Automatico (in base al programma scelto)","Автоматически (по выбранной программе)"],
+  ["DDC RVTconverter.exe (Windows, via Wine)","DDC RVTconverter.exe (Windows, über Wine)","DDC RVTconverter.exe (Windows, via Wine)","DDC RVTconverter.exe（Windows，通过 Wine）","DDC RVTconverter.exe (ويندوز، عبر Wine)","DDC RVTconverter.exe (Windows, tramite Wine)","DDC RVTconverter.exe (Windows, через Wine)"],
+  ["DDC RVT2IFCconverter.exe 1.x (via Wine)","DDC RVT2IFCconverter.exe 1.x (über Wine)","DDC RVT2IFCconverter.exe 1.x (via Wine)","DDC RVT2IFCconverter.exe 1.x（通过 Wine）","DDC RVT2IFCconverter.exe 1.x (عبر Wine)","DDC RVT2IFCconverter.exe 1.x (tramite Wine)","DDC RVT2IFCconverter.exe 1.x (через Wine)"],
+  ["Wine ou CrossOver","Wine oder CrossOver","Wine of CrossOver","Wine 或 CrossOver","Wine أو CrossOver","Wine o CrossOver","Wine или CrossOver"],
+  ["Profil IFC","IFC-Profil","IFC-profiel","IFC 配置","ملف تعريف IFC","Profilo IFC","Профиль IFC"],
+  ["Toutes les données","Alle Daten","Alle gegevens","全部数据","كل البيانات","Tutti i dati","Все данные"],
+  ["Coordination","Koordination","Coördinatie","协调","التنسيق","Coordinamento","Координация"],
+  ["Géométrie seule","Nur Geometrie","Alleen geometrie","仅几何","الهندسة فقط","Solo geometria","Только геометрия"],
+  ["Unités","Einheiten","Eenheden","单位","الوحدات","Unità","Единицы"],
+  ["Mètres","Meter","Meters","米","أمتار","Metri","Метры"],
+  ["Millimètres","Millimeter","Millimeters","毫米","مليمترات","Millimetri","Миллиметры"],
+  ["Origine","Ursprung","Oorsprong","原点","نقطة الأصل","Origine","Начало координат"],
+  ["Origine interne","Interner Ursprung","Interne oorsprong","内部原点","الأصل الداخلي","Origine interna","Внутреннее начало"],
+  ["Point de base du projet","Projektbasispunkt","Projectbasispunt","项目基点","نقطة أساس المشروع","Punto base del progetto","Базовая точка проекта"],
+  ["Point topographique","Vermessungspunkt","Meetpunt","测量点","نقطة المسح","Punto di rilievo","Точка съёмки"],
+  ["Préréglage","Voreinstellung","Voorinstelling","预设","الإعداد المسبق","Preimpostazione","Пресет"],
+  ["Standard","Standard","Standaard","标准","قياسي","Standard","Стандартный"],
+  ["Étendu","Erweitert","Uitgebreid","扩展","موسّع","Esteso","Расширенный"],
+  ["Exporter les quantités de base","Basismengen exportieren","Basishoeveelheden exporteren","导出基本数量","تصدير الكميات الأساسية","Esporta quantità di base","Экспорт базовых количеств"],
+  ["ExportBaseQuantities=true : surfaces, volumes et longueurs calculés dans l'IFC.","ExportBaseQuantities=true: Flächen, Volumen und Längen werden in der IFC berechnet.","ExportBaseQuantities=true: oppervlakken, volumes en lengtes berekend in de IFC.","ExportBaseQuantities=true：在 IFC 中计算面积、体积和长度。","ExportBaseQuantities=true: المساحات والأحجام والأطوال محسوبة في IFC.","ExportBaseQuantities=true: superfici, volumi e lunghezze calcolati nell'IFC.","ExportBaseQuantities=true: площади, объёмы и длины рассчитываются в IFC."],
+  ["Délai maximal (minutes)","Zeitlimit (Minuten)","Maximale duur (minuten)","最长时间（分钟）","المهلة القصوى (دقائق)","Tempo massimo (minuti)","Лимит времени (минуты)"],
+  ["Garder le fichier IFC","IFC-Datei behalten","IFC-bestand bewaren","保留 IFC 文件","الاحتفاظ بملف IFC","Conserva il file IFC","Сохранять файл IFC"],
+  ["Enregistre l'IFC obtenu à côté du fichier .rvt. Sinon, les fichiers de conversion sont effacés après l'import.","Speichert die erzeugte IFC-Datei neben der .rvt-Datei. Sonst werden die Konvertierungsdateien nach dem Import gelöscht.","Slaat de verkregen IFC op naast het .rvt-bestand. Anders worden de conversiebestanden na de import verwijderd.","将生成的 IFC 保存在 .rvt 文件旁边。否则，导入后会删除转换文件。","يحفظ ملف IFC الناتج بجوار ملف .rvt. وإلا تُحذف ملفات التحويل بعد الاستيراد.","Salva l'IFC ottenuto accanto al file .rvt. Altrimenti i file di conversione vengono eliminati dopo l'importazione.","Сохраняет полученный IFC рядом с файлом .rvt. Иначе файлы преобразования удаляются после импорта."],
+  ["Rechercher","Suchen","Zoeken","搜索","بحث","Cerca","Найти"],
+  ["Tester le convertisseur","Konverter testen","Converter testen","测试转换器","اختبار المحوّل","Prova il convertitore","Проверить конвертер"],
+  ["Autoriser le convertisseur","Konverter zulassen","Converter toestaan","允许转换器","السماح بالمحوّل","Consenti il convertitore","Разрешить конвертер"],
+  ["macOS bloque les programmes téléchargés qui ne viennent pas de l'App Store : autorise ce convertisseur","macOS blockiert heruntergeladene Programme, die nicht aus dem App Store stammen: lässt diesen Konverter zu","macOS blokkeert gedownloade programma's die niet uit de App Store komen: staat deze converter toe","macOS 会阻止非 App Store 下载的程序：允许此转换器","يحظر macOS البرامج المنزّلة التي لا تأتي من App Store: يسمح بهذا المحوّل","macOS blocca i programmi scaricati che non provengono dall'App Store: consente questo convertitore","macOS блокирует загруженные программы не из App Store: разрешает этот конвертер"],
+  ["Dernier journal","Letztes Protokoll","Laatste logboek","最近的日志","آخر سجل","Ultimo registro","Последний журнал"],
+  ["Format produit : IFC4 (le seul que propose DDC 2.0). Convertisseur DDC : gratuit pour un usage non commercial seulement ; un usage professionnel demande une licence DDC. Il se télécharge sur la page officielle de DDC (il ne peut pas être fourni avec Métrix).","Ausgabeformat: IFC4 (das einzige, das DDC 2.0 anbietet). DDC-Konverter: nur für nichtkommerzielle Nutzung kostenlos; berufliche Nutzung erfordert eine DDC-Lizenz. Download auf der offiziellen DDC-Seite (er darf nicht mit Métrix ausgeliefert werden).","Uitvoerformaat: IFC4 (het enige dat DDC 2.0 biedt). DDC-converter: alleen gratis voor niet-commercieel gebruik; professioneel gebruik vereist een DDC-licentie. Download hem op de officiële DDC-pagina (hij mag niet met Métrix worden meegeleverd).","输出格式：IFC4（DDC 2.0 唯一提供的格式）。DDC 转换器：仅限非商业用途免费；专业用途需要 DDC 许可证。请从 DDC 官方页面下载（不能随 Métrix 一起提供）。","الصيغة الناتجة: IFC4 (الوحيدة التي يقدّمها DDC 2.0). محوّل DDC: مجاني للاستخدام غير التجاري فقط؛ ويتطلّب الاستخدام المهني ترخيص DDC. يُنزَّل من صفحة DDC الرسمية (لا يمكن توفيره مع Métrix).","Formato prodotto: IFC4 (l'unico offerto da DDC 2.0). Convertitore DDC: gratuito solo per uso non commerciale; l'uso professionale richiede una licenza DDC. Si scarica dalla pagina ufficiale di DDC (non può essere fornito con Métrix).","Формат: IFC4 (единственный в DDC 2.0). Конвертер DDC бесплатен только для некоммерческого использования; для профессионального нужна лицензия DDC. Скачивается с официальной страницы DDC (его нельзя поставлять вместе с Métrix)."],
+  ["Importer Revit (.rvt)…","Revit importieren (.rvt)…","Revit importeren (.rvt)…","导入 Revit (.rvt)…","استيراد Revit (.rvt)…","Importa Revit (.rvt)…","Импорт Revit (.rvt)…"],
+  ["Convertir une maquette Revit (.rvt) en IFC avec le convertisseur DDC, puis l'ouvrir","Ein Revit-Modell (.rvt) mit dem DDC-Konverter in IFC umwandeln und öffnen","Een Revit-model (.rvt) met de DDC-converter naar IFC converteren en openen","使用 DDC 转换器将 Revit 模型（.rvt）转换为 IFC 并打开","تحويل نموذج Revit (.rvt) إلى IFC بمحوّل DDC ثم فتحه","Converti un modello Revit (.rvt) in IFC con il convertitore DDC, poi aprilo","Преобразовать модель Revit (.rvt) в IFC конвертером DDC и открыть её"],
+  ["Comparer avec un autre IFC…","Mit anderer IFC vergleichen…","Vergelijken met andere IFC…","与另一个 IFC 比较…","مقارنة مع ملف IFC آخر…","Confronta con un altro IFC…","Сравнить с другим IFC…"],
+  ["Comparer les quantités de cette maquette avec un autre fichier IFC (par exemple l'export de Revit)","Mengen dieses Modells mit einer anderen IFC-Datei vergleichen (z. B. dem Revit-Export)","De hoeveelheden van dit model vergelijken met een ander IFC-bestand (bijv. de Revit-export)","将此模型的工程量与另一个 IFC 文件比较（例如 Revit 导出）","مقارنة كميات هذا النموذج بملف IFC آخر (مثل تصدير Revit)","Confronta le quantità di questo modello con un altro file IFC (ad esempio l'esportazione di Revit)","Сравнить объёмы этой модели с другим файлом IFC (например, экспортом из Revit)"],
+  ["Comparaison de deux IFC","Vergleich zweier IFC-Dateien","Vergelijking van twee IFC's","两个 IFC 的比较","مقارنة ملفي IFC","Confronto tra due IFC","Сравнение двух IFC"],
+  ["Écart = A − B, en % de B. Vert : moins de 5 % · orange : 5 à 15 % · rouge : plus de 15 %.","Abweichung = A − B, in % von B. Grün: unter 5 % · orange: 5 bis 15 % · rot: über 15 %.","Verschil = A − B, in % van B. Groen: minder dan 5 % · oranje: 5 tot 15 % · rood: meer dan 15 %.","差异 = A − B，占 B 的百分比。绿色：低于 5% · 橙色：5% 至 15% · 红色：高于 15%。","الفرق = A − B، كنسبة مئوية من B. أخضر: أقل من 5 % · برتقالي: من 5 إلى 15 % · أحمر: أكثر من 15 %.","Scarto = A − B, in % di B. Verde: meno del 5 % · arancione: dal 5 al 15 % · rosso: oltre il 15 %.","Отклонение = A − B, в % от B. Зелёный: менее 5 % · оранжевый: 5–15 % · красный: более 15 %."],
+  ["{n} catégories avec plus de 5 % d'écart.","{n} Kategorien mit mehr als 5 % Abweichung.","{n} categorieën met meer dan 5 % verschil.","{n} 个类别差异超过 5%。","{n} فئات بفرق يزيد على 5 %.","{n} categorie con più del 5 % di scarto.","Категорий с отклонением более 5 %: {n}."],
+  ["Aucune catégorie avec plus de 5 % d’écart.","Keine Kategorie mit mehr als 5 % Abweichung.","Geen categorie met meer dan 5 % verschil.","没有类别差异超过 5%。","لا توجد فئة بفرق يزيد على 5 %.","Nessuna categoria con più del 5 % di scarto.","Нет категорий с отклонением более 5 %."],
+  ["Détail par désignation","Detail nach Bezeichnung","Detail per omschrijving","按名称明细","التفاصيل حسب الاسم","Dettaglio per descrizione","Детализация по названиям"],
+  ["Fermer la comparaison","Vergleich schließen","Vergelijking sluiten","关闭比较","إغلاق المقارنة","Chiudi il confronto","Закрыть сравнение"],
+  ["Écart","Abweichung","Verschil","差异","الفرق","Scarto","Отклонение"],
+  ["Niveau de détail","Detailebene","Detailniveau","明细级别","مستوى التفصيل","Livello di dettaglio","Уровень детализации"],
 ]);
 // --- fin des langues ajoutées ---
 
@@ -4168,6 +4394,7 @@ function renderIfc() {
   const sel = $('ifcLevel'); sel.hidden = !M || !M.levels.length;
   if (M) { const cur = sel.value; sel.innerHTML = `<option value="">${esc(trText('Tous les niveaux'))}</option>` + M.levels.map(l => `<option${l === cur ? ' selected' : ''}>${esc(l)}</option>`).join(''); }
   $('ifcSearch').hidden = !M;
+  $('ifcCmpLbl').hidden = !M;
   ifcPlanSetup();
   renderIfcTree(); renderIfcMain();
   requestAnimationFrame(() => { if (!ifcView) ifcFit(); ifcDraw(); });
@@ -4658,8 +4885,298 @@ function ifcSelectEl(e) {
   $('ifcPlanLvl').onchange = () => { $('ifcTip').hidden = true; ifcHover = null; ifcFit(); ifcDraw(); };
   if (window.ResizeObserver) new ResizeObserver(() => ifcDraw()).observe(cv);
 })();
+/* ---------- import Revit (.rvt) : conversion en IFC par un convertisseur installé (DDC), puis lecture IFC ---------- */
+// Module isolé : chaque « moteur » sait seulement fabriquer sa ligne de commande. Le reste (lancement, délai,
+// journal, vérification du résultat, messages) est commun. Changer d'outil = ajouter un moteur dans RVT_ENGINES.
+// Lancement : appli Mac (commande « runTool »). Windows : script « Convertir Revit.cmd » (même convertisseur).
+const RVT_DEF = { engine: 'auto', exe: '', wine: '', timeout: 30, profile: 'full', units: 'm', origin: 'internal', preset: 'standard', baseQty: true, keep: false };
+function rvtCfg() { try { return { ...RVT_DEF, ...JSON.parse(localStorage.getItem('metrix:rvt') || '{}') }; } catch { return { ...RVT_DEF }; } }
+function rvtSaveCfg(c) { try { localStorage.setItem('metrix:rvt', JSON.stringify(c)); } catch {} }
+// chemin Mac → chemin Windows vu par Wine (le disque Z: de Wine est la racine du Mac)
+const rvtWinPath = p => 'Z:' + String(p).replace(/\//g, '\\');
+const RVT_ENGINES = {
+  // DDC pour Mac (rvt-decode 2.x) : « native-graph --out DOSSIER --ifc maquette.rvt » → DOSSIER/native_graph.ifc (IFC4)
+  'ddc-mac': { label: 'DDC rvt-decode (Mac)', match: /(^|\/)rvt-decode$/i, wine: false,
+    cmd: (c, input, out) => ({ exe: c.exe, args: ['native-graph', '--out', out, '--ifc', input] }) },
+  // DDC pour Windows (RVTconverter.exe 2.x) lancé par Wine / CrossOver
+  'ddc-wine': { label: 'DDC RVTconverter.exe (Windows, via Wine)', match: /RVTconverter\.exe$/i, wine: true,
+    cmd: (c, input, out) => ({ exe: c.wine, winExe: c.exe, args: [rvtWinPath(c.exe), rvtWinPath(input), '-o', rvtWinPath(out), '--ifc',
+      '--ifc-profile', c.profile, '--ifc-units', c.units, '--ifc-origin', c.origin] }) },
+  // ancienne syntaxe DDC 1.x : RVT2IFCconverter.exe entrée sortie preset=… config="…"
+  'ddc-legacy': { label: 'DDC RVT2IFCconverter.exe 1.x (via Wine)', match: /(RVT2IFCconverter|RvtExporter)\.exe$/i, wine: true, mkOut: true,
+    cmd: (c, input, out) => ({ exe: c.wine, winExe: c.exe, args: [rvtWinPath(c.exe), rvtWinPath(input), rvtWinPath(out + '/maquette.ifc'),
+      'preset=' + c.preset, 'config=ExportBaseQuantities=' + (c.baseQty ? 'true' : 'false')] }) },
+};
+function rvtEngineOf(c) {
+  if (c.engine !== 'auto') return RVT_ENGINES[c.engine] ? c.engine : null;
+  return Object.keys(RVT_ENGINES).find(k => RVT_ENGINES[k].match.test(c.exe || '')) || null;
+}
+// ligne de commande complète, ou une erreur (clé de message)
+function rvtCommand(c, input, out) {
+  if (!c.exe) return { err: 'notConfigured' };
+  const id = rvtEngineOf(c); if (!id) return { err: 'unknownTool' };
+  if (!/\.(rvt|rfa)$/i.test(input || '')) return { err: 'notRvt' };
+  const E = RVT_ENGINES[id];
+  if (E.wine && !c.wine) return { err: 'wineMissing' };
+  return { engine: id, mkOut: !!E.mkOut, ...E.cmd(c, input, out) };
+}
+// lecture du résultat renvoyé par l'appli : IFC obtenu, ou erreur compréhensible
+function rvtClassify(r, c) {
+  if (r.error) return { err: r.error, detail: r.log || '' };
+  if (r.cancelled) return { err: 'cancelled' };
+  if (r.timedOut) return { err: 'timeout', vars: { n: c.timeout } };
+  const log = String(r.log || ''), ifc = (r.outputs || []).filter(o => o.size > 0).sort((a, b) => b.size - a.size)[0];
+  if (r.signal && r.seconds <= 3 && !ifc) return { err: 'blocked' };
+  if (ifc && (r.code === 0 || r.code === 2)) return { ok: true, ifc: ifc.path, warn: r.code === 2 ? 'partial' : null };
+  if (/(unsupported|not supported|non pris en charge).{0,40}(version|revit)|revit (version )?(20(0\d|1[0-8]))\b|older than 2019/i.test(log)) return { err: 'unsupportedVersion' };
+  if (/could not load|bad exe format|wine client error|wineserver|cannot execute binary|Bad CPU type/i.test(log)) return { err: 'wineFailed' };
+  if (/corrupt|not a valid|invalid (rvt|file|ole|compound)|cannot (read|open|parse)|failed to (open|read|parse)|unexpected end of file|no such stream/i.test(log)) return { err: 'corrupt' };
+  if ((r.outputs || []).length && !ifc) return { err: 'emptyOutput' };
+  if (r.code === 0 || ifc) return { err: 'noOutput' };
+  return { err: 'failed', vars: { code: r.code } };
+}
+const RVT_MSG = {
+  notConfigured: 'Indiquez d’abord le convertisseur Revit dans Paramètres → Revit (.rvt).',
+  unknownTool: 'Ce programme n’est pas un convertisseur Revit connu. Choisissez rvt-decode (Mac) ou RVTconverter.exe (Windows) de DDC.',
+  notRvt: 'Ce fichier n’est pas une maquette Revit (.rvt ou .rfa).',
+  exeMissing: 'Convertisseur introuvable. Vérifiez son emplacement dans Paramètres → Revit (.rvt).',
+  notExecutable: 'Le convertisseur ne peut pas être lancé (fichier non exécutable).',
+  wineMissing: 'Wine (ou CrossOver) est introuvable : il est nécessaire pour lancer un convertisseur Windows sur Mac. Installez-le, ou utilisez plutôt rvt-decode, le convertisseur DDC pour Mac.',
+  wineFailed: 'Wine n’a pas réussi à lancer le convertisseur Windows. Utilisez plutôt rvt-decode, le convertisseur DDC pour Mac.',
+  refused: 'Métrix ne lance que les convertisseurs DDC (rvt-decode, RVTconverter.exe) et Wine.',
+  launchFailed: 'Le convertisseur n’a pas pu démarrer.',
+  blocked: 'macOS a bloqué le convertisseur, téléchargé sur internet. Cliquez sur « Autoriser le convertisseur » dans Paramètres → Revit (.rvt), puis réessayez.',
+  cancelled: 'Conversion annulée.',
+  timeout: 'La conversion a dépassé {n} minutes et a été arrêtée. Augmentez le délai maximal dans Paramètres → Revit (.rvt).',
+  unsupportedVersion: 'Version de Revit non prise en charge (fichiers enregistrés avec Revit 2019 à 2027). Ouvrez et enregistrez la maquette dans une version plus récente de Revit.',
+  corrupt: 'Fichier Revit illisible ou endommagé.',
+  emptyOutput: 'Le fichier IFC produit est vide.',
+  noOutput: 'La conversion s’est terminée sans produire de fichier IFC.',
+  failed: 'La conversion a échoué (code {code}). Consultez le journal.',
+  ifcBad: 'Ce fichier n’est pas une maquette IFC lisible.',
+  partial: 'Maquette convertie avec des remarques : certains éléments peuvent manquer (voir le journal).',
+  oldApp: 'Cette version de l’appli Mac ne sait pas lancer de convertisseur. Réinstallez Métrix à partir du fichier Metrix-Mac.zip (version complète).',
+  noNative: 'La conversion Revit fonctionne dans l’appli Mac et, sur Windows, avec « Convertir Revit » dans le dossier de Métrix. Elle n’est pas possible sur iPhone, iPad ni dans la version en ligne.',
+  windows: 'Sur Windows, glissez le fichier .rvt sur « Convertir Revit » (dans le dossier de Métrix) : la maquette est convertie puis s’ouvre ici automatiquement.',
+};
+const rvtText = (k, v = {}) => trText(RVT_MSG[k] || k).replace(/\{(\w+)\}/g, (_, n) => v[n] ?? '');
+const IS_WIN = /Windows/.test(navigator.userAgent);
+const rvtCan = () => NATIVE && (window.__METRIX_CAPS || []).includes('runTool');
+// convertisseurs et Wine aux emplacements habituels
+const RVT_TOOL_GUESS = () => [
+  '/Applications/DDC/rvt-decode', '/Applications/rvt-decode/rvt-decode', '/usr/local/bin/rvt-decode', '/opt/homebrew/bin/rvt-decode'];
+const RVT_WINE_GUESS = ['/opt/homebrew/bin/wine', '/usr/local/bin/wine', '/opt/homebrew/bin/wine64', '/usr/local/bin/wine64',
+  '/Applications/CrossOver.app/Contents/SharedSupport/CrossOver/bin/wine', '/Applications/Wine Stable.app/Contents/Resources/wine/bin/wine',
+  '/Applications/Wine Devel.app/Contents/Resources/wine/bin/wine', '/Applications/Wine Crossover.app/Contents/Resources/wine/bin/wine'];
+async function rvtFind(list) {
+  const r = await nativeCall({ cmd: 'which', paths: list });
+  const f = (r.found || []).find(x => x.exec); return f ? f.path : '';
+}
+let rvtBusy = null;
+function rvtProgress(name, work) {
+  const t0 = Date.now(), box = $('ifcMain');
+  $('ifcTitle').textContent = name;
+  box.innerHTML = `<div class="ifc-main"><h2>${esc(name)}</h2><div class="card rvt-run"><div class="rvt-spin"></div><div><b>${esc(trText('Conversion de la maquette Revit en IFC…'))}</b>
+    <div class="hint" id="rvtElapsed"></div><div class="hint rvt-last" id="rvtLast"></div></div><button class="pbtn" id="rvtCancel" style="margin:0 0 0 auto">${esc(trText('Annuler'))}</button></div>
+    <p class="hint">${esc(trText('Les grosses maquettes peuvent demander plusieurs minutes. Tout se passe sur cet ordinateur : rien n’est envoyé sur internet.'))}</p></div>`;
+  const tick = () => {
+    const s = Math.round((Date.now() - t0) / 1000), el = $('rvtElapsed'); if (!el) return;
+    el.textContent = trText('Temps écoulé') + ' : ' + Math.floor(s / 60) + ' min ' + String(s % 60).padStart(2, '0') + ' s';
+    const x = new XMLHttpRequest(); x.open('GET', fileUrl(work + '/conversion.log') + '?t=' + Date.now());
+    x.onload = () => { const l = String(x.responseText || '').trim().split('\n').filter(s => s.trim()).pop() || ''; const e = $('rvtLast'); if (e && l && !l.startsWith('$ ')) e.textContent = l.slice(0, 160); };
+    x.send();
+  };
+  tick(); return setInterval(tick, 1000);
+}
+function rvtShowError(k, vars, log, logSaved) {
+  dialog(trText('Import Revit'), `<p style="margin:14px 16px;text-align:left">${esc(rvtText(k, vars))}</p>
+    ${log ? `<details style="margin:0 16px 10px;text-align:left"><summary>${esc(trText('Journal de la conversion'))}</summary><pre class="rvt-log">${esc(String(log).slice(-6000))}</pre>${logSaved ? `<p class="hint">${esc(logSaved)}</p>` : ''}</details>` : ''}`, () => {}, false);
+}
+async function rvtImport() {
+  if (!NATIVE) return dialog(trText('Import Revit'), `<p style="margin:14px 16px;text-align:left">${esc(rvtText(IS_WIN ? 'windows' : 'noNative'))}</p>`, () => {}, false);
+  if (!rvtCan()) return rvtShowError('oldApp');
+  if (rvtBusy) return;
+  const c = rvtCfg();
+  if (!c.exe) { dialog(trText('Import Revit'), `<p style="margin:14px 16px;text-align:left">${esc(rvtText('notConfigured'))}</p>`, () => { showTab('set'); rvtGoSettings(); }); $('dlgOk').textContent = trText('Ouvrir les paramètres'); return; }
+  const pick = await nativeCall({ cmd: 'open', kind: 'rvt' });
+  if (pick.error) return notify(pick.error);
+  if (!pick.path) return;
+  return rvtConvertPicked(pick, c);
+}
+// conversion d'une maquette déjà copiée dans le dossier de travail de l'appli (pick : path, name, src)
+async function rvtConvertPicked(pick, c = rvtCfg()) {
+  const work = pick.path.replace(/\/[^/]*$/, ''), out = work + '/ifc';
+  const cmd = rvtCommand(c, pick.path, out);
+  if (cmd.err) { nativeCall({ cmd: 'removeWork', path: work }); return rvtShowError(cmd.err); }
+  showTab('ifc');
+  const task = 'rvt' + Date.now().toString(36);
+  const timer = rvtProgress(pick.name, work);
+  rvtBusy = { task };
+  $('rvtCancel').onclick = () => { nativeCall({ cmd: 'cancelTool', task }); $('rvtCancel').disabled = true; };
+  let r;
+  try { r = await nativeCall({ cmd: 'runTool', task, exe: cmd.exe, winExe: cmd.winExe, args: cmd.args, work, out, mkOut: cmd.mkOut, timeout: Math.max(0.05, +c.timeout || 30) * 60 }); }
+  finally { clearInterval(timer); rvtBusy = null; }
+  try { localStorage.setItem('metrix:rvtLastLog', String(r.log || '').slice(-20000)); } catch {}
+  const res = rvtClassify(r, c);
+  if (!res.ok) {
+    nativeCall({ cmd: 'removeWork', path: work }); renderIfcMain();
+    rvtShowError(res.err, res.vars, r.log, r.logSaved); return res;
+  }
+  const stem = pick.name.replace(/\.(rvt|rfa)$/i, '');
+  if (c.keep) { const k = await nativeCall({ cmd: 'keepCopy', from: res.ifc, src: pick.src, name: stem + '.ifc' }); if (k.path && !k.error) toast(trText('IFC enregistré') + ' : ' + k.path); }
+  const x = new XMLHttpRequest(); x.open('GET', fileUrl(res.ifc)); x.responseType = 'blob';
+  x.onload = async () => {
+    await ifcOpenFile(new File([x.response], stem + '.ifc'));
+    if (ifcModel) ifcModel.fromRvt = { name: pick.name, warn: res.warn };
+    if (res.warn) toast(rvtText(res.warn));
+    nativeCall({ cmd: 'removeWork', path: work });
+  };
+  x.onerror = () => { rvtShowError('noOutput', {}, r.log, r.logSaved); nativeCall({ cmd: 'removeWork', path: work }); };
+  x.send();
+  return res;
+}
+$('rvtImportBtn').onclick = rvtImport;
+// accès pour les tests automatiques
+window.__metrixRvt = { rvtCommand, rvtClassify, rvtWinPath, rvtEngineOf, rvtText, rvtConvertPicked, rvtCfg, rvtSaveCfg, ifcCompareRows: (...a) => ifcCompareRows(...a), model: () => ifcModel, ifcParse: t => ifcParse(t), ifcBuild: (M, n) => ifcBuild(M, n, 0) };
+
+// Paramètres → Revit (.rvt)
+function rvtGoSettings() { const cards = [...document.querySelectorAll('#settings .set-card')], i = cards.indexOf($('setRvtCard')); if (i >= 0 && setSection) setSection(i); }
+function renderRvtSettings() {
+  const c = rvtCfg(), can = rvtCan();
+  $('rvtHint').textContent = can ? trText('Métrix lance le convertisseur DDC installé sur ce Mac, puis ouvre l’IFC obtenu dans l’onglet Revit / IFC. Rien n’est envoyé sur internet.')
+    : rvtText(NATIVE ? 'oldApp' : IS_WIN ? 'windows' : 'noNative');
+  $('rvtForm').hidden = !can;
+  if (!can) return;
+  $('rvtExe').value = c.exe; $('rvtWine').value = c.wine; $('rvtEngine').value = c.engine; $('rvtTimeout').value = c.timeout;
+  $('rvtProfile').value = c.profile; $('rvtUnits').value = c.units; $('rvtOrigin').value = c.origin; $('rvtPreset').value = c.preset;
+  $('rvtBaseQty').checked = c.baseQty; $('rvtKeep').checked = c.keep;
+  const id = rvtEngineOf(c), E = id && RVT_ENGINES[id];
+  document.querySelectorAll('#setRvtCard .rvt-wine').forEach(el => el.hidden = !(E && E.wine));
+  document.querySelectorAll('#setRvtCard .rvt-w2').forEach(el => el.hidden = id !== 'ddc-wine');
+  document.querySelectorAll('#setRvtCard .rvt-l').forEach(el => el.hidden = id !== 'ddc-legacy');
+  $('rvtEngineInfo').textContent = c.exe ? (E ? trText('Moteur') + ' : ' + E.label : rvtText('unknownTool')) : '';
+}
+(() => {
+  const save = () => {
+    const c = rvtCfg();
+    Object.assign(c, { exe: $('rvtExe').value.trim(), wine: $('rvtWine').value.trim(), engine: $('rvtEngine').value, timeout: Math.min(600, Math.max(1, +$('rvtTimeout').value || 30)),
+      profile: $('rvtProfile').value, units: $('rvtUnits').value, origin: $('rvtOrigin').value, preset: $('rvtPreset').value, baseQty: $('rvtBaseQty').checked, keep: $('rvtKeep').checked });
+    rvtSaveCfg(c); renderRvtSettings();
+  };
+  ['rvtExe', 'rvtWine', 'rvtEngine', 'rvtTimeout', 'rvtProfile', 'rvtUnits', 'rvtOrigin', 'rvtPreset', 'rvtBaseQty', 'rvtKeep'].forEach(k => $(k).onchange = save);
+  const browse = async field => { const r = await nativeCall({ cmd: 'open', kind: 'tool' }); if (r.path) { $(field).value = r.path; save(); } };
+  $('rvtExeBrowse').onclick = () => browse('rvtExe');
+  $('rvtWineBrowse').onclick = () => browse('rvtWine');
+  $('rvtFind').onclick = async () => {
+    const st = $('rvtStatus'); st.textContent = trText('Recherche…');
+    const exe = $('rvtExe').value.trim() || await rvtFind(RVT_TOOL_GUESS()), wine = $('rvtWine').value.trim() || await rvtFind(RVT_WINE_GUESS);
+    if (exe) $('rvtExe').value = exe; if (wine) $('rvtWine').value = wine; save();
+    st.textContent = exe ? trText('Convertisseur trouvé') + ' : ' + exe : trText('Aucun convertisseur trouvé aux emplacements habituels : indiquez-le avec « Parcourir… ».');
+  };
+  $('rvtUnq').onclick = async () => { const p = $('rvtExe').value.trim(); if (!p) return; await nativeCall({ cmd: 'unquarantine', path: p }); $('rvtStatus').textContent = trText('Convertisseur autorisé. Cliquez sur « Tester le convertisseur ».'); };
+  $('rvtTest').onclick = async () => {
+    const c = rvtCfg(), st = $('rvtStatus'), id = rvtEngineOf(c);
+    if (!c.exe) { st.textContent = rvtText('notConfigured'); return; }
+    if (!id) { st.textContent = rvtText('unknownTool'); return; }
+    const E = RVT_ENGINES[id], work = (window.__METRE_TMP || '') + 'metreplan-ouverture/test-' + Date.now().toString(36);
+    if (E.wine && !c.wine) { st.textContent = rvtText('wineMissing'); return; }
+    st.textContent = trText('Test en cours…');
+    const r = await nativeCall({ cmd: 'runTool', task: 'test' + Date.now(), exe: E.wine ? c.wine : c.exe, winExe: E.wine ? c.exe : undefined,
+      args: E.wine ? [rvtWinPath(c.exe), '--help'] : ['--version'], work, timeout: 60 });
+    nativeCall({ cmd: 'removeWork', path: work });
+    try { localStorage.setItem('metrix:rvtLastLog', String(r.log || '')); } catch {}
+    const out = String(r.log || '').split('\n').slice(2).join(' ').trim();
+    if (r.error) st.textContent = rvtText(r.error);
+    else if (r.signal && r.seconds <= 3) st.textContent = rvtText('blocked');
+    else if (r.code === 0) st.textContent = '✓ ' + trText('Le convertisseur répond') + (out ? ' : ' + out.slice(0, 120) : '.');
+    else st.textContent = rvtText(/could not load|bad exe|wine/i.test(out) ? 'wineFailed' : 'failed', { code: r.code });
+  };
+  $('rvtLastLog').onclick = () => { let l = ''; try { l = localStorage.getItem('metrix:rvtLastLog') || ''; } catch {}
+    dialog(trText('Journal de la conversion'), `<pre class="rvt-log" style="margin:12px 16px">${esc(l || trText('Aucune conversion pour l’instant.'))}</pre>`, () => {}, false); };
+})();
+
+// Windows : « Convertir Revit » ouvre Métrix avec l'adresse de l'IFC obtenu (…index.html#ifc=file:///…)
+(() => {
+  const m = /^#ifc=(file:\/\/\/.+\.ifc)$/i.exec(location.hash || ''); if (!m) return;
+  history.replaceState(null, '', location.pathname + location.search);
+  const url = m[1], name = decodeURIComponent(url.split('/').pop());
+  const x = new XMLHttpRequest(); x.open('GET', url); x.responseType = 'blob';
+  x.onload = () => { if (x.response && x.response.size) ifcOpenFile(new File([x.response], name)); };
+  x.onerror = () => notify(trText('Impossible de lire le fichier') + ' « ' + name + ' ».');
+  setTimeout(() => x.send(), 400);
+})();
+/* ---------- comparaison de deux maquettes IFC (ex. : IFC converti par DDC ↔ IFC exporté depuis Revit) ---------- */
+const CMP_PICK = { V: ['NetVolume', 'GrossVolume', 'Volume'], A: ['NetSideArea', 'NetArea', 'NetFloorArea', 'GrossSideArea', 'GrossArea', 'Area', 'GrossFloorArea', 'Surface'], L: ['Length', 'Longueur'] };
+// une valeur par élément et par sorte de quantité (volume, surface, longueur), pour additionner les mêmes choses des deux côtés
+function cmpVal(el, k) {
+  for (const nm of CMP_PICK[k]) if (el.q[nm] && el.q[nm].k === k) return el.q[nm].v;
+  const any = Object.entries(el.q).find(([nm, x]) => x.k === k && (k !== 'L' || /length|longueur/i.test(nm)));
+  return any ? any[1].v : null;
+}
+function cmpSums(model) {
+  const cat = new Map(), des = new Map();
+  const add = (map, key, el) => { let s = map.get(key); if (!s) map.set(key, s = { N: 0, V: 0, A: 0, L: 0, has: {} }); s.N++; for (const k of ['V', 'A', 'L']) { const v = cmpVal(el, k); if (v != null) { s[k] += v; s.has[k] = 1; } } };
+  for (const el of model.elements) { add(cat, el.cat, el); add(des, el.cat + '\u0001' + el.des, el); }
+  return { cat, des };
+}
+// lignes de comparaison : [libellé, sorte, valeur A, valeur B]
+function ifcCompareRows(A, B) {
+  const a = cmpSums(A), b = cmpSums(B), rows = [];
+  const keys = m => [...new Set([...a[m].keys(), ...b[m].keys()])].sort((x, y) => x.localeCompare(y, LOCALES[LANG]));
+  const push = (lvl, label, sa, sb) => {
+    rows.push({ lvl, label, k: 'N', a: sa ? sa.N : 0, b: sb ? sb.N : 0 });
+    for (const k of ['V', 'A', 'L']) if ((sa && sa.has[k]) || (sb && sb.has[k])) rows.push({ lvl, label, k, a: sa && sa.has[k] ? sa[k] : null, b: sb && sb.has[k] ? sb[k] : null });
+  };
+  for (const c of keys('cat')) {
+    push(0, c, a.cat.get(c), b.cat.get(c));
+    for (const d of keys('des').filter(k => k.startsWith(c + '\u0001'))) push(1, d.split('\u0001')[1], a.des.get(d), b.des.get(d));
+  }
+  return rows;
+}
+const CMP_K = { N: 'Nombre', V: 'Volume', A: 'Surface', L: 'Longueur' };
+function ifcCompareView(B) {
+  const A = ifcModel, rows = ifcCompareRows(A, B), box = $('ifcMain');
+  const pct = r => r.a == null || r.b == null ? null : r.b === 0 ? (r.a === 0 ? 0 : Infinity) : (r.a - r.b) / Math.abs(r.b) * 100;
+  const cls = p => p == null ? '' : Math.abs(p) > 15 ? 'cmp-bad' : Math.abs(p) > 5 ? 'cmp-mid' : 'cmp-ok';
+  const fv = (v, k) => v == null ? '—' : ifcFmt(v, k) + ' ' + IFC_KU[k];
+  const fp = p => p == null ? '' : p === Infinity ? '∞' : (p > 0 ? '+' : '') + fmt(p, 1) + ' %';
+  const tr = r => { const p = pct(r); return `<tr class="${r.lvl ? 'cmp-d' : 'cmp-c'}"><td>${r.k === 'N' ? esc(r.lvl ? r.label : trText(r.label)) : ''}</td><td>${esc(trText(CMP_K[r.k]))}</td>
+    <td class="n">${fv(r.a, r.k)}</td><td class="n">${fv(r.b, r.k)}</td><td class="n">${r.a != null && r.b != null ? (r.a - r.b > 0 ? '+' : '') + ifcFmt(r.a - r.b, r.k) : ''}</td><td class="n ${cls(p)}">${fp(p)}</td></tr>`; };
+  const cats = rows.filter(r => !r.lvl), big = new Set(cats.filter(r => { const p = pct(r); return p != null && Math.abs(p) > 5; }).map(r => r.label)).size;
+  $('ifcTitle').textContent = trText('Comparaison de deux IFC');
+  box.innerHTML = `<div class="ifc-main"><h2>${esc(trText('Comparaison de deux IFC'))}</h2>
+    <p class="sub">A : ${esc(A.fileName)} · B : ${esc(B.fileName)}</p>
+    <p class="hint">${esc(trText('Écart = A − B, en % de B. Vert : moins de 5 % · orange : 5 à 15 % · rouge : plus de 15 %.'))} ${big ? esc(trText(`${big} catégories avec plus de 5 % d'écart.`)) : esc(trText('Aucune catégorie avec plus de 5 % d’écart.'))}</p>
+    <div class="acts"><button class="pbtn" id="cmpCopy" style="margin:0">${esc(trText('Copier le tableau pour Excel'))}</button><label class="cmp-det"><input type="checkbox" id="cmpDet"> ${esc(trText('Détail par désignation'))}</label><button class="pbtn" id="cmpClose" style="margin:0 0 0 auto">${esc(trText('Fermer la comparaison'))}</button></div>
+    <div class="ifc-scroll" style="max-height:none"><table class="ifct cmp" id="cmpTab"><tr><th>${esc(trText('Catégorie'))} / ${esc(trText('Désignation'))}</th><th>${esc(trText('Quantité'))}</th><th class="n">A</th><th class="n">B</th><th class="n">${esc(trText('Écart'))}</th><th class="n">%</th></tr>
+    ${rows.map(tr).join('')}</table></div></div>`;
+  const tab = $('cmpTab'); tab.classList.add('nodet');
+  $('cmpDet').onchange = e => tab.classList.toggle('nodet', !e.target.checked);
+  $('cmpClose').onclick = () => renderIfcMain();
+  $('cmpCopy').onclick = () => {
+    const d = tuDec(), num = (v, k) => v == null ? '' : ifcNum(v, k);
+    const lines = [[trText('Niveau de détail'), trText('Catégorie') + ' / ' + trText('Désignation'), trText('Quantité'), trText('Unité'), 'A : ' + A.fileName, 'B : ' + B.fileName, trText('Écart'), '%'].join('\t'),
+      ...rows.filter(r => !r.lvl || $('cmpDet').checked).map(r => { const p = pct(r); return [r.lvl ? trText('Désignation') : trText('Catégorie'), r.lvl ? r.label : trText(r.label), trText(CMP_K[r.k]), IFC_KU[r.k], num(r.a, r.k), num(r.b, r.k),
+        r.a != null && r.b != null ? num(r.a - r.b, r.k) : '', p == null || p === Infinity ? '' : String(Math.round(p * 10) / 10).replace('.', d)].join('\t'); })];
+    copyText(lines.join('\r\n') + '\r\n'); toast(trText('Tableau copié : collez-le dans Excel.'));
+  };
+}
+async function ifcCompareFile(f) {
+  if (!f || !ifcModel) return;
+  try {
+    const M = ifcParse(await f.text());
+    ifcCompareView(ifcBuild(M, f.name, f.size));
+  } catch (err) { console.error(err); rvtShowError('ifcBad'); }
+}
+$('ifcCmpFile').onchange = e => { const f = e.target.files[0]; e.target.value = ''; ifcCompareFile(f); };
+if (NATIVE) $('ifcCmpFile').addEventListener('click', async e => {
+  e.preventDefault();
+  const r = await nativeCall({ cmd: 'open', kind: 'ifc' }); if (!r.path) return;
+  const x = new XMLHttpRequest(); x.open('GET', fileUrl(r.path)); x.responseType = 'blob';
+  x.onload = () => ifcCompareFile(new File([x.response], r.name)); x.send();
+});
 function renderSettings() {
-  $('updUrlIn').value = updUrl(); $('updAutoIn').checked = updAuto(); renderUpdState();
+  $('updUrlIn').value = updUrl(); $('updAutoIn').checked = updAuto(); renderUpdState(); renderRvtSettings();
   $('setVersion').textContent = 'Version installée : ' + METRIX_VERSION;
   if (IS_WEB) { $('updHint').textContent = 'Version en ligne : Métrix se met à jour tout seul à chaque ouverture (avec une connexion internet). Il fonctionne aussi hors connexion.'; document.querySelector('.upd-actions').style.display = 'none'; document.querySelector('.upd-net').style.display = 'none'; $('updStatus').hidden = true; }
   if (!NATIVE && !IS_WEB) $('updHint').textContent = 'Sur Windows, extrayez le zip de mise à jour (Metrix-mise-a-jour-….zip) puis double-cliquez sur « Mettre a jour Metrix » : il met Métrix à jour tout seul. Vos métrés, ouvrages et réglages sont conservés.';
