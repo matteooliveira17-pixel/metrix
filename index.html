@@ -291,6 +291,25 @@
   .ifc-cmp { position:relative; overflow:hidden; display:block; text-align:center; font-size:12px; color:var(--blue); cursor:pointer; padding:2px 0; }
   .ifc-cmp:hover { text-decoration:underline; }
   .ifc-cmp[hidden] { display:none; }
+  .ifc-cur { display:flex; align-items:center; gap:6px; }
+  .ifc-cur[hidden] { display:none; }
+  .ifc-cur .ifc-file { flex:1; min-width:0; }
+  #ifcCloseBtn { flex:none; border:1px solid var(--line); background:#fff; color:var(--muted); border-radius:4px; padding:2px 7px; font:inherit; font-size:11.5px; cursor:pointer; }
+  #ifcCloseBtn:hover { color:#c0202a; border-color:#c0202a; background:rgba(192,32,42,.06); }
+  html.dark #ifcCloseBtn { background:#15181d; border-color:#4a5260; }
+  .ifc-rec[hidden] { display:none; }
+  .ifc-rec { border:1px solid var(--line); border-radius:5px; background:#fff; }
+  .ifc-rec > summary { cursor:pointer; padding:4px 8px; font-size:12px; font-weight:600; color:var(--muted); user-select:none; }
+  .ifc-rec > summary b { font-weight:400; }
+  .ifc-rec > div { max-height:210px; overflow:auto; padding:0 3px 3px; }
+  .ifc-rec .rc-item { padding:4px 5px; gap:7px; }
+  .ifc-rec .rc-item.cur { background:rgba(43,111,214,.12); }
+  .ifc-rec .rc-thumb { width:30px; height:30px; }
+  .ifc-rec .rc-thumb span { background:#2b579a; }
+  .ifc-rec .rc-thumb span.rvt { background:#1b7fbd; }
+  .ifc-rec .rc-empty { padding:8px; font-size:11.5px; }
+  .ifc-rec .rc-clear { margin:4px auto 2px; }
+  html.dark .ifc-rec { background:#15181d; border-color:#4a5260; }
   .ifc-cmp input { position:absolute; inset:0; opacity:0; cursor:pointer; }
   .ifct.cmp tr.cmp-c td { font-weight:600; background:rgba(43,87,154,.04); }
   .ifct.cmp tr.cmp-d td:first-child { padding-left:22px; color:var(--muted); }
@@ -949,7 +968,8 @@
       <button class="ifc-rvt" id="rvtImportBtn" title="Convertir une maquette Revit (.rvt) en IFC avec le convertisseur DDC, puis l'ouvrir">Importer Revit (.rvt)…</button>
       <button class="ifc-rvt ifc-xls" id="ifcXlsBtn" hidden title="Enregistrer tous les métrés de la maquette dans un classeur Excel : récapitulatif, par niveau, tous les éléments"><svg viewBox="0 0 16 16"><rect x="2.5" y="2" width="11" height="12" rx="1.5"/><path d="m5.5 5.5 5 5m0-5-5 5"/></svg>Exporter les métrés (Excel)</button>
       <label class="ifc-cmp" id="ifcCmpLbl" hidden title="Comparer les quantités de cette maquette avec un autre fichier IFC (par exemple l'export de Revit)">Comparer avec un autre IFC…<input id="ifcCmpFile" type="file" accept=".ifc"></label>
-      <div class="ifc-file" id="ifcFileName"></div>
+      <details class="ifc-rec" id="ifcRecent"><summary>Fichiers récents</summary><div id="ifcRecentList"></div></details>
+      <div class="ifc-cur" id="ifcCur" hidden><div class="ifc-file" id="ifcFileName"></div><button id="ifcCloseBtn" title="Fermer cette maquette (elle reste dans les fichiers récents)">✕ Fermer</button></div>
       <select id="ifcLevel" title="N'afficher que les éléments d'un niveau"></select>
       <input type="search" id="ifcSearch" placeholder="Rechercher une désignation…">
     </div>
@@ -1124,7 +1144,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.10';
+const METRIX_VERSION = '3.11';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -1871,6 +1891,15 @@ addTr([
   ["La version {v} s’installera toute seule au prochain lancement de Métrix.","Version {v} will install itself the next time Métrix starts.","A versão {v} será instalada sozinha no próximo arranque do Métrix.","La versión {v} se instalará sola la próxima vez que se inicie Métrix."],
   ["La version {v} est installée : elle sera active au prochain lancement de Métrix.","Version {v} is installed: it will be active the next time Métrix starts.","A versão {v} está instalada: ficará ativa no próximo arranque do Métrix.","La versión {v} está instalada: estará activa la próxima vez que se inicie Métrix."],
   ["Métrix a été mis à jour en version {v}.","Métrix has been updated to version {v}.","O Métrix foi atualizado para a versão {v}.","Métrix se ha actualizado a la versión {v}."],
+  // maquettes récentes (Revit / IFC)
+  ["Fichiers récents","Recent files","Ficheiros recentes","Archivos recientes"],
+  ["{n} éléments","{n} elements","{n} elementos","{n} elementos"],
+  ["Maquette introuvable","Model not found","Modelo não encontrado","Modelo no encontrado"],
+  ["n’est plus disponible (déplacée, renommée ou supprimée). Ouvrez-la de nouveau.","is no longer available (moved, renamed or deleted). Open it again.","já não está disponível (movido, renomeado ou eliminado). Abra-o novamente.","ya no está disponible (movido, renombrado o eliminado). Ábralo de nuevo."],
+  ["Les maquettes que vous ouvrez apparaîtront ici.","The models you open will appear here.","Os modelos que abrir aparecerão aqui.","Los modelos que abra aparecerán aquí."],
+  // maquettes récentes (Revit / IFC)
+  ["✕ Fermer","✕ Close","✕ Fechar","✕ Cerrar"],
+  ["Fermer cette maquette (elle reste dans les fichiers récents)","Close this model (it stays in the recent files)","Fechar este modelo (fica nos ficheiros recentes)","Cerrar este modelo (permanece en los archivos recientes)"],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -2555,6 +2584,13 @@ addTr2([
   ["La version {v} s’installera toute seule au prochain lancement de Métrix.","Version {v} wird beim nächsten Start von Métrix automatisch installiert.","Versie {v} wordt vanzelf geïnstalleerd bij de volgende start van Métrix.","版本 {v} 将在下次启动 Métrix 时自动安装。","سيُثبَّت الإصدار {v} تلقائيًا عند التشغيل التالي لـ Métrix.","La versione {v} si installerà da sola al prossimo avvio di Métrix.","Версия {v} установится сама при следующем запуске Métrix."],
   ["La version {v} est installée : elle sera active au prochain lancement de Métrix.","Version {v} ist installiert: sie ist beim nächsten Start von Métrix aktiv.","Versie {v} is geïnstalleerd: deze is actief bij de volgende start van Métrix.","版本 {v} 已安装：将在下次启动 Métrix 时生效。","تم تثبيت الإصدار {v}: سيكون نشطًا عند التشغيل التالي لـ Métrix.","La versione {v} è installata: sarà attiva al prossimo avvio di Métrix.","Версия {v} установлена: она заработает при следующем запуске Métrix."],
   ["Métrix a été mis à jour en version {v}.","Métrix wurde auf Version {v} aktualisiert.","Métrix is bijgewerkt naar versie {v}.","Métrix 已更新到版本 {v}。","تم تحديث Métrix إلى الإصدار {v}.","Métrix è stato aggiornato alla versione {v}.","Métrix обновлён до версии {v}."],
+  ["Fichiers récents","Zuletzt geöffnet","Recente bestanden","最近的文件","الملفات الأخيرة","File recenti","Недавние файлы"],
+  ["{n} éléments","{n} Elemente","{n} elementen","{n} 个构件","{n} عنصر","{n} elementi","Элементов: {n}"],
+  ["Maquette introuvable","Modell nicht gefunden","Model niet gevonden","找不到模型","النموذج غير موجود","Modello non trovato","Модель не найдена"],
+  ["n’est plus disponible (déplacée, renommée ou supprimée). Ouvrez-la de nouveau.","ist nicht mehr verfügbar (verschoben, umbenannt oder gelöscht). Öffnen Sie es erneut.","is niet meer beschikbaar (verplaatst, hernoemd of verwijderd). Open het opnieuw.","已不可用（已移动、重命名或删除）。请重新打开。","لم يعد متاحًا (نُقل أو أُعيدت تسميته أو حُذف). افتحه من جديد.","non è più disponibile (spostato, rinominato o eliminato). Aprilo di nuovo.","больше недоступна (перемещена, переименована или удалена). Откройте её снова."],
+  ["Les maquettes que vous ouvrez apparaîtront ici.","Die Modelle, die Sie öffnen, erscheinen hier.","De modellen die u opent, verschijnen hier.","您打开的模型将显示在这里。","ستظهر هنا النماذج التي تفتحها.","I modelli che apri appariranno qui.","Открытые вами модели появятся здесь."],
+  ["✕ Fermer","✕ Schließen","✕ Sluiten","✕ 关闭","✕ إغلاق","✕ Chiudi","✕ Закрыть"],
+  ["Fermer cette maquette (elle reste dans les fichiers récents)","Dieses Modell schließen (es bleibt in den zuletzt geöffneten Dateien)","Dit model sluiten (het blijft in de recente bestanden)","关闭此模型（仍保留在最近的文件中）","إغلاق هذا النموذج (يبقى في الملفات الأخيرة)","Chiudi questo modello (resta nei file recenti)","Закрыть эту модель (она останется в недавних файлах)"],
 ]);
 // --- fin des langues ajoutées ---
 
@@ -2711,14 +2747,14 @@ function nativeCall(msg) {
     setTimeout(poll, 50);
   });
 }
-function readNativeFile(kind, path, name, src) {
+function readNativeFile(kind, path, name, src, info) {
   const x = new XMLHttpRequest();
   x.open('GET', fileUrl(path));
   x.responseType = 'blob';
   x.onload = () => {
     const type = /\.pdf$/i.test(name) ? 'application/pdf' : /\.json$/i.test(name) ? 'application/json' : '';
     const f = new File([x.response], name, { type: type || x.response.type });
-    kind === 'ifc' ? ifcOpenFile(f) : kind === 'load' ? loadProject(f) : openFile(f, src || path);   // ancienne appli Mac : la copie temporaire sert d'emplacement
+    kind === 'ifc' ? ifcOpenFile(f, { src: src || null, ...info }) : kind === 'load' ? loadProject(f) : openFile(f, src || path);   // ancienne appli Mac : la copie temporaire sert d'emplacement
   };
   x.onerror = () => notify('Impossible de lire le fichier « ' + name + ' ».');
   x.timeout = 60000; x.ontimeout = () => notify('Le fichier « ' + name + ' » met trop de temps à s\'ouvrir. Réessayez, ou glissez-le directement sur la fenêtre.');
@@ -4481,6 +4517,9 @@ function renderIfc() {
   $('ifcSearch').hidden = !M;
   $('ifcCmpLbl').hidden = !M;
   $('ifcXlsBtn').hidden = !M;
+  $('ifcCur').hidden = !M;
+  $('ifcRecent').hidden = !!M;   // fichiers récents : seulement quand aucune maquette n'est ouverte
+  if (!M) renderIfcRecent();
   ifcPlanSetup();
   renderIfcTree(); renderIfcMain();
   requestAnimationFrame(() => { if (!ifcView) ifcFit(); ifcDraw(); });
@@ -4581,7 +4620,78 @@ function renderIfcMain() {
     copyText(rows.map(r => r.join('\t')).join('\r\n') + '\r\n'); toast(trText('Tableau copié : collez-le dans Excel.'));
   };
 }
-async function ifcOpenFile(f) {
+/* ---------- maquettes récentes (onglet Revit / IFC) ----------
+   Une copie de l'IFC est gardée dans la base locale (IndexedDB) pour la rouvrir d'un clic, même après une
+   conversion Revit. Appli Mac : si la copie manque, on rouvre le fichier à son emplacement d'origine
+   (un .rvt est alors converti de nouveau). */
+const IFC_REC_MAX = 8;
+const ifcRecList = () => { try { const l = JSON.parse(localStorage.getItem('metrix:ifcRecents')); return Array.isArray(l) ? l : []; } catch { return []; } };
+const ifcRecSave = l => { try { localStorage.setItem('metrix:ifcRecents', JSON.stringify(l)); } catch {} };
+async function ifcRecAdd(f, info) {
+  const key = 'ifc:' + (info.rvt || f.name) + ':' + f.size;
+  const l = ifcRecList().filter(r => r.key !== key);
+  const old = ifcRecList().find(r => r.key === key);
+  l.unshift({ key, name: f.name, rvt: info.rvt || null, size: f.size, date: Date.now(), n: ifcModel ? ifcModel.elements.length : 0,
+    src: info.src || (old && old.src) || null, stored: !!(old && old.stored) });
+  const gone = l.splice(IFC_REC_MAX);
+  ifcRecSave(l); renderIfcRecent(key);
+  try { for (const r of gone) await recentDbDo('readwrite', s => s.delete(r.key)); } catch {}
+  if (info.fromRec && old && old.stored) return;
+  if (f.size < 300e6) try {
+    await recentDbDo('readwrite', s => s.put(f, key));
+    const m = ifcRecList(), r = m.find(x => x.key === key); if (r) { r.stored = true; ifcRecSave(m); }
+  } catch {}
+}
+function ifcRecRemove(key) {
+  ifcRecSave(ifcRecList().filter(r => r.key !== key)); renderIfcRecent();
+  recentDbDo('readwrite', s => s.delete(key)).catch(() => {});
+}
+async function ifcRecOpen(key) {
+  const r = ifcRecList().find(x => x.key === key); if (!r) return;
+  if (ifcModel && ifcModel.recKey === key) return;
+  try { const b = await recentDbDo('readonly', s => s.get(key)); if (b) return ifcOpenFile(new File([b], r.name), { rvt: r.rvt, src: r.src, fromRec: true }); } catch {}
+  if (NATIVE && r.src) {
+    const res = await nativeCall({ cmd: 'openPath', kind: /\.rvt$|\.rfa$/i.test(r.src) ? 'rvt' : 'ifc', path: r.src });
+    if (res.path) {
+      if (/\.ifc$/i.test(res.name)) return readNativeFile('ifc', res.path, res.name, r.src, { rvt: r.rvt });
+      if (rvtCan() && rvtCfg().exe) return rvtConvertPicked(res);
+    }
+  }
+  const nm = r.rvt || r.name;
+  dialog(trText('Maquette introuvable'), `<p style="margin:14px 16px;text-align:left">« ${esc(nm)} » ${esc(trText('n’est plus disponible (déplacée, renommée ou supprimée). Ouvrez-la de nouveau.'))}</p>`,
+    () => { ifcRecRemove(key); setTimeout(() => (r.rvt && NATIVE ? rvtImport() : $('ifcFile').click()), 0); });
+  $('dlgOk').textContent = trText('Choisir le fichier…');
+}
+function renderIfcRecent(curKey) {
+  const box = $('ifcRecentList'); if (!box) return;
+  const l = ifcRecList(), cur = curKey || (ifcModel && ifcModel.recKey);
+  $('ifcRecent').querySelector('summary').innerHTML = esc(trText('Fichiers récents')) + (l.length ? ` <b>(${l.length})</b>` : '');
+  box.innerHTML = l.length ? l.map(r => `<div class="rc-item${r.key === cur ? ' cur' : ''}" data-key="${esc(r.key)}" title="${esc(r.rvt ? r.rvt + ' → ' + r.name : r.name)}">
+      <div class="rc-thumb"><span${r.rvt ? ' class="rvt"' : ''}>${r.rvt ? 'RVT' : 'IFC'}</span></div>
+      <div class="rc-txt"><b>${esc(r.rvt || r.name)}</b><small>${recentWhen(r.date)}${r.n ? ' · ' + trText(`${r.n} éléments`) : ''}</small></div>
+      <button class="rc-x" title="${esc(trText('Retirer de la liste'))}">✕</button></div>`).join('')
+      + `<button class="rc-clear" id="ifcRecentClear">${esc(trText('Effacer la liste'))}</button>`
+    : `<div class="rc-empty">${esc(trText('Les maquettes que vous ouvrez apparaîtront ici.'))}</div>`;
+  box.querySelectorAll('.rc-item').forEach(el => {
+    el.onclick = () => ifcRecOpen(el.dataset.key);
+    el.querySelector('.rc-x').onclick = e => { e.stopPropagation(); ifcRecRemove(el.dataset.key); };
+  });
+  if ($('ifcRecentClear')) $('ifcRecentClear').onclick = () => { for (const r of ifcRecList()) ifcRecRemove(r.key); };
+}
+(() => {
+  const d = $('ifcRecent');
+  d.open = localStorage.getItem('metrix:ifcRecOpen') !== '0';
+  d.addEventListener('toggle', () => { try { localStorage.setItem('metrix:ifcRecOpen', d.open ? '1' : '0'); } catch {} });
+  renderIfcRecent();
+})();
+function ifcClose() {   // ferme la maquette en cours (elle reste dans les fichiers récents)
+  if (!ifcModel) return;
+  ifcModel = null; ifcSel = null; ifcHot = null; ifcHover = null; ifcView = null; ifcOpenCats.clear();
+  $('ifcLevel').value = ''; $('ifcSearch').value = '';
+  renderIfc();
+}
+$('ifcCloseBtn').onclick = ifcClose;
+async function ifcOpenFile(f, info = {}) {
   if (!f) return;
   showTab('ifc');
   if (/\.rvt$/i.test(f.name)) {
@@ -4597,8 +4707,11 @@ async function ifcOpenFile(f) {
     ifcModel = ifcBuild(M, f.name, f.size); ifcSel = null; ifcHot = null; ifcHover = null; ifcView = null; ifcOpenCats.clear();
     try { ifcGeom(ifcModel, M); } catch (err) { console.error(err); }
     $('ifcLevel').value = ''; $('ifcSearch').value = '';
+    if (info.rvt) ifcModel.fromRvt = { name: info.rvt, warn: info.warn };
+    ifcModel.recKey = 'ifc:' + (info.rvt || f.name) + ':' + f.size;
     renderIfc();
     toast(trText(`${ifcModel.elements.length} éléments trouvés`));
+    ifcRecAdd(f, info);
   } catch (err) {
     console.error(err);
     $('ifcMain').innerHTML = `<div class="ifc-main"><div class="card warn"><p class="hint" style="margin:0">${esc(trText('Ce fichier n’est pas une maquette IFC lisible.'))}</p></div>${ifcHelp(false)}</div>`;
@@ -5622,11 +5735,11 @@ async function rvtConvertPicked(pick, c = rvtCfg()) {
     rvtShowError(res.err, res.vars, r.log, r.logSaved); return res;
   }
   const stem = pick.name.replace(/\.(rvt|rfa)$/i, '');
-  if (c.keep) { const k = await nativeCall({ cmd: 'keepCopy', from: res.ifc, src: pick.src, name: stem + '.ifc' }); if (k.path && !k.error) toast(trText('IFC enregistré') + ' : ' + k.path); }
+  let kept = null;
+  if (c.keep) { const k = await nativeCall({ cmd: 'keepCopy', from: res.ifc, src: pick.src, name: stem + '.ifc' }); if (k.path && !k.error) { kept = k.path; toast(trText('IFC enregistré') + ' : ' + k.path); } }
   const x = new XMLHttpRequest(); x.open('GET', fileUrl(res.ifc)); x.responseType = 'blob';
   x.onload = async () => {
-    await ifcOpenFile(new File([x.response], stem + '.ifc'));
-    if (ifcModel) ifcModel.fromRvt = { name: pick.name, warn: res.warn };
+    await ifcOpenFile(new File([x.response], stem + '.ifc'), { rvt: pick.name, warn: res.warn, src: kept || pick.src || null });
     if (res.warn) toast(rvtText(res.warn));
     nativeCall({ cmd: 'removeWork', path: work });
   };
@@ -5636,7 +5749,7 @@ async function rvtConvertPicked(pick, c = rvtCfg()) {
 }
 $('rvtImportBtn').onclick = rvtImport;
 // accès pour les tests automatiques
-window.__metrixRvt = { rvtCommand, rvtClassify, rvtWinPath, rvtEngineOf, rvtText, rvtConvertPicked, rvtCfg, rvtSaveCfg, ifcCompareRows: (...a) => ifcCompareRows(...a), model: () => ifcModel, xlsxB64: () => { const d = xlsxBuild(ifcXlsxSheets(ifcModel)); let b = ''; for (let i = 0; i < d.length; i += 0x8000) b += String.fromCharCode.apply(null, d.subarray(i, i + 0x8000)); return btoa(b); }, pick3d: (x, y) => { const e = ifc3dPick(x, y); return e ? e.des : null; }, ifcParse: t => ifcParse(t), ifcBuild: (M, n) => ifcBuild(M, n, 0) };
+window.__metrixRvt = { rvtCommand, rvtClassify, rvtWinPath, rvtEngineOf, rvtText, rvtConvertPicked, rvtCfg, rvtSaveCfg, ifcCompareRows: (...a) => ifcCompareRows(...a), model: () => ifcModel, xlsxB64: () => { const d = xlsxBuild(ifcXlsxSheets(ifcModel)); let b = ''; for (let i = 0; i < d.length; i += 0x8000) b += String.fromCharCode.apply(null, d.subarray(i, i + 0x8000)); return btoa(b); }, pick3d: (x, y) => { const e = ifc3dPick(x, y); return e ? e.des : null; }, ifcParse: t => ifcParse(t), ifcBuild: (M, n) => ifcBuild(M, n, 0), ifcRecList, ifcRecOpen, ifcRecRemove, ifcClose };
 
 // Paramètres → Revit (.rvt)
 function rvtGoSettings() { const cards = [...document.querySelectorAll('#settings .set-card')], i = cards.indexOf($('setRvtCard')); if (i >= 0 && setSection) setSection(i); }
