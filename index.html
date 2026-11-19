@@ -786,6 +786,8 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
   }
   requestAnimationFrame(tick);
   setTimeout(hide, 5000);
+  // rechargement juste après une mise à jour automatique : pas de second écran de chargement
+  try { var k = +localStorage.getItem('metrix:skipSplash') || 0; if (k) { localStorage.removeItem('metrix:skipSplash'); if (Date.now() - k < 20000) { s.style.transition = 'none'; hide(); } } } catch (e) {}
 })();
 </script>
 <!-- lecteur PDF (chargé après l'écran de chargement, pour qu'il s'affiche tout de suite) -->
@@ -1159,7 +1161,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.15';
+const METRIX_VERSION = '3.16';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -7179,13 +7181,14 @@ async function autoUpdate() {
     const r = await nativeCall({ cmd: 'updateFromUrl', url: new URL(m.file, url).href, current: METRIX_VERSION });
     if (r.error || !r.version) return;
     try { localStorage.setItem('metrix:updNotes', m.notes || ''); } catch {}
-    if (!docs.length && !ifcModel && Date.now() - UPD_T0 < 30000) NATIVE.postMessage({ cmd: 'reload' });
+    if (!docs.length && !ifcModel && Date.now() - UPD_T0 < 30000) { try { localStorage.setItem('metrix:skipSplash', String(Date.now())); } catch {} NATIVE.postMessage({ cmd: 'reload' }); }
     else toast(trText(`La version ${r.version} est installée : elle sera active au prochain lancement de Métrix.`));
   } catch {}
 }
 (() => {
   if (IS_WEB || !updAuto() || !updUrl().trim()) return;
-  if (NATIVE) { setTimeout(autoUpdate, 200); return; }
+  // appli Mac : vérification après l'écran de chargement (l'appli est bloquée pendant le téléchargement : l'animation se figerait)
+  if (NATIVE) { setTimeout(autoUpdate, 5300); return; }
   let last = 0; try { last = +localStorage.getItem('metrix:updateLast') || 0; } catch {}
   if (WIN_LAUNCHER2 || Date.now() - last > 20 * 3600e3) setTimeout(() => checkUpdates(true), 6000);
 })();
