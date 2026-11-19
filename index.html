@@ -1031,7 +1031,7 @@
       <p class="hint" id="updStatus" style="margin:10px 0 0"></p>
       <div class="upd-net">
         <div class="row2"><label for="updUrlIn">Adresse des mises à jour</label><input id="updUrlIn" spellcheck="false" placeholder="https://…/metrix-update.json"></div>
-        <label class="upd-auto"><input type="checkbox" id="updAutoIn"> Vérifier automatiquement au démarrage (une fois par jour)</label>
+        <label class="upd-auto"><input type="checkbox" id="updAutoIn"> Mettre à jour automatiquement au lancement</label>
       </div>
     </div>
 
@@ -1124,7 +1124,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.9';
+const METRIX_VERSION = '3.10';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -1865,6 +1865,12 @@ addTr([
   ["Maquette","Model","Modelo","Modelo"],
   ["Date","Date","Data","Fecha"],
   ["métrés","quantities","medições","mediciones"],
+  // mises à jour automatiques
+  ["Mettre à jour automatiquement au lancement","Update automatically at startup","Atualizar automaticamente ao iniciar","Actualizar automáticamente al iniciar"],
+  ["Métrix se met à jour tout seul à chaque lancement (avec une connexion internet) : rien à faire. Vos métrés, ouvrages et réglages sont conservés.","Métrix updates itself every time it starts (with an internet connection): nothing to do. Your takeoffs, assemblies and settings are kept.","O Métrix atualiza-se sozinho a cada arranque (com ligação à internet): nada a fazer. As suas medições, elementos e definições são mantidos.","Métrix se actualiza solo en cada inicio (con conexión a internet): nada que hacer. Sus mediciones, unidades y ajustes se conservan."],
+  ["La version {v} s’installera toute seule au prochain lancement de Métrix.","Version {v} will install itself the next time Métrix starts.","A versão {v} será instalada sozinha no próximo arranque do Métrix.","La versión {v} se instalará sola la próxima vez que se inicie Métrix."],
+  ["La version {v} est installée : elle sera active au prochain lancement de Métrix.","Version {v} is installed: it will be active the next time Métrix starts.","A versão {v} está instalada: ficará ativa no próximo arranque do Métrix.","La versión {v} está instalada: estará activa la próxima vez que se inicie Métrix."],
+  ["Métrix a été mis à jour en version {v}.","Métrix has been updated to version {v}.","O Métrix foi atualizado para a versão {v}.","Métrix se ha actualizado a la versión {v}."],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -2544,6 +2550,11 @@ addTr2([
   ["Maquette","Modell","Model","模型","النموذج","Modello","Модель"],
   ["Date","Datum","Datum","日期","التاريخ","Data","Дата"],
   ["métrés","Mengen","hoeveelheden","工程量","الكميات","quantità","объёмы"],
+  ["Mettre à jour automatiquement au lancement","Beim Start automatisch aktualisieren","Automatisch bijwerken bij het opstarten","启动时自动更新","التحديث تلقائيًا عند التشغيل","Aggiorna automaticamente all'avvio","Обновлять автоматически при запуске"],
+  ["Métrix se met à jour tout seul à chaque lancement (avec une connexion internet) : rien à faire. Vos métrés, ouvrages et réglages sont conservés.","Métrix aktualisiert sich bei jedem Start selbst (mit Internetverbindung): nichts zu tun. Ihre Aufmaße, Bauteile und Einstellungen bleiben erhalten.","Métrix werkt zichzelf bij bij elke start (met internetverbinding): niets te doen. Uw metingen, bouwdelen en instellingen blijven behouden.","Métrix 每次启动时自动更新（需联网）：无需任何操作。您的测量、构件和设置都会保留。","يحدّث Métrix نفسه عند كل تشغيل (مع اتصال بالإنترنت): لا شيء تفعله. تُحفظ قياساتك وعناصرك وإعداداتك.","Métrix si aggiorna da solo a ogni avvio (con connessione internet): niente da fare. Misure, elementi e impostazioni vengono conservati.","Métrix обновляется сам при каждом запуске (при подключении к интернету): ничего делать не нужно. Ваши замеры, конструкции и настройки сохраняются."],
+  ["La version {v} s’installera toute seule au prochain lancement de Métrix.","Version {v} wird beim nächsten Start von Métrix automatisch installiert.","Versie {v} wordt vanzelf geïnstalleerd bij de volgende start van Métrix.","版本 {v} 将在下次启动 Métrix 时自动安装。","سيُثبَّت الإصدار {v} تلقائيًا عند التشغيل التالي لـ Métrix.","La versione {v} si installerà da sola al prossimo avvio di Métrix.","Версия {v} установится сама при следующем запуске Métrix."],
+  ["La version {v} est installée : elle sera active au prochain lancement de Métrix.","Version {v} ist installiert: sie ist beim nächsten Start von Métrix aktiv.","Versie {v} is geïnstalleerd: deze is actief bij de volgende start van Métrix.","版本 {v} 已安装：将在下次启动 Métrix 时生效。","تم تثبيت الإصدار {v}: سيكون نشطًا عند التشغيل التالي لـ Métrix.","La versione {v} è installata: sarà attiva al prossimo avvio di Métrix.","Версия {v} установлена: она заработает при следующем запуске Métrix."],
+  ["Métrix a été mis à jour en version {v}.","Métrix wurde auf Version {v} aktualisiert.","Métrix is bijgewerkt naar versie {v}.","Métrix 已更新到版本 {v}。","تم تحديث Métrix إلى الإصدار {v}.","Métrix è stato aggiornato alla versione {v}.","Métrix обновлён до версии {v}."],
 ]);
 // --- fin des langues ajoutées ---
 
@@ -5883,7 +5894,8 @@ function renderSettings() {
   $('updUrlIn').value = updUrl(); $('updAutoIn').checked = updAuto(); renderUpdState(); renderRvtSettings();
   $('setVersion').textContent = 'Version installée : ' + METRIX_VERSION;
   if (IS_WEB) { $('updHint').textContent = 'Version en ligne : Métrix se met à jour tout seul à chaque ouverture (avec une connexion internet). Il fonctionne aussi hors connexion.'; document.querySelector('.upd-actions').style.display = 'none'; document.querySelector('.upd-net').style.display = 'none'; $('updStatus').hidden = true; }
-  if (!NATIVE && !IS_WEB) $('updHint').textContent = 'Sur Windows, extrayez le zip de mise à jour (Metrix-mise-a-jour-….zip) puis double-cliquez sur « Mettre a jour Metrix » : il met Métrix à jour tout seul. Vos métrés, ouvrages et réglages sont conservés.';
+  if (NATIVE) $('updHint').textContent = 'Métrix se met à jour tout seul à chaque lancement (avec une connexion internet) : rien à faire. Vos métrés, ouvrages et réglages sont conservés.';
+  if (!NATIVE && !IS_WEB) $('updHint').textContent = WIN_LAUNCHER2 ? 'Métrix se met à jour tout seul à chaque lancement (avec une connexion internet) : rien à faire. Vos métrés, ouvrages et réglages sont conservés.' : 'Sur Windows, extrayez le zip de mise à jour (Metrix-mise-a-jour-….zip) puis double-cliquez sur « Mettre a jour Metrix » : il met Métrix à jour tout seul. Vos métrés, ouvrages et réglages sont conservés.';
   document.querySelectorAll('.lang-opt').forEach(b => b.classList.toggle('on', b.dataset.lang === LANG));
   let t = null; try { t = localStorage.getItem('metrix:theme'); } catch {}
   const theme = t === 'dark' || t === 'light' ? t : 'auto';
@@ -6768,6 +6780,7 @@ const DEFAULT_UPDATE_URL = 'https://raw.githubusercontent.com/matteooliveira17-p
 const updUrl = () => { try { const v = localStorage.getItem('metrix:updateUrl'); return v !== null ? v : DEFAULT_UPDATE_URL; } catch { return DEFAULT_UPDATE_URL; } };
 const updAuto = () => { try { return localStorage.getItem('metrix:updateAuto') !== '0'; } catch { return true; } };
 let updState = null;   // { checking } | { error } | { latest, notes, fileUrl, newer }
+const WIN_LAUNCHER2 = /[?&]l=2(&|$)/.test(location.search);   // Windows : Métrix ouvert par le lanceur qui se met à jour tout seul
 function cmpVersions(a, b) {
   const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number);
   for (let i = 0; i < Math.max(x.length, y.length); i++) { const d = (x[i] || 0) - (y[i] || 0); if (d) return d; }
@@ -6803,6 +6816,7 @@ async function checkUpdates(silent) {
 }
 function offerUpdate() {
   const u = updState;
+  if (!NATIVE && WIN_LAUNCHER2) { toast(trText(`La version ${u.latest} s’installera toute seule au prochain lancement de Métrix.`)); return; }
   dialog('Mise à jour disponible', `<p style="margin:14px 16px 6px;text-align:left">La version ${esc(u.latest)} de Métrix est disponible (vous avez la version ${esc(METRIX_VERSION)}).</p>`
     + (u.notes ? `<p style="margin:0 16px 10px;text-align:left;color:var(--muted)">${esc(u.notes)}</p>` : ''),
     () => { setTimeout(downloadAndInstall, 0); });
@@ -6877,10 +6891,36 @@ document.documentElement.lang = LANG;
 relabelDefaults(); translateNode(document.body); updateHelp();
 updateRecentPane();   // aucun plan au lancement : « Plans récents »
 H.lib = JSON.stringify(library); H.undo.length = 0; H.redo.length = 0; histUi();
-// recherche automatique des mises à jour (si une adresse est réglée), au plus une fois toutes les 20 h
+// mise à jour automatique au lancement
+//  - Mac : l'appli télécharge et installe la nouvelle version pendant l'écran de chargement, puis Métrix redémarre
+//    tout seul dessus (si l'utilisateur a déjà commencé à travailler, elle sera active au prochain lancement) ;
+//  - Windows : le lanceur (app\lancer.ps1) installe la mise à jour avant d'ouvrir Métrix ;
+//  - version en ligne (iPhone, iPad) : toujours la dernière version.
+const UPD_T0 = Date.now();
+async function autoUpdate() {
+  try {
+    const url = updUrl().trim(), m = await fetchManifest(url);
+    try { localStorage.setItem('metrix:updateLast', String(Date.now())); } catch {}
+    if (!m || m.app !== 'Métrix' || !m.version || !m.file || cmpVersions(m.version, METRIX_VERSION) <= 0) return;
+    const r = await nativeCall({ cmd: 'updateFromUrl', url: new URL(m.file, url).href, current: METRIX_VERSION });
+    if (r.error || !r.version) return;
+    try { localStorage.setItem('metrix:updNotes', m.notes || ''); } catch {}
+    if (!docs.length && !ifcModel && Date.now() - UPD_T0 < 30000) NATIVE.postMessage({ cmd: 'reload' });
+    else toast(trText(`La version ${r.version} est installée : elle sera active au prochain lancement de Métrix.`));
+  } catch {}
+}
 (() => {
+  if (IS_WEB || !updAuto() || !updUrl().trim()) return;
+  if (NATIVE) { setTimeout(autoUpdate, 200); return; }
   let last = 0; try { last = +localStorage.getItem('metrix:updateLast') || 0; } catch {}
-  if (!IS_WEB && updAuto() && updUrl().trim() && Date.now() - last > 20 * 3600e3) setTimeout(() => checkUpdates(true), 4000);
+  if (WIN_LAUNCHER2 || Date.now() - last > 20 * 3600e3) setTimeout(() => checkUpdates(true), 6000);
+})();
+// après une mise à jour : petit message « Métrix a été mis à jour »
+(() => {
+  let prev = null; try { prev = localStorage.getItem('metrix:lastVersion'); localStorage.setItem('metrix:lastVersion', METRIX_VERSION); } catch {}
+  if (!prev || cmpVersions(METRIX_VERSION, prev) <= 0) return;
+  let notes = ''; try { notes = localStorage.getItem('metrix:updNotes') || ''; localStorage.removeItem('metrix:updNotes'); } catch {}
+  setTimeout(() => toast(trText(`Métrix a été mis à jour en version ${METRIX_VERSION}.`) + (notes ? ' ' + notes : '')), 5600);
 })();
 })();
 </script>
