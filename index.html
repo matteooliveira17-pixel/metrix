@@ -283,6 +283,11 @@
   html.dark .rvt-form input:not([type=checkbox]), html.dark .rvt-form select { background:#15181d; border-color:#4a5260; }
   html.dark .rvt-log { background:#15181d; border-color:#3a414c; }
   html.dark .ifc-rvt { color:#8fb6ee; border-color:#8fb6ee; }
+  .ifc-rvt[hidden] { display:none; }
+  .ifc-xls { color:#107c41; border-color:#107c41; }
+  .ifc-xls:hover { background:rgba(16,124,65,.08); }
+  .ifc-xls svg { width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; }
+  html.dark .ifc-xls { color:#5fd08f; border-color:#5fd08f; }
   .ifc-cmp { position:relative; overflow:hidden; display:block; text-align:center; font-size:12px; color:var(--blue); cursor:pointer; padding:2px 0; }
   .ifc-cmp:hover { text-decoration:underline; }
   .ifc-cmp[hidden] { display:none; }
@@ -942,6 +947,7 @@
     <div class="ifc-tools">
       <label class="ifc-open" id="ifcOpenLbl" title="Ouvrir une maquette IFC exportée de Revit (fichier .ifc)"><svg viewBox="0 0 16 16"><path d="M2 4.5V12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H8L6.5 3.5H3A1 1 0 0 0 2 4.5z"/></svg><span>Ouvrir un fichier IFC…</span><input id="ifcFile" type="file" accept=".ifc,.rvt"></label>
       <button class="ifc-rvt" id="rvtImportBtn" title="Convertir une maquette Revit (.rvt) en IFC avec le convertisseur DDC, puis l'ouvrir">Importer Revit (.rvt)…</button>
+      <button class="ifc-rvt ifc-xls" id="ifcXlsBtn" hidden title="Enregistrer tous les métrés de la maquette dans un classeur Excel : récapitulatif, par niveau, tous les éléments"><svg viewBox="0 0 16 16"><rect x="2.5" y="2" width="11" height="12" rx="1.5"/><path d="m5.5 5.5 5 5m0-5-5 5"/></svg>Exporter les métrés (Excel)</button>
       <label class="ifc-cmp" id="ifcCmpLbl" hidden title="Comparer les quantités de cette maquette avec un autre fichier IFC (par exemple l'export de Revit)">Comparer avec un autre IFC…<input id="ifcCmpFile" type="file" accept=".ifc"></label>
       <div class="ifc-file" id="ifcFileName"></div>
       <select id="ifcLevel" title="N'afficher que les éléments d'un niveau"></select>
@@ -1118,7 +1124,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.8';
+const METRIX_VERSION = '3.9';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -1846,6 +1852,19 @@ addTr([
   ["Glisser : tourner · clic droit ou Maj : déplacer · molette : zoom · clic : sélectionner","Drag: rotate · right-click or Shift: pan · wheel: zoom · click: select","Arrastar: rodar · clique direito ou Shift: mover · roda: zoom · clique: selecionar","Arrastrar: girar · clic derecho o Mayús: mover · rueda: zoom · clic: seleccionar"],
   ["Un doigt : tourner · deux doigts : zoom et déplacer · toucher : sélectionner","One finger: rotate · two fingers: zoom and pan · tap: select","Um dedo: rodar · dois dedos: zoom e mover · tocar: selecionar","Un dedo: girar · dos dedos: zoom y mover · tocar: seleccionar"],
   ["La vue 3D n’est pas disponible sur cet appareil.","The 3D view is not available on this device.","A vista 3D não está disponível neste dispositivo.","La vista 3D no está disponible en este dispositivo."],
+  // export Excel des métrés de la maquette
+  ["Exporter les métrés (Excel)","Export quantities (Excel)","Exportar medições (Excel)","Exportar mediciones (Excel)"],
+  ["Enregistrer tous les métrés de la maquette dans un classeur Excel : récapitulatif, par niveau, tous les éléments","Save all the model's quantities in an Excel workbook: summary, by level, all elements","Guardar todas as medições do modelo num livro Excel: resumo, por piso, todos os elementos","Guardar todas las mediciones del modelo en un libro de Excel: resumen, por nivel, todos los elementos"],
+  ["Classeur Excel enregistré","Excel workbook saved","Livro Excel guardado","Libro de Excel guardado"],
+  ["Pour enregistrer un classeur Excel, réinstallez Métrix à partir du fichier Metrix-Mac.zip (version complète).","To save an Excel workbook, reinstall Métrix from the Metrix-Mac.zip file (full version).","Para guardar um livro Excel, reinstale o Métrix a partir do ficheiro Metrix-Mac.zip (versão completa).","Para guardar un libro de Excel, reinstale Métrix desde el archivo Metrix-Mac.zip (versión completa)."],
+  ["Récapitulatif des métrés","Quantity summary","Resumo das medições","Resumen de mediciones"],
+  ["Métrés par niveau","Quantities by level","Medições por piso","Mediciones por nivel"],
+  ["Éléments de la maquette","Model elements","Elementos do modelo","Elementos del modelo"],
+  ["Récapitulatif","Summary","Resumo","Resumen"],
+  ["Par niveau","By level","Por piso","Por nivel"],
+  ["Maquette","Model","Modelo","Modelo"],
+  ["Date","Date","Data","Fecha"],
+  ["métrés","quantities","medições","mediciones"],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -1969,7 +1988,7 @@ addTr2([
   ["Enregistrer / Exporter","Speichern / Exportieren","Opslaan / Exporteren","保存 / 导出","حفظ / تصدير","Salva / Esporta","Сохранить / Экспорт"],
   ["Navigation","Navigation","Navigatie","导航","التنقل","Navigazione","Навигация"],
   ["Propriétés","Eigenschaften","Eigenschappen","属性","الخصائص","Proprietà","Свойства"],
-  ["Récapitulatif","Übersicht","Overzicht","汇总","الملخص","Riepilogo","Сводка"],
+  ["Récapitulatif","Übersicht","Overzicht","汇总","ملخص","Riepilogo","Сводка"],
   ["Groupes","Gruppen","Groepen","分组","المجموعات","Gruppi","Группы"],
   ["✕ Supprimer","✕ Löschen","✕ Verwijderen","✕ 删除","✕ حذف","✕ Elimina","✕ Удалить"],
   ["⊞ Déplier","⊞ Aufklappen","⊞ Uitklappen","⊞ 展开","⊞ توسيع","⊞ Espandi","⊞ Развернуть"],
@@ -2513,6 +2532,18 @@ addTr2([
   ["Glisser : tourner · clic droit ou Maj : déplacer · molette : zoom · clic : sélectionner","Ziehen: drehen · Rechtsklick oder Umschalt: verschieben · Mausrad: Zoom · Klick: auswählen","Slepen: draaien · rechtsklik of Shift: verschuiven · wiel: zoomen · klik: selecteren","拖动：旋转 · 右键或 Shift：平移 · 滚轮：缩放 · 单击：选择","السحب: تدوير · النقر الأيمن أو Shift: تحريك · العجلة: تكبير · النقر: تحديد","Trascina: ruota · clic destro o Maiusc: sposta · rotella: zoom · clic: seleziona","Перетаскивание: вращение · правый щелчок или Shift: сдвиг · колесо: масштаб · щелчок: выбор"],
   ["Un doigt : tourner · deux doigts : zoom et déplacer · toucher : sélectionner","Ein Finger: drehen · zwei Finger: Zoom und verschieben · Tippen: auswählen","Eén vinger: draaien · twee vingers: zoomen en verschuiven · tikken: selecteren","单指：旋转 · 双指：缩放和平移 · 轻点：选择","إصبع واحد: تدوير · إصبعان: تكبير وتحريك · اللمس: تحديد","Un dito: ruota · due dita: zoom e sposta · tocca: seleziona","Один палец: вращение · два пальца: масштаб и сдвиг · касание: выбор"],
   ["La vue 3D n’est pas disponible sur cet appareil.","Die 3D-Ansicht ist auf diesem Gerät nicht verfügbar.","De 3D-weergave is niet beschikbaar op dit apparaat.","此设备不支持三维视图。","العرض ثلاثي الأبعاد غير متاح على هذا الجهاز.","La vista 3D non è disponibile su questo dispositivo.","3D-вид недоступен на этом устройстве."],
+  ["Exporter les métrés (Excel)","Mengen exportieren (Excel)","Hoeveelheden exporteren (Excel)","导出工程量（Excel）","تصدير الكميات (Excel)","Esporta quantità (Excel)","Экспорт объёмов (Excel)"],
+  ["Enregistrer tous les métrés de la maquette dans un classeur Excel : récapitulatif, par niveau, tous les éléments","Alle Mengen des Modells in einer Excel-Arbeitsmappe speichern: Übersicht, nach Ebene, alle Elemente","Alle hoeveelheden van het model opslaan in een Excel-werkmap: overzicht, per niveau, alle elementen","将模型的所有工程量保存到 Excel 工作簿：汇总、按楼层、全部构件","حفظ كل كميات النموذج في مصنف Excel: ملخص، حسب المستوى، كل العناصر","Salva tutte le quantità del modello in una cartella Excel: riepilogo, per livello, tutti gli elementi","Сохранить все объёмы модели в книгу Excel: сводка, по уровням, все элементы"],
+  ["Classeur Excel enregistré","Excel-Arbeitsmappe gespeichert","Excel-werkmap opgeslagen","Excel 工作簿已保存","تم حفظ مصنف Excel","Cartella Excel salvata","Книга Excel сохранена"],
+  ["Pour enregistrer un classeur Excel, réinstallez Métrix à partir du fichier Metrix-Mac.zip (version complète).","Um eine Excel-Arbeitsmappe zu speichern, installieren Sie Métrix aus der Datei Metrix-Mac.zip neu (Vollversion).","Installeer Métrix opnieuw vanuit Metrix-Mac.zip (volledige versie) om een Excel-werkmap op te slaan.","要保存 Excel 工作簿，请使用 Metrix-Mac.zip（完整版）重新安装 Métrix。","لحفظ مصنف Excel، أعد تثبيت Métrix من ملف Metrix-Mac.zip (الإصدار الكامل).","Per salvare una cartella Excel, reinstalla Métrix dal file Metrix-Mac.zip (versione completa).","Чтобы сохранить книгу Excel, переустановите Métrix из файла Metrix-Mac.zip (полная версия)."],
+  ["Récapitulatif des métrés","Mengenübersicht","Overzicht van hoeveelheden","工程量汇总","ملخص الكميات","Riepilogo delle quantità","Сводка объёмов"],
+  ["Métrés par niveau","Mengen nach Ebene","Hoeveelheden per niveau","按楼层的工程量","الكميات حسب المستوى","Quantità per livello","Объёмы по уровням"],
+  ["Éléments de la maquette","Elemente des Modells","Elementen van het model","模型构件","عناصر النموذج","Elementi del modello","Элементы модели"],
+  ["Récapitulatif","Übersicht","Overzicht","汇总","ملخص","Riepilogo","Сводка"],
+  ["Par niveau","Nach Ebene","Per niveau","按楼层","حسب المستوى","Per livello","По уровням"],
+  ["Maquette","Modell","Model","模型","النموذج","Modello","Модель"],
+  ["Date","Datum","Datum","日期","التاريخ","Data","Дата"],
+  ["métrés","Mengen","hoeveelheden","工程量","الكميات","quantità","объёмы"],
 ]);
 // --- fin des langues ajoutées ---
 
@@ -4438,6 +4469,7 @@ function renderIfc() {
   if (M) { const cur = sel.value; sel.innerHTML = `<option value="">${esc(trText('Tous les niveaux'))}</option>` + M.levels.map(l => `<option${l === cur ? ' selected' : ''}>${esc(l)}</option>`).join(''); }
   $('ifcSearch').hidden = !M;
   $('ifcCmpLbl').hidden = !M;
+  $('ifcXlsBtn').hidden = !M;
   ifcPlanSetup();
   renderIfcTree(); renderIfcMain();
   requestAnimationFrame(() => { if (!ifcView) ifcFit(); ifcDraw(); });
@@ -5509,6 +5541,7 @@ const RVT_MSG = {
   noOutput: 'La conversion s’est terminée sans produire de fichier IFC.',
   failed: 'La conversion a échoué (code {code}). Consultez le journal.',
   ifcBad: 'Ce fichier n’est pas une maquette IFC lisible.',
+  oldAppXlsx: 'Pour enregistrer un classeur Excel, réinstallez Métrix à partir du fichier Metrix-Mac.zip (version complète).',
   partial: 'Maquette convertie avec des remarques : certains éléments peuvent manquer (voir le journal).',
   oldApp: 'Cette version de l’appli Mac ne sait pas lancer de convertisseur. Réinstallez Métrix à partir du fichier Metrix-Mac.zip (version complète).',
   noNative: 'La conversion Revit fonctionne dans l’appli Mac et, sur Windows, avec « Convertir Revit » dans le dossier de Métrix. Elle n’est pas possible sur iPhone, iPad ni dans la version en ligne.',
@@ -5592,7 +5625,7 @@ async function rvtConvertPicked(pick, c = rvtCfg()) {
 }
 $('rvtImportBtn').onclick = rvtImport;
 // accès pour les tests automatiques
-window.__metrixRvt = { rvtCommand, rvtClassify, rvtWinPath, rvtEngineOf, rvtText, rvtConvertPicked, rvtCfg, rvtSaveCfg, ifcCompareRows: (...a) => ifcCompareRows(...a), model: () => ifcModel, pick3d: (x, y) => { const e = ifc3dPick(x, y); return e ? e.des : null; }, ifcParse: t => ifcParse(t), ifcBuild: (M, n) => ifcBuild(M, n, 0) };
+window.__metrixRvt = { rvtCommand, rvtClassify, rvtWinPath, rvtEngineOf, rvtText, rvtConvertPicked, rvtCfg, rvtSaveCfg, ifcCompareRows: (...a) => ifcCompareRows(...a), model: () => ifcModel, xlsxB64: () => { const d = xlsxBuild(ifcXlsxSheets(ifcModel)); let b = ''; for (let i = 0; i < d.length; i += 0x8000) b += String.fromCharCode.apply(null, d.subarray(i, i + 0x8000)); return btoa(b); }, pick3d: (x, y) => { const e = ifc3dPick(x, y); return e ? e.des : null; }, ifcParse: t => ifcParse(t), ifcBuild: (M, n) => ifcBuild(M, n, 0) };
 
 // Paramètres → Revit (.rvt)
 function rvtGoSettings() { const cards = [...document.querySelectorAll('#settings .set-card')], i = cards.indexOf($('setRvtCard')); if (i >= 0 && setSection) setSection(i); }
@@ -5723,6 +5756,122 @@ async function ifcCompareFile(f) {
     ifcCompareView(ifcBuild(M, f.name, f.size));
   } catch (err) { console.error(err); rvtShowError('ifcBad'); }
 }
+/* ---------- export Excel (.xlsx) des métrés de la maquette ---------- */
+// Petit écrivain de classeur .xlsx (zip non compressé + XML) : rien à installer, fonctionne hors connexion.
+// sheets : [{ name, cols: [largeur…], rows: [[cellule…]…], header: n° de la ligne d'en-tête }]
+// cellule : texte, nombre, null, ou { v, s } (s : 1 gras, 2 nombre 0,00, 3 entier, 4 en-tête, 5 gras 0,00, 6 gras entier, 7 titre)
+function xlsxBuild(sheets) {
+  const enc = new TextEncoder(), esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '');
+  const col = i => { let s = ''; i++; while (i) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = (i - m - 1) / 26; } return s; };
+  const files = {};
+  files['[Content_Types].xml'] = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
+    + sheets.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('') + '</Types>';
+  files['_rels/.rels'] = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>';
+  files['xl/workbook.xml'] = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>'
+    + sheets.map((s, i) => `<sheet name="${esc(s.name.replace(/[\[\]:*?\/\\]/g, ' ').slice(0, 31))}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('') + '</sheets>'
+    + '</workbook>';
+  files['xl/_rels/workbook.xml.rels'] = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    + sheets.map((_, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('')
+    + `<Relationship Id="rId${sheets.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
+  files['xl/styles.xml'] = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+    + '<numFmts count="1"><numFmt numFmtId="164" formatCode="#,##0.00"/></numFmts>'
+    + '<fonts count="4"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font><font><b/><sz val="14"/><color rgb="FF2B579A"/><name val="Calibri"/></font></fonts>'
+    + '<fills count="4"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2B579A"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFE8EEF7"/></patternFill></fill></fills>'
+    + '<borders count="2"><border/><border><bottom style="thin"><color rgb="FFB4BCC8"/></bottom></border></borders><cellStyleXfs count="1"><xf/></cellStyleXfs><cellXfs count="8">'
+    + '<xf/>'                                                                                    // 0 normal
+    + '<xf fontId="1" applyFont="1"/>'                                                           // 1 gras
+    + '<xf numFmtId="164" applyNumberFormat="1"/>'                                               // 2 nombre 0,00
+    + '<xf numFmtId="3" applyNumberFormat="1"/>'                                                 // 3 entier
+    + '<xf fontId="2" fillId="2" borderId="1" applyFont="1" applyFill="1" applyBorder="1"><alignment wrapText="1" vertical="center"/></xf>'   // 4 en-tête
+    + '<xf fontId="1" fillId="3" numFmtId="164" applyFont="1" applyFill="1" applyNumberFormat="1"/>'   // 5 sous-total 0,00
+    + '<xf fontId="1" fillId="3" numFmtId="3" applyFont="1" applyFill="1" applyNumberFormat="1"/>'     // 6 sous-total entier
+    + '<xf fontId="3" applyFont="1"/>'                                                           // 7 titre
+    + '</cellXfs></styleSheet>';
+  sheets.forEach((sh, i) => {
+    const rows = sh.rows.map((r, ri) => `<row r="${ri + 1}">` + r.map((c, ci) => {
+      if (c == null || c === '') return '';
+      const v = typeof c === 'object' ? c.v : c, st = typeof c === 'object' && c.s ? ` s="${c.s}"` : (typeof v === 'number' ? ' s="2"' : '');
+      if (v == null || v === '') return st ? `<c r="${col(ci)}${ri + 1}"${st}/>` : '';
+      return typeof v === 'number' && Number.isFinite(v) ? `<c r="${col(ci)}${ri + 1}"${st}><v>${v}</v></c>` : `<c r="${col(ci)}${ri + 1}"${st} t="inlineStr"><is><t xml:space="preserve">${esc(v)}</t></is></c>`;
+    }).join('') + '</row>').join('');
+    const pane = sh.header != null ? `<sheetViews><sheetView workbookViewId="0"><pane ySplit="${sh.header + 1}" topLeftCell="A${sh.header + 2}" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>` : '';
+    const cols = sh.cols ? '<cols>' + sh.cols.map((w, k) => `<col min="${k + 1}" max="${k + 1}" width="${w}" customWidth="1"/>`).join('') + '</cols>' : '';
+    const ncol = Math.max(1, ...sh.rows.map(r => r.length));
+    const filt = sh.header != null && sh.rows.length > sh.header + 1 ? `<autoFilter ref="A${sh.header + 1}:${col(ncol - 1)}${sh.rows.length}"/>` : '';
+    files[`xl/worksheets/sheet${i + 1}.xml`] = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' + pane + cols + '<sheetData>' + rows + '</sheetData>' + filt + '</worksheet>';
+  });
+  // archive zip (fichiers stockés sans compression)
+  const crcT = xlsxBuild.crc || (xlsxBuild.crc = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })());
+  const crc = d => { let c = 0xFFFFFFFF; for (let i = 0; i < d.length; i++) c = crcT[(c ^ d[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+  const parts = [], central = []; let off = 0;
+  const now = new Date(), dt = ((now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1)) & 0xFFFF, dd = (((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate()) & 0xFFFF;
+  for (const [name, text] of Object.entries(files)) {
+    const nb = enc.encode(name), data = enc.encode(text), c = crc(data);
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true); h.setUint16(10, dt, true); h.setUint16(12, dd, true);
+    h.setUint32(14, c, true); h.setUint32(18, data.length, true); h.setUint32(22, data.length, true); h.setUint16(26, nb.length, true); h.setUint16(28, 0, true);
+    parts.push(new Uint8Array(h.buffer), nb, data);
+    const e = new DataView(new ArrayBuffer(46));
+    e.setUint32(0, 0x02014b50, true); e.setUint16(4, 20, true); e.setUint16(6, 20, true); e.setUint16(8, 0x0800, true); e.setUint16(10, 0, true); e.setUint16(12, dt, true); e.setUint16(14, dd, true);
+    e.setUint32(16, c, true); e.setUint32(20, data.length, true); e.setUint32(24, data.length, true); e.setUint16(28, nb.length, true); e.setUint32(42, off, true);
+    central.push(new Uint8Array(e.buffer), nb);
+    off += 30 + nb.length + data.length;
+  }
+  const csize = central.reduce((s, p) => s + p.length, 0), end = new DataView(new ArrayBuffer(22)), n = Object.keys(files).length;
+  end.setUint32(0, 0x06054b50, true); end.setUint16(8, n, true); end.setUint16(10, n, true); end.setUint32(12, csize, true); end.setUint32(16, off, true);
+  const all = [...parts, ...central, new Uint8Array(end.buffer)], out = new Uint8Array(all.reduce((s, p) => s + p.length, 0));
+  let o = 0; for (const p of all) { out.set(p, o); o += p.length; }
+  return out;
+}
+// classeur des métrés de la maquette : récapitulatif, par niveau, tous les éléments
+function ifcXlsxSheets(M) {
+  const T = s => trText(s), date = new Date().toLocaleDateString(LOCALES[LANG]);
+  const sum = items => { const s = { N: items.length, V: null, A: null, L: null }; for (const e of items) for (const k of ['V', 'A', 'L']) { const v = cmpVal(e, k); if (v != null) s[k] = (s[k] || 0) + v; } return s; };
+  const r2 = v => v == null ? null : Math.round(v * 1000) / 1000;
+  const head = [T('Nombre') + ' (u)', T('Volume') + ' (m³)', T('Surface') + ' (m²)', T('Longueur') + ' (m)'];
+  const qcells = (s, bold) => [{ v: s.N, s: bold ? 6 : 3 }, { v: r2(s.V), s: bold ? 5 : 2 }, { v: r2(s.A), s: bold ? 5 : 2 }, { v: r2(s.L), s: bold ? 5 : 2 }];
+  const title = (t) => [[{ v: t, s: 7 }], [T('Maquette') + ' : ' + M.fileName + (M.fromRvt ? ' (' + M.fromRvt.name + ')' : ''), '', '', T('Date') + ' : ' + date], []];
+  const groups = [...M.groups].sort((a, b) => a.cat.localeCompare(b.cat, LOCALES[LANG]) || a.des.localeCompare(b.des, LOCALES[LANG]));
+  // 1. récapitulatif par catégorie et désignation
+  const rec = title(T('Récapitulatif des métrés'));
+  const H1 = rec.length; rec.push([T('Catégorie'), T('Désignation'), ...head].map(v => ({ v, s: 4 })));
+  const cats = [...new Set(groups.map(g => g.cat))];
+  for (const c of cats) {
+    const gs = groups.filter(g => g.cat === c);
+    for (const g of gs) rec.push([T(c), g.des, ...qcells(sum(g.items))]);
+    rec.push([{ v: T('Total') + ' ' + T(c), s: 1 }, { v: '', s: 6 }, ...qcells(sum(gs.flatMap(g => g.items)), true)]);
+  }
+  // 2. par niveau
+  const lv = title(T('Métrés par niveau'));
+  const H2 = lv.length; lv.push([T('Niveau'), T('Catégorie'), T('Désignation'), ...head].map(v => ({ v, s: 4 })));
+  for (const l of [...M.levels, '']) for (const g of groups) { const it = g.items.filter(e => (e.lvl || '') === l); if (it.length) lv.push([l || '—', T(g.cat), g.des, ...qcells(sum(it))]); }
+  // 3. tous les éléments, avec toutes leurs quantités
+  const qn = new Map(); for (const e of M.elements) for (const [nm, x] of Object.entries(e.q)) if (!qn.has(nm)) qn.set(nm, x.k);
+  const qcols = [...qn.entries()].sort((a, b) => IFC_KORD[a[1]] - IFC_KORD[b[1]] || a[0].localeCompare(b[0])).map(([nm, k]) => ({ nm, k }));
+  const el = title(T('Éléments de la maquette'));
+  const H3 = el.length; el.push([T('Catégorie'), T('Désignation'), T('Nom'), T('ID Revit'), T('Niveau'), ...qcols.map(c => ifcLabel(c.nm) + ' (' + IFC_KU[c.k] + ')')].map(v => ({ v, s: 4 })));
+  for (const g of groups) for (const e of g.items) el.push([T(e.cat), e.des, e.name, e.tag, e.lvl, ...qcols.map(c => e.q[c.nm] ? { v: r2(e.q[c.nm].v), s: c.k === 'N' ? 3 : 2 } : null)]);
+  return [
+    { name: T('Récapitulatif'), header: H1, cols: [22, 42, 12, 14, 14, 14], rows: rec },
+    { name: T('Par niveau'), header: H2, cols: [16, 22, 42, 12, 14, 14, 14], rows: lv },
+    { name: T('Éléments'), header: H3, cols: [20, 36, 44, 12, 14, ...qcols.map(() => 16)], rows: el },
+  ];
+}
+function ifcExportXlsx() {
+  const M = ifcModel; if (!M) return;
+  const stem = (M.fromRvt ? M.fromRvt.name : M.fileName).replace(/\.(rvt|rfa|ifc)$/i, '');
+  const name = stem + ' - ' + trText('métrés') + '.xlsx', data = xlsxBuild(ifcXlsxSheets(M));
+  const type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+  if (NATIVE) {
+    if (!(window.__METRIX_CAPS || []).includes('saveB64')) return rvtShowError('oldAppXlsx');
+    let bin = ''; for (let i = 0; i < data.length; i += 0x8000) bin += String.fromCharCode.apply(null, data.subarray(i, i + 0x8000));
+    nativeCall({ cmd: 'saveB64', name, b64: btoa(bin) }).then(r => { if (r.ok) toast(trText('Classeur Excel enregistré')); else if (r.msg) notify(r.msg); });
+    return;
+  }
+  download(name, new Blob([data], { type }), type);
+  toast(trText('Classeur Excel enregistré'));
+}
+$('ifcXlsBtn').onclick = ifcExportXlsx;
 $('ifcCmpFile').onchange = e => { const f = e.target.files[0]; e.target.value = ''; ifcCompareFile(f); };
 if (NATIVE) $('ifcCmpFile').addEventListener('click', async e => {
   e.preventDefault();
