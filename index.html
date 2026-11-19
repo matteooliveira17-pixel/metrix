@@ -212,6 +212,19 @@
   .ifc-cat.open .rows { display:block; }
   .ifc-g { display:flex; align-items:baseline; gap:8px; padding:5px 8px 5px 24px; cursor:pointer; border-top:1px solid #f1f3f6; }
   .ifc-g:hover { background:var(--hover); }
+  /* choix des métrés à exporter vers Excel (cases visibles seulement pendant l'export) */
+  .ifc-ck { flex:none; width:15px; height:15px; margin:0; accent-color:#1e7b45; cursor:pointer; align-self:center; }
+  .ifc-g .ifc-ck { margin-left:-14px; }
+  .ifc-g.off .nm, .ifc-g.off .v, .ifc-g.off .n { opacity:.45; }
+  .ifc-pick { border:1px solid #1e7b45; background:#eef8f1; border-radius:6px; padding:7px 8px; font-size:12px; color:#185e36; display:flex; flex-direction:column; gap:6px; }
+  .ifc-pick[hidden] { display:none; }
+  .ifc-pick-b { display:flex; gap:6px; flex-wrap:wrap; }
+  .ifc-pick-b button { flex:1; font:inherit; font-size:11.5px; padding:3px 6px; border:1px solid #9fcdb0; background:#fff; color:#185e36; border-radius:4px; cursor:pointer; white-space:nowrap; }
+  .ifc-pick-b button:hover { border-color:#1e7b45; }
+  .ifc-xls.picking { background:#1e7b45; color:#fff; border-color:#1e7b45; }
+  .ifc-xls.picking:hover { background:#18663a; }
+  html.dark .ifc-pick { background:#16301f; border-color:#3d9a63; color:#bfe7cd; }
+  html.dark .ifc-pick-b button { background:#15181d; color:#bfe7cd; border-color:#3d9a63; }
   .ifc-g.sel { background:var(--sel); }
   .ifc-g .nm { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .ifc-g .v { font-variant-numeric:tabular-nums; white-space:nowrap; font-size:11.5px; color:var(--blue); font-weight:600; }
@@ -983,7 +996,8 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
     <div class="ifc-tools">
       <label class="ifc-open" id="ifcOpenLbl" title="Ouvrir une maquette IFC exportée de Revit (fichier .ifc)"><svg viewBox="0 0 16 16"><path d="M2 4.5V12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H8L6.5 3.5H3A1 1 0 0 0 2 4.5z"/></svg><span>Ouvrir un fichier IFC…</span><input id="ifcFile" type="file" accept=".ifc,.rvt"></label>
       <button class="ifc-rvt" id="rvtImportBtn" title="Convertir une maquette Revit (.rvt) en IFC avec le convertisseur DDC, puis l'ouvrir">Importer Revit (.rvt)…</button>
-      <button class="ifc-rvt ifc-xls" id="ifcXlsBtn" hidden title="Enregistrer tous les métrés de la maquette dans un classeur Excel : récapitulatif, par niveau, tous les éléments"><svg viewBox="0 0 16 16"><rect x="2.5" y="2" width="11" height="12" rx="1.5"/><path d="m5.5 5.5 5 5m0-5-5 5"/></svg>Exporter les métrés (Excel)</button>
+      <button class="ifc-rvt ifc-xls" id="ifcXlsBtn" hidden title="Enregistrer tous les métrés de la maquette dans un classeur Excel : récapitulatif, par niveau, tous les éléments"><svg viewBox="0 0 16 16"><rect x="2.5" y="2" width="11" height="12" rx="1.5"/><path d="m5.5 5.5 5 5m0-5-5 5"/></svg><span id="ifcXlsLbl">Exporter les métrés (Excel)</span></button>
+      <div class="ifc-pick" id="ifcPickBar" hidden><div id="ifcPickInfo"></div><div class="ifc-pick-b"><button id="ifcPickAll">Tout cocher</button><button id="ifcPickNone">Tout décocher</button><button id="ifcPickCancel">Annuler</button></div></div>
       <label class="ifc-cmp" id="ifcCmpLbl" hidden title="Comparer les quantités de cette maquette avec un autre fichier IFC (par exemple l'export de Revit)">Comparer avec un autre IFC…<input id="ifcCmpFile" type="file" accept=".ifc"></label>
       <details class="ifc-rec" id="ifcRecent"><summary>Fichiers récents</summary><div id="ifcRecentList"></div></details>
       <div class="ifc-cur" id="ifcCur" hidden><div class="ifc-file" id="ifcFileName"></div><button id="ifcCloseBtn" title="Fermer cette maquette (elle reste dans les fichiers récents)">✕ Fermer</button></div>
@@ -1161,7 +1175,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.16';
+const METRIX_VERSION = '3.17';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -1927,6 +1941,13 @@ addTr([
   ["pour ouvrir une maquette Revit (.rvt) ou IFC (.ifc), ou déposez-la dans cette zone.","to open a Revit (.rvt) or IFC (.ifc) model, or drop it in this area.","para abrir um modelo Revit (.rvt) ou IFC (.ifc), ou largue-o nesta zona.","para abrir un modelo Revit (.rvt) o IFC (.ifc), o suéltelo en esta zona."],
   ["Les fichiers Revit sont convertis automatiquement en IFC par le convertisseur DDC.","Revit files are converted to IFC automatically by the DDC converter.","Os ficheiros Revit são convertidos automaticamente em IFC pelo conversor DDC.","Los archivos de Revit se convierten automáticamente a IFC con el convertidor DDC."],
   ["Pour convertir un fichier Revit, cliquez dans le cadre « Cliquez ici » (ou sur « Importer Revit (.rvt)… ») et choisissez-le : le glisser-déposer ne permet pas la conversion.","To convert a Revit file, click in the « Click here » area (or on « Import Revit (.rvt)… ») and choose it: drag and drop cannot convert it.","Para converter um ficheiro Revit, clique na zona « Clique aqui » (ou em « Importar Revit (.rvt)… ») e escolha-o: arrastar e largar não permite a conversão.","Para convertir un archivo de Revit, haga clic en la zona « Haga clic aquí » (o en « Importar Revit (.rvt)… ») y elíjalo: arrastrar y soltar no permite la conversión."],
+  // export Excel : choix des métrés
+  ["Exporter toute la catégorie","Export the whole category","Exportar toda a categoria","Exportar toda la categoría"],
+  ["Cochez ce que vous voulez dans le classeur : {a} désignations sur {b} ({c} éléments).","Tick what you want in the workbook: {a} of {b} names ({c} elements).","Marque o que pretende no livro: {a} designações de {b} ({c} elementos).","Marque lo que quiere en el libro: {a} designaciones de {b} ({c} elementos)."],
+  ["Exporter la sélection ({n})","Export selection ({n})","Exportar a seleção ({n})","Exportar la selección ({n})"],
+  ["Luminaires","Light fixtures","Luminárias","Luminarias"],
+  ["Appareils sanitaires","Sanitary fixtures","Aparelhos sanitários","Aparatos sanitarios"],
+  ["Éléments géographiques (terrain)","Geographic elements (site)","Elementos geográficos (terreno)","Elementos geográficos (terreno)"],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -2625,6 +2646,12 @@ addTr2([
   ["pour ouvrir une maquette Revit (.rvt) ou IFC (.ifc), ou déposez-la dans cette zone.","um ein Revit- (.rvt) oder IFC-Modell (.ifc) zu öffnen, oder ziehen Sie es in diesen Bereich.","om een Revit- (.rvt) of IFC-model (.ifc) te openen, of sleep het naar dit vak.","以打开 Revit (.rvt) 或 IFC (.ifc) 模型，或将其拖放到此区域。","لفتح نموذج Revit (.rvt) أو IFC (.ifc)، أو أفلته في هذه المنطقة.","per aprire un modello Revit (.rvt) o IFC (.ifc), oppure trascinalo in questa zona.","чтобы открыть модель Revit (.rvt) или IFC (.ifc), или перетащите её в эту область."],
   ["Les fichiers Revit sont convertis automatiquement en IFC par le convertisseur DDC.","Revit-Dateien werden vom DDC-Konverter automatisch in IFC umgewandelt.","Revit-bestanden worden automatisch door de DDC-converter naar IFC omgezet.","Revit 文件会由 DDC 转换器自动转换为 IFC。","تُحوَّل ملفات Revit تلقائيًا إلى IFC بواسطة محوّل DDC.","I file Revit vengono convertiti automaticamente in IFC dal convertitore DDC.","Файлы Revit автоматически преобразуются в IFC конвертером DDC."],
   ["Pour convertir un fichier Revit, cliquez dans le cadre « Cliquez ici » (ou sur « Importer Revit (.rvt)… ») et choisissez-le : le glisser-déposer ne permet pas la conversion.","Um eine Revit-Datei umzuwandeln, klicken Sie in den Bereich « Hier klicken » (oder auf « Revit importieren (.rvt)… ») und wählen Sie sie aus: Ziehen und Ablegen reicht dafür nicht.","Om een Revit-bestand om te zetten, klikt u in het vak « Klik hier » (of op « Revit importeren (.rvt)… ») en kiest u het: slepen en neerzetten volstaat niet.","要转换 Revit 文件，请点击「点击此处」区域（或「导入 Revit (.rvt)…」）并选择该文件：拖放无法进行转换。","لتحويل ملف Revit، انقر في منطقة « انقر هنا » (أو على « استيراد Revit (.rvt)… ») واختره: السحب والإفلات لا يسمح بالتحويل.","Per convertire un file Revit, fai clic nella zona « Clicca qui » (o su « Importa Revit (.rvt)… ») e sceglilo: il trascinamento non consente la conversione.","Чтобы преобразовать файл Revit, щёлкните в области «Щёлкните здесь» (или на «Импорт Revit (.rvt)…») и выберите его: перетаскивание не позволяет выполнить преобразование."],
+  ["Exporter toute la catégorie","Ganze Kategorie exportieren","Hele categorie exporteren","导出整个类别","تصدير الفئة بأكملها","Esporta l'intera categoria","Экспортировать всю категорию"],
+  ["Cochez ce que vous voulez dans le classeur : {a} désignations sur {b} ({c} éléments).","Haken Sie an, was in die Arbeitsmappe soll: {a} von {b} Bezeichnungen ({c} Elemente).","Vink aan wat u in de werkmap wilt: {a} van {b} omschrijvingen ({c} elementen).","勾选要放入工作簿的内容：{b} 个名称中的 {a} 个（{c} 个构件）。","حدّد ما تريده في المصنف: {a} من {b} تسمية ({c} عنصر).","Seleziona ciò che vuoi nella cartella: {a} designazioni su {b} ({c} elementi).","Отметьте, что включить в книгу: {a} из {b} наименований (элементов: {c})."],
+  ["Exporter la sélection ({n})","Auswahl exportieren ({n})","Selectie exporteren ({n})","导出所选内容 ({n})","تصدير التحديد ({n})","Esporta la selezione ({n})","Экспортировать выбранное ({n})"],
+  ["Luminaires","Leuchten","Armaturen","灯具","وحدات الإضاءة","Apparecchi di illuminazione","Светильники"],
+  ["Appareils sanitaires","Sanitärobjekte","Sanitaire toestellen","卫生洁具","الأجهزة الصحية","Apparecchi sanitari","Сантехнические приборы"],
+  ["Éléments géographiques (terrain)","Geografische Elemente (Gelände)","Geografische elementen (terrein)","地理元素（场地）","عناصر جغرافية (الأرض)","Elementi geografici (terreno)","Географические элементы (участок)"],
 ]);
 // --- fin des langues ajoutées ---
 
@@ -4341,6 +4368,7 @@ const IFC_CATS = {
   IFCDOOR:'Portes', IFCDOORSTANDARDCASE:'Portes', IFCWINDOW:'Fenêtres', IFCWINDOWSTANDARDCASE:'Fenêtres', IFCCOVERING:'Revêtements', IFCPLATE:'Panneaux',
   IFCMEMBER:'Montants et ossatures', IFCSPACE:'Pièces', IFCFURNISHINGELEMENT:'Mobilier', IFCFURNITURE:'Mobilier', IFCBUILDINGELEMENTPROXY:'Autres éléments',
   IFCREINFORCINGBAR:'Armatures', IFCREINFORCINGMESH:'Armatures', IFCCHIMNEY:'Conduits', IFCSHADINGDEVICE:'Brise-soleil', IFCELEMENTASSEMBLY:'Assemblages',
+  IFCLIGHTFIXTURE:'Luminaires', IFCSANITARYTERMINAL:'Appareils sanitaires', IFCGEOGRAPHICELEMENT:'Éléments géographiques (terrain)',
   IFCFLOWTERMINAL:'Équipements techniques', IFCFLOWSEGMENT:'Réseaux (tuyaux, gaines)', IFCFLOWFITTING:'Raccords de réseaux', IFCDISTRIBUTIONELEMENT:'Équipements techniques',
 };
 const IFC_QN = {
@@ -4358,6 +4386,7 @@ const IFC_SKIP = /^IFC(CARTESIAN|POLY|FACE|DIRECTION|AXIS[12]|LOCALPLACEMENT|SHA
 const IFC_NOTELEM = /^IFC(PROJECT|SITE|BUILDING|BUILDINGSTOREY|OPENINGELEMENT|ANNOTATION|GRID|VIRTUALELEMENT|\w*TYPE|\w*STYLE|\w*PORT|SYSTEM|ZONE|GROUP|SPATIALZONE|EXTERNALSPATIALELEMENT)$/;
 const IFC_PFX = { EXA:1e18, PETA:1e15, TERA:1e12, GIGA:1e9, MEGA:1e6, KILO:1e3, HECTO:100, DECA:10, DECI:.1, CENTI:.01, MILLI:.001, MICRO:1e-6, NANO:1e-9 };
 let ifcModel = null, ifcSel = null;
+let ifcXlsSel = null;   // export Excel : désignations cochées (null = cases cachées)
 const ifcOpenCats = new Set();
 
 function ifcStr(s) {
@@ -4573,10 +4602,11 @@ function renderIfcTree() {
   let h = '';
   for (const [cat, list] of cats) {
     const n = list.reduce((s, x) => s + x.items.length, 0), open = q || ifcOpenCats.has(cat) || list.some(x => x.g.key === ifcSel);
-    h += `<div class="ifc-cat${open ? ' open' : ''}" data-cat="${esc(cat)}"><div class="ch"><span class="tw">▶</span><span class="nm">${esc(trText(cat))}</span><span class="n">${n}</span></div><div class="rows">`;
+    const ck = ifcXlsSel ? `<input type="checkbox" class="ifc-ck" data-ck="cat" title="${esc(trText('Exporter toute la catégorie'))}">` : '';
+    h += `<div class="ifc-cat${open ? ' open' : ''}" data-cat="${esc(cat)}"><div class="ch">${ck}<span class="tw">▶</span><span class="nm">${esc(trText(cat))}</span><span class="n">${n}</span></div><div class="rows">`;
     for (const { g, items } of list) {
-      const m = ifcMain(items);
-      h += `<div class="ifc-g${g.key === ifcSel ? ' sel' : ''}" data-k="${esc(g.key)}" title="${esc(g.des)}"><span class="nm">${esc(g.des)}</span><span class="n">${items.length} u</span>${m.k !== 'N' ? `<span class="v">${ifcFmt(m.v, m.k)} ${IFC_KU[m.k]}</span>` : ''}</div>`;
+      const m = ifcMain(items), on = ifcXlsSel && ifcXlsSel.has(g.key);
+      h += `<div class="ifc-g${g.key === ifcSel ? ' sel' : ''}${ifcXlsSel && !on ? ' off' : ''}" data-k="${esc(g.key)}" title="${esc(g.des)}">${ifcXlsSel ? `<input type="checkbox" class="ifc-ck" data-ck="g"${on ? ' checked' : ''}>` : ''}<span class="nm">${esc(g.des)}</span><span class="n">${items.length} u</span>${m.k !== 'N' ? `<span class="v">${ifcFmt(m.v, m.k)} ${IFC_KU[m.k]}</span>` : ''}</div>`;
     }
     h += '</div></div>';
   }
@@ -4586,7 +4616,38 @@ function renderIfcTree() {
     if (on) ifcOpenCats.add(c); else ifcOpenCats.delete(c);
   });
   box.querySelectorAll('.ifc-g').forEach(el => el.onclick = () => { ifcSel = el.dataset.k; ifcHot = null; renderIfcTree(); renderIfcMain(); ifcDraw(); });
+  if (ifcXlsSel) {
+    const keysOf = catEl => M.groups.filter(g => g.cat === catEl.dataset.cat).map(g => g.key);
+    box.querySelectorAll('.ifc-cat').forEach(c => {
+      const cb = c.querySelector('[data-ck=cat]'), ks = keysOf(c), n = ks.filter(k => ifcXlsSel.has(k)).length;
+      cb.checked = n === ks.length; cb.indeterminate = n > 0 && n < ks.length;
+      cb.onclick = e => { e.stopPropagation(); const on = n < ks.length; for (const k of ks) on ? ifcXlsSel.add(k) : ifcXlsSel.delete(k); renderIfcTree(); ifcPickInfo(); };
+    });
+    box.querySelectorAll('.ifc-g [data-ck=g]').forEach(cb => cb.onclick = e => {
+      e.stopPropagation(); const k = cb.closest('.ifc-g').dataset.k; cb.checked ? ifcXlsSel.add(k) : ifcXlsSel.delete(k); renderIfcTree(); ifcPickInfo();
+    });
+  }
 }
+/* ---------- export Excel : choix des métrés à exporter ----------
+   1er clic sur « Exporter les métrés (Excel) » : des cases à cocher apparaissent dans la liste (tout est coché) ;
+   2e clic (« Exporter la sélection ») : le classeur ne contient que ce qui est coché. « Annuler » cache les cases. */
+function ifcPickInfo() {
+  const M = ifcModel; if (!M || !ifcXlsSel) return;
+  const gs = M.groups.filter(g => ifcXlsSel.has(g.key)), n = gs.reduce((s, g) => s + g.items.length, 0);
+  $('ifcPickInfo').textContent = trText(`Cochez ce que vous voulez dans le classeur : ${gs.length} désignations sur ${M.groups.length} (${n} éléments).`);
+  $('ifcXlsLbl').textContent = trText(`Exporter la sélection (${gs.length})`);
+  $('ifcXlsBtn').disabled = !gs.length;
+}
+function ifcPickSet(on) {   // affiche / cache les cases à cocher
+  const M = ifcModel;
+  ifcXlsSel = on && M ? new Set(M.groups.map(g => g.key)) : null;
+  $('ifcPickBar').hidden = !ifcXlsSel; $('ifcXlsBtn').classList.toggle('picking', !!ifcXlsSel); $('ifcXlsBtn').disabled = false;
+  $('ifcXlsLbl').textContent = trText('Exporter les métrés (Excel)');
+  renderIfcTree(); ifcPickInfo();
+}
+$('ifcPickAll').onclick = () => { if (!ifcModel || !ifcXlsSel) return; ifcModel.groups.forEach(g => ifcXlsSel.add(g.key)); renderIfcTree(); ifcPickInfo(); };
+$('ifcPickNone').onclick = () => { if (!ifcXlsSel) return; ifcXlsSel.clear(); renderIfcTree(); ifcPickInfo(); };
+$('ifcPickCancel').onclick = () => ifcPickSet(false);
 const IFC_ICO_COPY = '<svg viewBox="0 0 16 16"><rect x="5.5" y="5.5" width="8" height="8.5" rx="1.5"/><path d="M10.5 5.5V3.5A1.5 1.5 0 0 0 9 2H4A1.5 1.5 0 0 0 2.5 3.5v6A1.5 1.5 0 0 0 4 11h1.5"/></svg>';
 const ifcNum = (v, k) => String(Math.round(v * (k === 'N' ? 1 : 1000)) / (k === 'N' ? 1 : 1000)).replace('.', tuDec());
 function ifcCopyBtn(btn, text) {
@@ -4728,6 +4789,7 @@ function renderIfcRecent(curKey) {
 })();
 function ifcClose() {   // ferme la maquette en cours (elle reste dans les fichiers récents)
   if (!ifcModel) return;
+  ifcPickSet(false);
   ifcModel = null; ifcSel = null; ifcHot = null; ifcHover = null; ifcView = null; ifcOpenCats.clear();
   $('ifcLevel').value = ''; $('ifcSearch').value = '';
   renderIfc();
@@ -4748,6 +4810,7 @@ async function ifcOpenFile(f, info = {}) {
   try {
     const text = await f.text();
     const M = ifcParse(text);
+    ifcXlsSel = null; $('ifcPickBar').hidden = true; $('ifcXlsBtn').classList.remove('picking'); $('ifcXlsBtn').disabled = false; $('ifcXlsLbl').textContent = trText('Exporter les métrés (Excel)');
     ifcModel = ifcBuild(M, f.name, f.size); ifcSel = null;
     if (info.matCol) { ifcModel.matNameCol = info.matCol.names || null; ifcModel.catCol = info.matCol.cats || null; } ifcHot = null; ifcHover = null; ifcView = null; ifcOpenCats.clear();
     try { ifcGeom(ifcModel, M); } catch (err) { console.error(err); }
@@ -5912,7 +5975,7 @@ async function rvtConvertPicked(pick, c = rvtCfg()) {
 }
 $('rvtImportBtn').onclick = () => rvtImport();
 // accès pour les tests automatiques
-window.__metrixRvt = { rvtCommand, rvtClassify, rvtWinPath, rvtEngineOf, rvtText, rvtConvertPicked, rvtCfg, rvtSaveCfg, ifcCompareRows: (...a) => ifcCompareRows(...a), model: () => ifcModel, xlsxB64: () => { const d = xlsxBuild(ifcXlsxSheets(ifcModel)); let b = ''; for (let i = 0; i < d.length; i += 0x8000) b += String.fromCharCode.apply(null, d.subarray(i, i + 0x8000)); return btoa(b); }, pick3d: (x, y) => { const e = ifc3dPick(x, y); return e ? e.des : null; }, ifcParse: t => ifcParse(t), ifcBuild: (M, n) => ifcBuild(M, n, 0), ifcRecList, ifcRecOpen, ifcRecRemove, ifcClose, rvtReportColors, openIfc: (f, info) => ifcOpenFile(f, info) };
+window.__metrixRvt = { rvtCommand, rvtClassify, rvtWinPath, rvtEngineOf, rvtText, rvtConvertPicked, rvtCfg, rvtSaveCfg, ifcCompareRows: (...a) => ifcCompareRows(...a), model: () => ifcModel, xlsxB64: keys => { const d = xlsxBuild(ifcXlsxSheets(ifcModel, keys ? new Set(keys) : undefined)); let b = ''; for (let i = 0; i < d.length; i += 0x8000) b += String.fromCharCode.apply(null, d.subarray(i, i + 0x8000)); return btoa(b); }, pick3d: (x, y) => { const e = ifc3dPick(x, y); return e ? e.des : null; }, ifcParse: t => ifcParse(t), ifcBuild: (M, n) => ifcBuild(M, n, 0), ifcRecList, ifcRecOpen, ifcRecRemove, ifcClose, rvtReportColors, openIfc: (f, info) => ifcOpenFile(f, info) };
 
 // Paramètres → Revit (.rvt)
 function rvtGoSettings() { const cards = [...document.querySelectorAll('#settings .set-card')], i = cards.indexOf($('setRvtCard')); if (i >= 0 && setSection) setSection(i); }
@@ -6111,14 +6174,14 @@ function xlsxBuild(sheets) {
   return out;
 }
 // classeur des métrés de la maquette : récapitulatif, par niveau, tous les éléments
-function ifcXlsxSheets(M) {
+function ifcXlsxSheets(M, keys) {   // keys : désignations à exporter (toutes si absent)
   const T = s => trText(s), date = new Date().toLocaleDateString(LOCALES[LANG]);
   const sum = items => { const s = { N: items.length, V: null, A: null, L: null }; for (const e of items) for (const k of ['V', 'A', 'L']) { const v = cmpVal(e, k); if (v != null) s[k] = (s[k] || 0) + v; } return s; };
   const r2 = v => v == null ? null : Math.round(v * 1000) / 1000;
   const head = [T('Nombre') + ' (u)', T('Volume') + ' (m³)', T('Surface') + ' (m²)', T('Longueur') + ' (m)'];
   const qcells = (s, bold) => [{ v: s.N, s: bold ? 6 : 3 }, { v: r2(s.V), s: bold ? 5 : 2 }, { v: r2(s.A), s: bold ? 5 : 2 }, { v: r2(s.L), s: bold ? 5 : 2 }];
   const title = (t) => [[{ v: t, s: 7 }], [T('Maquette') + ' : ' + M.fileName + (M.fromRvt ? ' (' + M.fromRvt.name + ')' : ''), '', '', T('Date') + ' : ' + date], []];
-  const groups = [...M.groups].sort((a, b) => a.cat.localeCompare(b.cat, LOCALES[LANG]) || a.des.localeCompare(b.des, LOCALES[LANG]));
+  const groups = [...M.groups].filter(g => !keys || keys.has(g.key)).sort((a, b) => a.cat.localeCompare(b.cat, LOCALES[LANG]) || a.des.localeCompare(b.des, LOCALES[LANG]));
   // 1. récapitulatif par catégorie et désignation
   const rec = title(T('Récapitulatif des métrés'));
   const H1 = rec.length; rec.push([T('Catégorie'), T('Désignation'), ...head].map(v => ({ v, s: 4 })));
@@ -6133,7 +6196,7 @@ function ifcXlsxSheets(M) {
   const H2 = lv.length; lv.push([T('Niveau'), T('Catégorie'), T('Désignation'), ...head].map(v => ({ v, s: 4 })));
   for (const l of [...M.levels, '']) for (const g of groups) { const it = g.items.filter(e => (e.lvl || '') === l); if (it.length) lv.push([l || '—', T(g.cat), g.des, ...qcells(sum(it))]); }
   // 3. tous les éléments, avec toutes leurs quantités
-  const qn = new Map(); for (const e of M.elements) for (const [nm, x] of Object.entries(e.q)) if (!qn.has(nm)) qn.set(nm, x.k);
+  const qn = new Map(); for (const e of groups.flatMap(g => g.items)) for (const [nm, x] of Object.entries(e.q)) if (!qn.has(nm)) qn.set(nm, x.k);
   const qcols = [...qn.entries()].sort((a, b) => IFC_KORD[a[1]] - IFC_KORD[b[1]] || a[0].localeCompare(b[0])).map(([nm, k]) => ({ nm, k }));
   const el = title(T('Éléments de la maquette'));
   const H3 = el.length; el.push([T('Catégorie'), T('Désignation'), T('Nom'), T('ID Revit'), T('Niveau'), ...qcols.map(c => ifcLabel(c.nm) + ' (' + IFC_KU[c.k] + ')')].map(v => ({ v, s: 4 })));
@@ -6146,8 +6209,11 @@ function ifcXlsxSheets(M) {
 }
 function ifcExportXlsx() {
   const M = ifcModel; if (!M) return;
+  if (!ifcXlsSel) return ifcPickSet(true);          // 1er clic : choisir ce qu'on exporte
+  const keys = new Set(ifcXlsSel); if (!keys.size) return;
+  ifcPickSet(false);
   const stem = (M.fromRvt ? M.fromRvt.name : M.fileName).replace(/\.(rvt|rfa|ifc)$/i, '');
-  const name = stem + ' - ' + trText('métrés') + '.xlsx', data = xlsxBuild(ifcXlsxSheets(M));
+  const name = stem + ' - ' + trText('métrés') + '.xlsx', data = xlsxBuild(ifcXlsxSheets(M, keys));
   const type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
   if (NATIVE) {
     if (!(window.__METRIX_CAPS || []).includes('saveB64')) return rvtShowError('oldAppXlsx');
