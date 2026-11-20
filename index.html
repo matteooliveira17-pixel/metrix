@@ -201,6 +201,9 @@
   html.dark .st-it { background:#2d333c; border-color:#46505e; }
   html.dark .st-note { background:#3a3220; border-color:#6b5a2a; color:#e9d39a; }
   body:not(.has-prj) .prj-only { display:none !important; }
+  body.has-prj #docTabs { display:none !important; }   /* en projet : on passe d'un plan à l'autre par « Plans du projet » */
+  .pp-it .pp-x { flex:none; border:none; background:none; cursor:pointer; color:#7b8494; font-size:13px; padding:2px 6px; border-radius:4px; }
+  .pp-it .pp-x:hover { background:#e6ebf2; color:#b42318; }
   .dlg:has(.pp) { width:min(480px, 94vw); }
   .pp { display:flex; flex-direction:column; gap:4px; margin:12px 12px 6px; max-height:52vh; overflow:auto; }
   .pp-it { display:flex; align-items:center; gap:9px; padding:7px 9px; border:1px solid #dde3ec; border-radius:6px; background:#f8fafd; cursor:pointer; font-size:12.5px; }
@@ -1275,7 +1278,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.20';
+const METRIX_VERSION = '3.21';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -2105,6 +2108,7 @@ addTr([
   ["Emplacement du projet non valide.","Invalid project location.","Localização do projeto inválida.","Ubicación del proyecto no válida."],
   ["Enregistrement impossible : le dossier du projet n'est plus accessible.","Unable to save: the project folder is no longer accessible.","Não foi possível guardar: a pasta do projeto já não está acessível.","No se puede guardar: la carpeta del proyecto ya no es accesible."],
   ["{n} page{s}","{n} page{s}","{n} página{s}","{n} página{s}"],
+  ["Retirer ce plan du projet","Remove this plan from the project","Retirar esta planta do projeto","Quitar este plano del proyecto"],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -2865,6 +2869,7 @@ addTr2([
   ["Emplacement du projet non valide.","Ungültiger Speicherort des Projekts.","Ongeldige projectlocatie.","项目位置无效。","موقع المشروع غير صالح.","Posizione del progetto non valida.","Недопустимое расположение проекта."],
   ["Enregistrement impossible : le dossier du projet n'est plus accessible.","Speichern nicht möglich: Der Projektordner ist nicht mehr erreichbar.","Opslaan niet mogelijk: de projectmap is niet meer bereikbaar.","无法保存：项目文件夹已无法访问。","تعذّر الحفظ: لم يعد مجلد المشروع متاحًا.","Impossibile salvare: la cartella del progetto non è più accessibile.","Не удалось сохранить: папка проекта больше недоступна."],
   ["{n} page{s}","Seiten: {n}","pagina's: {n}","{n} 页","صفحات: {n}","pagine: {n}","страниц: {n}"],
+  ["Retirer ce plan du projet","Diesen Plan aus dem Projekt entfernen","Deze tekening uit het project verwijderen","从项目中移除此图纸","إزالة هذا المخطط من المشروع","Rimuovi questo disegno dal progetto","Убрать этот чертёж из проекта"],
 ]);
 // --- fin des langues ajoutées ---
 
@@ -7504,13 +7509,17 @@ function projectPlansDialog() {
   const rows = docs.map((d, i) => {
     const pdf = d.isPdf, pages = d.pdf ? d.pdf.numPages : 1, n = (d.measures || []).filter(m => m.type !== 'draw').length;
     return `<div class="pp-it${d === activeDoc ? ' on' : ''}" data-i="${i}" title="${esc(d.fileName)}"><span class="ic${pdf ? '' : ' img'}">${pdf ? 'PDF' : 'IMG'}</span>`
-      + `<span class="nm">${esc(d.fileName)}</span><small>${trText(`${pages} page${pages > 1 ? 's' : ''}`)} · ${trText(`${n} métré${n > 1 ? 's' : ''}`)}</small></div>`;
+      + `<span class="nm">${esc(d.fileName)}</span><small>${trText(`${pages} page${pages > 1 ? 's' : ''}`)} · ${trText(`${n} métré${n > 1 ? 's' : ''}`)}</small>`
+      + `<button class="pp-x" type="button" title="${esc(trText('Retirer ce plan du projet'))}">✕</button></div>`;
   }).join('') || `<div class="st-empty">${trText('Aucun plan pour l\'instant.')}</div>`;
   const where = curProject.path ? `<p class="pp-loc">${esc(trText('Fichier du projet :'))} ${esc(curProject.path)}</p>`
     : curProject.handle ? `<p class="pp-loc">${esc(trText('Fichier du projet :'))} ${esc(curProject.handle.name)}</p>` : '';
   dialog(`Plans du projet « ${curProject.name} »`, `<div class="pp">${rows}</div>${where}<div class="pp-b"><button class="btn" id="ppAdd" type="button">+ Ajouter un plan…</button></div>`, null, false);
   $('dlgOk').textContent = 'Fermer';
-  $('dlgBody').querySelectorAll('.pp-it').forEach(el => el.onclick = () => { closeDialog(); switchDoc(docs[+el.dataset.i]); });
+  $('dlgBody').querySelectorAll('.pp-it').forEach(el => {
+    el.onclick = () => { closeDialog(); switchDoc(docs[+el.dataset.i]); };
+    el.querySelector('.pp-x').onclick = e => { e.stopPropagation(); closeDoc(docs[+el.dataset.i]); setDocName(); projectPlansDialog(); };   // retiré au prochain enregistrement
+  });
   $('ppAdd').onclick = () => { closeDialog(); $('file').click(); };
 }
 // fichiers déposés : projet (.metrix) ou plans
