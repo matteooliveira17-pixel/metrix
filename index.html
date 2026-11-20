@@ -1309,7 +1309,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.22';
+const METRIX_VERSION = '3.23';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -2215,6 +2215,8 @@ addTr([
   ["Accès interdit","No entry","Acesso proibido","Acceso prohibido"],
   ["Port du casque obligatoire","Hard hat required","Uso obrigatório de capacete","Uso obligatorio de casco"],
   ["Stationnement","Parking","Estacionamento","Aparcamiento"],
+  ["Réglez l'échelle du plan pour voir le rayon d'action.","Set the plan scale to see the working radius.","Defina a escala da planta para ver o raio de ação.","Ajuste la escala del plano para ver el radio de acción."],
+  ["Symbole de mode opératoire : non compté dans le métré. Avec le Pointeur : glissez-le pour le déplacer, tirez un coin pour changer sa taille, la poignée ronde pour le tourner (Maj : par 15°).","Method statement symbol: not counted in the takeoff. With the Pointer: drag it to move it, pull a corner to resize it, the round handle to rotate it (Shift: 15° steps).","Símbolo de modo operatório: não contado na medição. Com o Ponteiro: arraste-o para o mover, puxe um canto para mudar o tamanho e a pega redonda para o rodar (Shift: de 15° em 15°).","Símbolo de modo operativo: no se cuenta en la medición. Con el Puntero: arrástrelo para moverlo, tire de una esquina para cambiar su tamaño y del tirador redondo para girarlo (Mayús: de 15° en 15°)."],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -3051,6 +3053,8 @@ addTr2([
   ["Accès interdit","Zutritt verboten","Verboden toegang","禁止进入","ممنوع الدخول","Accesso vietato","Вход запрещён"],
   ["Port du casque obligatoire","Helmpflicht","Helm verplicht","必须佩戴安全帽","ارتداء الخوذة إلزامي","Obbligo del casco","Работать в каске"],
   ["Stationnement","Parkplatz","Parkeren","停车","موقف","Parcheggio","Стоянка"],
+  ["Réglez l'échelle du plan pour voir le rayon d'action.","Stellen Sie den Planmaßstab ein, um den Arbeitsradius zu sehen.","Stel de schaal van de tekening in om het werkbereik te zien.","请设置图纸比例以显示作业半径。","اضبط مقياس المخطط لرؤية نصف قطر العمل.","Imposta la scala del disegno per vedere il raggio d'azione.","Задайте масштаб чертежа, чтобы видеть радиус действия."],
+  ["Symbole de mode opératoire : non compté dans le métré. Avec le Pointeur : glissez-le pour le déplacer, tirez un coin pour changer sa taille, la poignée ronde pour le tourner (Maj : par 15°).","Symbol des Arbeitsablaufs: wird im Aufmaß nicht gezählt. Mit dem Zeiger: ziehen zum Verschieben, an einer Ecke ziehen für die Größe, am runden Griff zum Drehen (Umschalt: in 15°-Schritten).","Symbool van de werkmethode: telt niet mee in de meting. Met de Aanwijzer: sleep om te verplaatsen, trek aan een hoek om de grootte te wijzigen, aan de ronde greep om te draaien (Shift: per 15°).","施工方案符号：不计入测量。使用指针：拖动可移动，拖动角点可调整大小，拖动圆形手柄可旋转（Shift：按 15°）。","رمز طريقة التنفيذ: لا يُحتسب في القياس. بالمؤشر: اسحبه لتحريكه، واسحب زاوية لتغيير حجمه، والمقبض الدائري لتدويره (Shift: بخطوات 15°).","Simbolo della modalità operativa: non conteggiato nel computo. Con il Puntatore: trascinalo per spostarlo, tira un angolo per cambiarne la dimensione, la maniglia rotonda per ruotarlo (Maiusc: a passi di 15°).","Символ ППР: не учитывается в замерах. Указателем: перетащите, чтобы переместить, потяните за угол, чтобы изменить размер, за круглую ручку — чтобы повернуть (Shift: шаг 15°)."],
 ]);
 // --- fin des langues ajoutées ---
 
@@ -4331,19 +4335,60 @@ function drawSym(m, hi, px, ghost) {
   }
   ctx.translate(m.x, m.y); ctx.rotate((m.rot || 0) * Math.PI / 180);
   const h = m.size / 2;
-  if (hi) { ctx.beginPath(); symRR(ctx, -h - 5 * px, -h - 5 * px, m.size + 10 * px, m.size + 10 * px, 6 * px); ctx.fillStyle = 'rgba(250,204,21,.35)'; ctx.fill(); ctx.strokeStyle = '#e0a800'; ctx.lineWidth = 1.5 * px; ctx.stroke(); }
+  if (hi && st.tool !== 'pan') { ctx.beginPath(); symRR(ctx, -h - 5 * px, -h - 5 * px, m.size + 10 * px, m.size + 10 * px, 6 * px); ctx.fillStyle = 'rgba(250,204,21,.35)'; ctx.fill(); }
   if (m.flip) ctx.scale(-1, 1);
   ctx.scale(m.size / 64, m.size / 64); ctx.translate(-32, -32);
   if (ghost) ctx.globalAlpha = .55;
   symPaint(ctx, m.sym, m.flip);
   ctx.restore();
   if (m.label) text(m.label, m.x, m.y + m.size / 2 + 11 * px, px, col, 11);
+  if (hi && !ghost && st.tool === 'pan') symDrawHandles(m, px);
 }
-// nouveau symbole : taille réelle si l'échelle est réglée, sinon taille fixe à l'écran
+// nouveau symbole : taille par défaut fixe à l'écran (pas liée à l'échelle) ; on l'ajuste ensuite avec les poignées
+const SYM_SIZE = 64;   // pixels à l'écran au moment de la pose
 function symNew(id, p) {
-  const S = SYMS[id], k = scale();
-  const size = Math.max(k ? S.s / k : 56 / st.view.z, 14 / st.view.z);
+  const S = SYMS[id];
+  const size = SYM_SIZE / st.view.z;
   return { type: 'sym', page: st.page, sym: id, x: p.x, y: p.y, size, rot: 0, flip: false, r: S.r || 0, showR: !!S.R, label: '', color: S.r ? '#e5484d' : '#1f6feb' };
+}
+// poignées du symbole sélectionné : coins (taille, coin opposé fixe) et poignée ronde (rotation)
+const SYM_SIGNS = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+function symHandles(m) {
+  const px = 1 / st.view.z, c = symCorners(m).slice(0, 4);
+  const top = { x: (c[0].x + c[1].x) / 2, y: (c[0].y + c[1].y) / 2 }, dx = top.x - m.x, dy = top.y - m.y, d = Math.hypot(dx, dy) || 1;
+  return { corners: c, top, rot: { x: top.x + dx / d * 24 * px, y: top.y + dy / d * 24 * px } };
+}
+function symHandleAt(sx, sy) {
+  if (st.tool !== 'pan' || !st.sel) return null;
+  const m = st.measures.find(x => x.id === st.sel && x.type === 'sym' && x.page === st.page); if (!m) return null;
+  const H = symHandles(m), scr = q => ({ x: q.x * st.view.z + st.view.x, y: q.y * st.view.z + st.view.y }), near = (q, r) => { const p = scr(q); return Math.hypot(p.x - sx, p.y - sy) <= r; };
+  const tol = IS_TOUCH ? 16 : 8;
+  if (near(H.rot, tol)) return { m, kind: 'rot' };
+  for (let i = 0; i < 4; i++) if (near(H.corners[i], tol)) return { m, kind: 'size', i, fixed: H.corners[(i + 2) % 4] };
+  return null;
+}
+function symDrawHandles(m, px) {
+  const H = symHandles(m);
+  ctx.save(); ctx.strokeStyle = '#1f6feb'; ctx.lineWidth = 1.2 * px; ctx.setLineDash([4 * px, 3 * px]);
+  ctx.beginPath(); H.corners.forEach((q, i) => i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y)); ctx.closePath(); ctx.stroke(); ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(H.top.x, H.top.y); ctx.lineTo(H.rot.x, H.rot.y); ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.lineWidth = 1.5 * px;
+  for (const q of H.corners) { ctx.beginPath(); ctx.rect(q.x - 4.5 * px, q.y - 4.5 * px, 9 * px, 9 * px); ctx.fill(); ctx.stroke(); }
+  ctx.beginPath(); ctx.arc(H.rot.x, H.rot.y, 5.5 * px, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.arc(H.rot.x, H.rot.y, 2.6 * px, -Math.PI * .9, Math.PI * .5); ctx.stroke();
+  ctx.restore();
+}
+function symEditMove(ed, p, shift) {
+  const m = ed.m;
+  if (ed.kind === 'rot') {   // rotation : Maj = pas de 15°
+    let a = Math.atan2(p.y - m.y, p.x - m.x) * 180 / Math.PI + 90;
+    if (shift) a = Math.round(a / 15) * 15;
+    m.rot = ((Math.round(a) % 360) + 360) % 360; return;
+  }
+  const a = (m.rot || 0) * Math.PI / 180, ux = { x: Math.cos(a), y: Math.sin(a) }, uy = { x: -Math.sin(a), y: Math.cos(a) };
+  const [sx, sy] = SYM_SIGNS[ed.i], F = ed.fixed, vx = p.x - F.x, vy = p.y - F.y;
+  const s = Math.max((vx * ux.x + vy * ux.y) * sx, (vx * uy.x + vy * uy.y) * sy, 14 / st.view.z);   // carré : le plus grand côté tiré
+  m.size = s; m.x = F.x + (ux.x * sx + uy.x * sy) * s / 2; m.y = F.y + (ux.y * sx + uy.y * sy) * s / 2;
 }
 function symPlace(p) {
   const id = st.symSel; if (!SYMS[id]) return;
@@ -7157,21 +7202,20 @@ function renderProps() {
       <tr><th>Symbole</th><td><span class="sym-pi">${symSvg(m.sym, 22)}</span> ${esc(trText(S.n))}</td></tr>
       <tr><th>Désignation</th><td><input id="pName" value="${esc(m.name)}"></td></tr>
       <tr><th>Repère</th><td><input id="pLabel" value="${esc(m.label || '')}" placeholder="${esc(trText('Ex. : G1, M2…'))}"></td></tr>
-      <tr><th>Taille</th><td style="white-space:nowrap">${k ? `<input id="pSize" type="number" min="0.1" step="0.5" style="width:62px" value="${num1(m.size * k)}"> m ` : ''}<button class="pbtn" id="pSmaller" style="margin:0 2px">−</button><button class="pbtn" id="pBigger" style="margin:0">+</button></td></tr>
+      <tr><th>Taille</th><td style="white-space:nowrap"><button class="pbtn" id="pSmaller" style="margin:0 2px 0 0">−</button><button class="pbtn" id="pBigger" style="margin:0">+</button></td></tr>
       <tr><th>Rotation</th><td style="white-space:nowrap"><button class="pbtn" id="pRotL" style="margin:0 2px 0 0" title="${esc(trText('Tourner de 15° à gauche'))}">↺</button><input id="pRot" type="number" step="15" style="width:52px" value="${Math.round(m.rot || 0)}"> °<button class="pbtn" id="pRotR" style="margin:0 0 0 2px" title="${esc(trText('Tourner de 15° à droite'))}">↻</button></td></tr>
       <tr><th>Miroir</th><td><input id="pFlip" type="checkbox" style="width:auto"${m.flip ? ' checked' : ''}> <label for="pFlip">Retourner</label></td></tr>
       <tr><th>Rayon d'action</th><td style="white-space:nowrap"><input id="pShowR" type="checkbox" style="width:auto"${m.showR ? ' checked' : ''}> <input id="pR" type="number" min="0" step="1" style="width:56px" value="${num1(m.r || 0)}"> m</td></tr>
       <tr><th>Couleur</th><td><input id="pColor" type="color" value="${m.color}"></td></tr>
       ${st.isPdf ? `<tr><th>Page</th><td>${m.page}</td></tr>` : ''}
       </table>
-      ${k ? '' : '<p style="margin:8px 10px 0;color:#b42318;line-height:1.4">Réglez l\'échelle du plan pour poser les symboles à leur taille réelle et voir les rayons d\'action.</p>'}
-      <p style="margin:8px 10px 0;color:var(--muted);line-height:1.4">Symbole de mode opératoire : non compté dans le métré. Avec le Pointeur, glissez-le pour le déplacer.</p>
+      ${k || !m.showR ? '' : '<p style="margin:8px 10px 0;color:#b42318;line-height:1.4">Réglez l\'échelle du plan pour voir le rayon d\'action.</p>'}
+      <p style="margin:8px 10px 0;color:var(--muted);line-height:1.4">Symbole de mode opératoire : non compté dans le métré. Avec le Pointeur : glissez-le pour le déplacer, tirez un coin pour changer sa taille, la poignée ronde pour le tourner (Maj : par 15°).</p>
       <button class="pbtn" id="pDel">Supprimer</button>`;
     const upd = (tree) => { persist(); if (tree) renderTree(); draw(); };
     $('pName').onchange = e => { m.name = e.target.value || trText(S.n); persist(); refresh(); };
     $('pLabel').oninput = e => { m.label = e.target.value; upd(true); };
-    if (k) $('pSize').onchange = e => { const v = num(e.target.value); if (v > 0) { m.size = v / k; upd(); } };
-    const resize = f => { m.size *= f; if (k) $('pSize').value = num1(m.size * k); upd(); };
+    const resize = f => { m.size *= f; upd(); };
     $('pSmaller').onclick = () => resize(1 / 1.15); $('pBigger').onclick = () => resize(1.15);
     const rot = v => { m.rot = ((Math.round(v) % 360) + 360) % 360; $('pRot').value = m.rot; upd(); };
     $('pRot').onchange = e => rot(num(e.target.value) || 0);
@@ -7535,8 +7579,9 @@ cv.addEventListener('mousedown', e => {
   if (st.tool === 'pan' || e.button === 1 || st.space) {
     drag = { x: e.clientX, y: e.clientY, vx: st.view.x, vy: st.view.y, moved:false, mid: e.button === 1 || st.space };
     if (st.tool === 'pan' && e.button === 0 && !st.space && st.img) {   // un dessin ou un texte sous la souris : on le déplace
-      const r = cv.getBoundingClientRect(), w = toWorld(e.clientX - r.left, e.clientY - r.top), h = hitTest(w);
-      if (isMovable(h)) drag.move = { m: h, w, orig: JSON.stringify(h.type === 'draw' ? h.points : { x: h.x, y: h.y }) };
+      const r = cv.getBoundingClientRect(), w = toWorld(e.clientX - r.left, e.clientY - r.top), sh = symHandleAt(e.clientX - r.left, e.clientY - r.top), h = sh ? null : hitTest(w);
+      if (sh) drag.symEdit = sh;   // poignée d'un symbole : taille ou rotation
+      else if (isMovable(h)) drag.move = { m: h, w, orig: JSON.stringify(h.type === 'draw' ? h.points : { x: h.x, y: h.y }) };
     }
     e.preventDefault();
   } else if (st.tool === 'draw' && e.button === 0 && st.img) {   // outil Dessin : début d'une forme
@@ -7559,6 +7604,7 @@ window.addEventListener('mousemove', e => {
   const r = cv.getBoundingClientRect();
   if (drag) {
     if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 3) { drag.moved = true; cv.style.cursor = 'grabbing'; }
+    if (drag.symEdit) { if (drag.moved) { symEditMove(drag.symEdit, toWorld(e.clientX - r.left, e.clientY - r.top), e.shiftKey); cv.style.cursor = drag.symEdit.kind === 'rot' ? 'grabbing' : 'nwse-resize'; draw(); } return; }
     if (drag.moved && drag.move) {   // déplacement d'un dessin ou d'un texte
       const w = toWorld(e.clientX - r.left, e.clientY - r.top), dx = w.x - drag.move.w.x, dy = w.y - drag.move.w.y, o = JSON.parse(drag.move.orig), m = drag.move.m;
       if (m.type !== 'draw') { m.x = o.x + dx; m.y = o.y + dy; } else m.points = o.map(q => ({ x: q.x + dx, y: q.y + dy }));
@@ -7590,6 +7636,8 @@ window.addEventListener('mousemove', e => {
   if (st.tool === 'pan') {   // survol : on entoure le métré sous la souris
     const h = st.img ? hitTest(st.mouse) : null;
     if (h !== st.hover) { st.hover = h; cv.style.cursor = h ? 'pointer' : 'default'; draw(); }
+    const sh = st.img && symHandleAt(e.clientX - r.left, e.clientY - r.top);
+    cv.style.cursor = sh ? (sh.kind === 'rot' ? 'grab' : 'nwse-resize') : h ? 'pointer' : 'default';
   }
   if (st.cur || st.tool === 'erase' || st.tool === 'sym' || (st.snap && SNAP_TOOLS.includes(st.tool))) draw();
 });
@@ -7604,6 +7652,7 @@ window.addEventListener('mouseup', () => {
   if (!drag) return;
   if (drag.moved || drag.mid) st._skipClick = true;
   if (drag.move && drag.moved) { st.sel = drag.move.m.id; persist(); refresh(); }
+  if (drag.symEdit && drag.moved) { persist(); refresh(); }
   drag = null; cv.style.cursor = st.tool === 'pan' ? 'default' : st.tool === 'erase' ? 'none' : 'crosshair';
 });
 cv.addEventListener('click', e => {
