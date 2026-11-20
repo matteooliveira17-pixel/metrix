@@ -219,6 +219,28 @@
   html.dark .pp-it { background:#2d333c; border-color:#46505e; }
   html.dark .pp-it:hover, html.dark .pp-it.on { border-color:#4c86d8; background:#323c4b; }
   html.dark .dlg p.pp-loc { color:#a6b1c2; }
+  /* Mode opératoire : galerie de symboles (comme « Formes » de PowerPoint) */
+  .rb .dd { font-size:9px; margin-left:2px; opacity:.75; }
+  .sym-pop { position:fixed; z-index:45; width:min(586px, calc(100vw - 16px)); max-height:min(560px, calc(100vh - 140px)); display:flex; flex-direction:column;
+             background:#fff; border:1px solid #9aa4b2; border-radius:8px; box-shadow:0 12px 34px rgba(0,0,0,.28); overflow:hidden; }
+  .sym-pop[hidden] { display:none; }
+  .sym-pop input { margin:8px 10px 4px; padding:6px 9px; font:inherit; border:1px solid #b9c3d2; border-radius:6px; outline:none; }
+  .sym-pop input:focus { border-color:#2b579a; box-shadow:0 0 0 2px rgba(43,87,154,.18); }
+  #symGal { overflow:auto; padding:0 6px 8px; }
+  .sym-opt { display:flex; align-items:center; gap:6px; margin:2px 12px 2px; font-size:12px; color:#3a4a63; cursor:pointer; }
+  .sym-opt input { margin:0; padding:0; box-shadow:none; }
+  html.dark .sym-opt { color:#b7c3d6; }
+  .sym-h { position:sticky; top:0; background:#eef1f6; color:#2b3442; font-weight:600; font-size:12px; padding:5px 8px; margin:8px 0 4px; border-radius:4px; z-index:1; }
+  .sym-g { display:grid; grid-template-columns:repeat(auto-fill, 46px); gap:2px; padding:0 2px; }
+  .sym-it { width:46px; height:46px; display:grid; place-items:center; border:1px solid transparent; border-radius:6px; background:none; cursor:pointer; padding:0; }
+  .sym-it:hover, .sym-it:focus-visible { background:#e5eefb; border-color:#7aa3e0; outline:none; }
+  .sym-none { padding:16px; color:#6b7686; text-align:center; }
+  .sym-pi svg { vertical-align:middle; }
+  html.dark .sym-pop { background:#262b33; border-color:#4a5260; box-shadow:0 12px 34px rgba(0,0,0,.6); }
+  html.dark .sym-pop input { background:#1f232a; color:#e6e9ee; border-color:#4a5260; }
+  html.dark .sym-h { background:#2f3540; color:#dfe5ee; }
+  html.dark .sym-it { background:#e9edf3; }
+  html.dark .sym-it:hover { background:#fff; border-color:#4c86d8; }
   /* boîte de dialogue */
   .modal { position:fixed; inset:0; background:rgba(0,0,0,.08); display:flex; align-items:center; justify-content:center; z-index:50; }
   .dlg { background:#fff; border:1px solid #7a8899; box-shadow:0 8px 28px rgba(0,0,0,.3); width:300px; }
@@ -961,6 +983,12 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
   </div><div class="cap">Annoter</div></div>
 
   <div class="grp"><div class="items">
+    <button class="rb" id="symBtn" title="Mode opératoire : grues, manitous, chariots, échafaudages, nacelles, installations et signalisation de chantier">
+      <svg class="sym-ico" viewBox="0 0 32 32"></svg>
+      <span>Symboles<span class="dd">▼</span></span></button>
+  </div><div class="cap">Mode opératoire</div></div>
+
+  <div class="grp"><div class="items">
     <button class="rb" id="fit" title="Ajuster à la fenêtre (F)">
       <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#eef4fc" stroke="#7a8ca5" stroke-width="1.5"/><path d="M16 8v16M8 16h16" stroke="#1f5fbf" stroke-width="1.5"/><path d="m16 6-3 4h6zM16 26l-3-4h6zM6 16l4-3v6zM26 16l-4-3v6z" fill="#1f5fbf"/></svg>
       Ajuster à la fenêtre</button>
@@ -1229,6 +1257,7 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
   </div>
 </div></div>
 
+<div class="sym-pop" id="symPop" hidden><input id="symQ" type="search" placeholder="Rechercher un symbole (grue, manitou, nacelle…)" autocomplete="off"><label class="sym-opt"><input type="checkbox" id="symRChk"> Afficher les rayons d'action des grues et des engins</label><div id="symGal"></div></div>
 <div class="modal" id="modal" hidden><div class="dlg">
   <div class="t"><span id="dlgTitle"></span><button id="dlgX">✕</button></div>
   <div id="dlgBody"></div>
@@ -1249,7 +1278,7 @@ const MOD = IS_MAC ? 'Cmd' : 'Ctrl';   // touche des raccourcis selon le systèm
 const PDF_RENDER = 2;            // résolution de rendu des PDF (px par point PDF)
 const COLORS = ['#e5484d','#1f6feb','#30a46c','#f76b15','#8e4ec6','#0d9488','#d6409f','#a18072'];
 const TYPES = { line:'Longueur', area:'Surface', count:'Compteur', sketch:'Annotation', draw:'Dessin', text:'Texte' };
-const GROUPS = { area:'Surfaces', line:'Longueurs', count:'Compteurs', sketch:'Annotations' };
+const GROUPS = { area:'Surfaces', line:'Longueurs', count:'Compteurs', sketch:'Annotations', sym:'Mode opératoire' };
 const TOOL_NAMES = { draw:'Dessin', text:'Texte', pan:'Pointeur', calib:'Ajustement manuel de l\'échelle', line:'Longueur', area:'Surface', rect:'Rectangle', circle:'Cercle', arc:'Arc', count:'Compteur', erase:'Gomme', voidrect:'Vide rectangle', void:'Vide libre' };
 const HELP = {
   pan:   'Pointeur — cliquez un métré pour le sélectionner (touche effacer pour le supprimer) · 2 doigts pour déplacer le plan · pincer (ou ' + MOD + ' + molette) pour zoomer',
@@ -1260,6 +1289,7 @@ const HELP = {
   circle: 'Cercle — cliquez les 2 extrémités d\'un diamètre : surface (m²) et diamètre · les cercles s\'ajoutent à la surface en cours (« Nouvelle surface » ou N pour en changer)',
   arc:   'Arc — cliquez le départ, puis l\'arrivée, puis un point de la courbe : longueur de l\'arc · s\'ajoute à la longueur en cours (« Nouvelle longueur » ou N pour en changer)',
   draw:  'Dessin — choisissez la forme, la couleur et l\'épaisseur dans la barre au-dessus du plan, puis tracez en maintenant le clic · Maj : angles de 45° ou formes régulières · annotation non comptée dans le métré',
+  sym:   'Symbole — choisissez un symbole dans « Symboles » puis cliquez sur le plan',
   text:  'Texte — cliquez sur le plan et tapez · Entrée pour valider, Maj + Entrée pour aller à la ligne · avec le Pointeur : glisser pour déplacer, double-clic pour modifier',
   count: 'Compteur — clic sur chaque élément · Entrée ou double-clic pour terminer le groupe',
   free: 'Main levée — maintenez le clic et dessinez : trait ouvert = longueur (m), boucle refermée sur son départ = surface (m²) · ' + MOD + ' + Z pour annuler le dernier tracé',
@@ -1272,13 +1302,14 @@ const ICON = {
   line:  '<svg viewBox="0 0 16 16"><path d="M3 2v11h11" fill="none" stroke="#1f5fbf" stroke-width="2"/></svg>',
   count: '<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="#c0202a"/></svg>',
   sketch: '<svg viewBox="0 0 16 16"><path d="M2 12c2-5 4 1 6-3s3-5 6-6" fill="none" stroke="#d6409f" stroke-width="2" stroke-linecap="round"/></svg>',
+  sym: '<svg viewBox="0 0 16 16"><path d="M5 15V4M2 4h13M5 1v3M12 4v5" fill="none" stroke="#c28a00" stroke-width="1.8"/><path d="M2 4h3v2H2z" fill="#6b7280"/></svg>',
 };
 
 const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.21';
+const METRIX_VERSION = '3.22';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -2109,6 +2140,81 @@ addTr([
   ["Enregistrement impossible : le dossier du projet n'est plus accessible.","Unable to save: the project folder is no longer accessible.","Não foi possível guardar: a pasta do projeto já não está acessível.","No se puede guardar: la carpeta del proyecto ya no es accesible."],
   ["{n} page{s}","{n} page{s}","{n} página{s}","{n} página{s}"],
   ["Retirer ce plan du projet","Remove this plan from the project","Retirar esta planta do projeto","Quitar este plano del proyecto"],
+  ["Symboles","Symbols","Símbolos","Símbolos"],
+  ["Mode opératoire","Method statement","Modo operatório","Modo operativo"],
+  ["Mode opératoire : grues, manitous, chariots, échafaudages, nacelles, installations et signalisation de chantier","Method statement: cranes, telehandlers, forklifts, scaffolding, aerial platforms, site facilities and signage","Modo operatório: gruas, manipuladores telescópicos, empilhadores, andaimes, plataformas elevatórias, instalações e sinalização de estaleiro","Modo operativo: grúas, manipuladoras telescópicas, carretillas, andamios, plataformas elevadoras, instalaciones y señalización de obra"],
+  ["Rechercher un symbole (grue, manitou, nacelle…)","Search for a symbol (crane, telehandler, platform…)","Procurar um símbolo (grua, manipulador, plataforma…)","Buscar un símbolo (grúa, manipuladora, plataforma…)"],
+  ["Afficher les rayons d'action des grues et des engins","Show the working radius of cranes and machines","Mostrar o raio de ação das gruas e máquinas","Mostrar el radio de acción de grúas y máquinas"],
+  ["Symboles récemment utilisés","Recently used symbols","Símbolos usados recentemente","Símbolos usados recientemente"],
+  ["Aucun symbole trouvé.","No symbol found.","Nenhum símbolo encontrado.","No se encontró ningún símbolo."],
+  ["Symbole — choisissez un symbole dans « Symboles » puis cliquez sur le plan","Symbol — choose a symbol in “Symbols”, then click on the plan","Símbolo — escolha um símbolo em « Símbolos » e clique na planta","Símbolo — elija un símbolo en « Símbolos » y haga clic en el plano"],
+  ["Symbole — cliquez sur le plan pour placer « {n} » · Échap pour annuler","Symbol — click on the plan to place “{n}” · Esc to cancel","Símbolo — clique na planta para colocar « {n} » · Esc para cancelar","Símbolo — haga clic en el plano para colocar « {n} » · Esc para cancelar"],
+  ["Symbole","Symbol","Símbolo","Símbolo"],
+  ["Repère","Tag","Referência","Referencia"],
+  ["Ex. : G1, M2…","E.g. C1, T2…","Ex.: G1, M2…","Ej.: G1, M2…"],
+  ["Rotation","Rotation","Rotação","Rotación"],
+  ["Tourner de 15° à gauche","Rotate 15° left","Rodar 15° para a esquerda","Girar 15° a la izquierda"],
+  ["Tourner de 15° à droite","Rotate 15° right","Rodar 15° para a direita","Girar 15° a la derecha"],
+  ["Miroir","Mirror","Espelho","Espejo"],
+  ["Retourner","Flip","Inverter","Voltear"],
+  ["Rayon d'action","Working radius","Raio de ação","Radio de acción"],
+  ["Réglez l'échelle du plan pour poser les symboles à leur taille réelle et voir les rayons d'action.","Set the plan scale to place symbols at their real size and see working radii.","Defina a escala da planta para colocar os símbolos no tamanho real e ver os raios de ação.","Ajuste la escala del plano para colocar los símbolos a su tamaño real y ver los radios de acción."],
+  ["Symbole de mode opératoire : non compté dans le métré. Avec le Pointeur, glissez-le pour le déplacer.","Method statement symbol: not counted in the takeoff. With the Pointer, drag it to move it.","Símbolo de modo operatório: não contado na medição. Com o Ponteiro, arraste-o para o mover.","Símbolo de modo operativo: no se cuenta en la medición. Con el Puntero, arrástrelo para moverlo."],
+  ["Levage","Lifting","Elevação","Elevación"],
+  ["Manutention","Handling","Movimentação","Manutención"],
+  ["Accès en hauteur","Work at height","Acesso em altura","Acceso en altura"],
+  ["Engins et camions","Machines and trucks","Máquinas e camiões","Máquinas y camiones"],
+  ["Installations de chantier","Site facilities","Instalações de estaleiro","Instalaciones de obra"],
+  ["Sécurité et circulation","Safety and traffic","Segurança e circulação","Seguridad y circulación"],
+  ["Grue à tour","Tower crane","Grua torre","Grúa torre"],
+  ["Grue mobile","Mobile crane","Grua móvel","Grúa móvil"],
+  ["Camion-grue","Truck-mounted crane","Camião-grua","Camión grúa"],
+  ["Mini-grue araignée","Spider crane","Minigrua aranha","Minigrúa araña"],
+  ["Monte-matériaux","Material hoist","Monta-cargas","Montacargas"],
+  ["Manitou (chariot télescopique)","Telehandler","Manipulador telescópico","Manipuladora telescópica"],
+  ["Manitou rotatif","Rotating telehandler","Manipulador telescópico rotativo","Manipuladora telescópica giratoria"],
+  ["Chariot élévateur","Forklift","Empilhador","Carretilla elevadora"],
+  ["Transpalette","Pallet truck","Porta-paletes","Transpaleta"],
+  ["Dumper","Dumper","Dumper","Dumper"],
+  ["Échafaudage de façade","Facade scaffolding","Andaime de fachada","Andamio de fachada"],
+  ["Échafaudage roulant","Mobile scaffold tower","Andaime móvel","Andamio móvil"],
+  ["Nacelle ciseaux","Scissor lift","Plataforma tesoura","Plataforma de tijera"],
+  ["Nacelle articulée","Articulated boom lift","Plataforma articulada","Plataforma articulada"],
+  ["Nacelle sur camion","Truck-mounted aerial platform","Plataforma sobre camião","Plataforma sobre camión"],
+  ["Tour d'escalier","Stair tower","Torre de escadas","Torre de escaleras"],
+  ["Étaiement","Shoring","Escoramento","Apuntalamiento"],
+  ["Pelle hydraulique","Excavator","Escavadora","Excavadora"],
+  ["Mini-pelle","Mini excavator","Miniescavadora","Miniexcavadora"],
+  ["Chargeuse","Wheel loader","Pá carregadora","Cargadora"],
+  ["Compacteur","Roller compactor","Cilindro compactador","Rodillo compactador"],
+  ["Camion benne","Tipper truck","Camião basculante","Camión volquete"],
+  ["Camion toupie (béton)","Concrete mixer truck","Camião betoneira","Camión hormigonera"],
+  ["Pompe à béton","Concrete pump","Bomba de betão","Bomba de hormigón"],
+  ["Camion plateau / semi","Flatbed truck / semi-trailer","Camião plataforma / semirreboque","Camión plataforma / semirremolque"],
+  ["Base vie (bungalow)","Site cabin","Contentor de estaleiro","Caseta de obra"],
+  ["Conteneur de stockage","Storage container","Contentor de armazenamento","Contenedor de almacenamiento"],
+  ["WC de chantier","Site toilet","WC de estaleiro","WC de obra"],
+  ["Benne à déchets","Waste skip","Contentor de resíduos","Contenedor de residuos"],
+  ["Benne de tri","Sorting skip","Contentor de triagem","Contenedor de clasificación"],
+  ["Silo","Silo","Silo","Silo"],
+  ["Groupe électrogène","Generator","Gerador","Grupo electrógeno"],
+  ["Coffret électrique","Electrical cabinet","Quadro elétrico","Cuadro eléctrico"],
+  ["Point d'eau","Water point","Ponto de água","Punto de agua"],
+  ["Mât d'éclairage","Lighting tower","Torre de iluminação","Torre de iluminación"],
+  ["Zone de stockage","Storage area","Zona de armazenamento","Zona de almacenamiento"],
+  ["Aire de livraison","Delivery area","Zona de entregas","Zona de entregas"],
+  ["Clôture de chantier","Site fence","Vedação de estaleiro","Valla de obra"],
+  ["Entrée de chantier","Site entrance","Entrada do estaleiro","Entrada de obra"],
+  ["Cheminement piéton","Pedestrian walkway","Percurso pedonal","Paso peatonal"],
+  ["Point de rassemblement","Assembly point","Ponto de encontro","Punto de reunión"],
+  ["Extincteur","Fire extinguisher","Extintor","Extintor"],
+  ["Trousse de secours","First aid kit","Kit de primeiros socorros","Botiquín"],
+  ["Danger","Danger","Perigo","Peligro"],
+  ["Cône de balisage","Traffic cone","Cone de sinalização","Cono de señalización"],
+  ["Sens de circulation","Traffic direction","Sentido de circulação","Sentido de circulación"],
+  ["Accès interdit","No entry","Acesso proibido","Acceso prohibido"],
+  ["Port du casque obligatoire","Hard hat required","Uso obrigatório de capacete","Uso obligatorio de casco"],
+  ["Stationnement","Parking","Estacionamento","Aparcamiento"],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -2870,6 +2976,81 @@ addTr2([
   ["Enregistrement impossible : le dossier du projet n'est plus accessible.","Speichern nicht möglich: Der Projektordner ist nicht mehr erreichbar.","Opslaan niet mogelijk: de projectmap is niet meer bereikbaar.","无法保存：项目文件夹已无法访问。","تعذّر الحفظ: لم يعد مجلد المشروع متاحًا.","Impossibile salvare: la cartella del progetto non è più accessibile.","Не удалось сохранить: папка проекта больше недоступна."],
   ["{n} page{s}","Seiten: {n}","pagina's: {n}","{n} 页","صفحات: {n}","pagine: {n}","страниц: {n}"],
   ["Retirer ce plan du projet","Diesen Plan aus dem Projekt entfernen","Deze tekening uit het project verwijderen","从项目中移除此图纸","إزالة هذا المخطط من المشروع","Rimuovi questo disegno dal progetto","Убрать этот чертёж из проекта"],
+  ["Symboles","Symbole","Symbolen","符号","رموز","Simboli","Символы"],
+  ["Mode opératoire","Arbeitsablauf","Werkmethode","施工方案","طريقة التنفيذ","Modalità operativa","Порядок производства работ"],
+  ["Mode opératoire : grues, manitous, chariots, échafaudages, nacelles, installations et signalisation de chantier","Arbeitsablauf: Krane, Teleskoplader, Gabelstapler, Gerüste, Hubarbeitsbühnen, Baustelleneinrichtung und Beschilderung","Werkmethode: kranen, verreikers, heftrucks, steigers, hoogwerkers, bouwplaatsvoorzieningen en bebording","施工方案：起重机、伸缩臂叉装车、叉车、脚手架、高空作业平台、工地设施和标志","طريقة التنفيذ: رافعات، رافعات تلسكوبية، رافعات شوكية، سقالات، منصات رفع، مرافق الموقع واللافتات","Modalità operativa: gru, sollevatori telescopici, carrelli elevatori, ponteggi, piattaforme aeree, impianti e segnaletica di cantiere","ППР: краны, телескопические погрузчики, вилочные погрузчики, леса, подъёмники, бытовки и знаки стройплощадки"],
+  ["Rechercher un symbole (grue, manitou, nacelle…)","Symbol suchen (Kran, Teleskoplader, Bühne…)","Symbool zoeken (kraan, verreiker, hoogwerker…)","搜索符号（起重机、伸缩臂叉装车、高空作业平台…）","ابحث عن رمز (رافعة، رافعة تلسكوبية، منصة…)","Cerca un simbolo (gru, sollevatore, piattaforma…)","Поиск символа (кран, погрузчик, подъёмник…)"],
+  ["Afficher les rayons d'action des grues et des engins","Arbeitsradius von Kranen und Maschinen anzeigen","Werkbereik van kranen en machines tonen","显示起重机和机械的作业半径","إظهار نصف قطر عمل الرافعات والآليات","Mostra il raggio d'azione di gru e macchine","Показать радиус действия кранов и машин"],
+  ["Symboles récemment utilisés","Zuletzt verwendete Symbole","Recent gebruikte symbolen","最近使用的符号","الرموز المستخدمة مؤخرًا","Simboli usati di recente","Недавно использованные символы"],
+  ["Aucun symbole trouvé.","Kein Symbol gefunden.","Geen symbool gevonden.","未找到符号。","لم يُعثر على أي رمز.","Nessun simbolo trovato.","Символы не найдены."],
+  ["Symbole — choisissez un symbole dans « Symboles » puis cliquez sur le plan","Symbol — wählen Sie ein Symbol unter „Symbole“ und klicken Sie dann auf den Plan","Symbool — kies een symbool bij „Symbolen” en klik dan op de tekening","符号 — 在“符号”中选择一个符号，然后点击图纸","رمز — اختر رمزًا من «رموز» ثم انقر على المخطط","Simbolo — scegli un simbolo in «Simboli», poi fai clic sul disegno","Символ — выберите символ в «Символы», затем щёлкните на чертеже"],
+  ["Symbole — cliquez sur le plan pour placer « {n} » · Échap pour annuler","Symbol — klicken Sie auf den Plan, um „{n}“ zu platzieren · Esc zum Abbrechen","Symbool — klik op de tekening om „{n}” te plaatsen · Esc om te annuleren","符号 — 点击图纸放置“{n}” · 按 Esc 取消","رمز — انقر على المخطط لوضع «{n}» · Esc للإلغاء","Simbolo — fai clic sul disegno per posizionare «{n}» · Esc per annullare","Символ — щёлкните на чертеже, чтобы поставить «{n}» · Esc — отмена"],
+  ["Symbole","Symbol","Symbool","符号","رمز","Simbolo","Символ"],
+  ["Repère","Kennung","Kenmerk","标记","مرجع","Riferimento","Метка"],
+  ["Ex. : G1, M2…","z. B. K1, T2…","Bijv. K1, V2…","例如：G1、M2…","مثال: G1، M2…","Es.: G1, M2…","Напр.: К1, П2…"],
+  ["Rotation","Drehung","Draaiing","旋转","تدوير","Rotazione","Поворот"],
+  ["Tourner de 15° à gauche","15° nach links drehen","15° naar links draaien","向左旋转 15°","تدوير 15° لليسار","Ruota di 15° a sinistra","Повернуть на 15° влево"],
+  ["Tourner de 15° à droite","15° nach rechts drehen","15° naar rechts draaien","向右旋转 15°","تدوير 15° لليمين","Ruota di 15° a destra","Повернуть на 15° вправо"],
+  ["Miroir","Spiegeln","Spiegelen","镜像","انعكاس","Specchio","Зеркально"],
+  ["Retourner","Umdrehen","Omdraaien","翻转","قلب","Capovolgi","Отразить"],
+  ["Rayon d'action","Arbeitsradius","Werkbereik","作业半径","نصف قطر العمل","Raggio d'azione","Радиус действия"],
+  ["Réglez l'échelle du plan pour poser les symboles à leur taille réelle et voir les rayons d'action.","Stellen Sie den Planmaßstab ein, um Symbole in realer Größe zu platzieren und Arbeitsradien zu sehen.","Stel de schaal van de tekening in om symbolen op ware grootte te plaatsen en werkbereiken te zien.","请设置图纸比例，以按实际尺寸放置符号并显示作业半径。","اضبط مقياس المخطط لوضع الرموز بحجمها الحقيقي ورؤية أنصاف أقطار العمل.","Imposta la scala del disegno per posizionare i simboli a grandezza reale e vedere i raggi d'azione.","Задайте масштаб чертежа, чтобы ставить символы в реальном размере и видеть радиусы действия."],
+  ["Symbole de mode opératoire : non compté dans le métré. Avec le Pointeur, glissez-le pour le déplacer.","Symbol des Arbeitsablaufs: wird im Aufmaß nicht gezählt. Mit dem Zeiger ziehen, um es zu verschieben.","Symbool van de werkmethode: telt niet mee in de meting. Sleep het met de Aanwijzer om het te verplaatsen.","施工方案符号：不计入测量。使用指针拖动即可移动。","رمز طريقة التنفيذ: لا يُحتسب في القياس. اسحبه بالمؤشر لتحريكه.","Simbolo della modalità operativa: non conteggiato nel computo. Con il Puntatore, trascinalo per spostarlo.","Символ ППР: не учитывается в замерах. Перетащите его Указателем, чтобы переместить."],
+  ["Levage","Heben","Hijsen","起重","الرفع","Sollevamento","Подъём"],
+  ["Manutention","Umschlag","Transport","搬运","المناولة","Movimentazione","Перемещение грузов"],
+  ["Accès en hauteur","Arbeiten in der Höhe","Werken op hoogte","高处作业","العمل على ارتفاع","Accesso in quota","Работы на высоте"],
+  ["Engins et camions","Maschinen und Lkw","Machines en vrachtwagens","机械和卡车","الآليات والشاحنات","Macchine e camion","Техника и грузовики"],
+  ["Installations de chantier","Baustelleneinrichtung","Bouwplaatsvoorzieningen","工地设施","مرافق الموقع","Impianti di cantiere","Обустройство площадки"],
+  ["Sécurité et circulation","Sicherheit und Verkehr","Veiligheid en verkeer","安全与交通","السلامة وحركة السير","Sicurezza e circolazione","Безопасность и движение"],
+  ["Grue à tour","Turmdrehkran","Torenkraan","塔式起重机","رافعة برجية","Gru a torre","Башенный кран"],
+  ["Grue mobile","Mobilkran","Mobiele kraan","汽车起重机","رافعة متنقلة","Gru mobile","Автокран"],
+  ["Camion-grue","Lkw mit Ladekran","Vrachtwagen met kraan","随车吊","شاحنة رافعة","Camion gru","Кран-манипулятор"],
+  ["Mini-grue araignée","Minikran (Spinnenkran)","Spinkraan","蜘蛛吊车","رافعة عنكبوتية صغيرة","Minigru ragno","Мини-кран «паук»"],
+  ["Monte-matériaux","Bauaufzug","Bouwlift","物料提升机","رافعة مواد","Montacarichi","Грузовой подъёмник"],
+  ["Manitou (chariot télescopique)","Teleskoplader","Verreiker","伸缩臂叉装车","رافعة تلسكوبية","Sollevatore telescopico","Телескопический погрузчик"],
+  ["Manitou rotatif","Drehbarer Teleskoplader","Roterende verreiker","旋转伸缩臂叉装车","رافعة تلسكوبية دوّارة","Sollevatore telescopico rotativo","Поворотный телескопический погрузчик"],
+  ["Chariot élévateur","Gabelstapler","Heftruck","叉车","رافعة شوكية","Carrello elevatore","Вилочный погрузчик"],
+  ["Transpalette","Hubwagen","Palletwagen","托盘搬运车","رافعة منصات يدوية","Transpallet","Гидравлическая тележка"],
+  ["Dumper","Dumper","Dumper","翻斗车","قلابة صغيرة","Dumper","Самосвал-думпер"],
+  ["Échafaudage de façade","Fassadengerüst","Gevelsteiger","外墙脚手架","سقالة واجهة","Ponteggio di facciata","Фасадные леса"],
+  ["Échafaudage roulant","Fahrgerüst","Rolsteiger","移动脚手架","سقالة متنقلة","Trabattello","Передвижная вышка-тура"],
+  ["Nacelle ciseaux","Scherenbühne","Schaarhoogwerker","剪叉式升降平台","منصة رفع مقصية","Piattaforma a pantografo","Ножничный подъёмник"],
+  ["Nacelle articulée","Gelenkteleskopbühne","Knikarmhoogwerker","曲臂式高空作业平台","منصة رفع مفصلية","Piattaforma articolata","Коленчатый подъёмник"],
+  ["Nacelle sur camion","Lkw-Arbeitsbühne","Hoogwerker op vrachtwagen","车载高空作业平台","منصة رفع على شاحنة","Piattaforma su autocarro","Автовышка"],
+  ["Tour d'escalier","Treppenturm","Trappentoren","楼梯塔","برج سلالم","Torre scala","Лестничная башня"],
+  ["Étaiement","Abstützung","Stempelwerk","支撑","تدعيم","Puntellatura","Опалубочные стойки"],
+  ["Pelle hydraulique","Hydraulikbagger","Graafmachine","液压挖掘机","حفارة هيدروليكية","Escavatore","Экскаватор"],
+  ["Mini-pelle","Minibagger","Minigraver","小型挖掘机","حفارة صغيرة","Miniescavatore","Мини-экскаватор"],
+  ["Chargeuse","Radlader","Wiellader","装载机","جرافة تحميل","Pala gommata","Фронтальный погрузчик"],
+  ["Compacteur","Walze","Wals","压路机","مدحلة","Rullo compattatore","Каток"],
+  ["Camion benne","Kipper","Kipwagen","自卸车","شاحنة قلابة","Autocarro ribaltabile","Самосвал"],
+  ["Camion toupie (béton)","Fahrmischer","Betonmixer","混凝土搅拌车","شاحنة خلاطة خرسانة","Autobetoniera","Автобетоносмеситель"],
+  ["Pompe à béton","Betonpumpe","Betonpomp","混凝土泵车","مضخة خرسانة","Pompa per calcestruzzo","Бетононасос"],
+  ["Camion plateau / semi","Pritschen-Lkw / Sattelzug","Vrachtwagen met laadvloer / oplegger","平板车 / 半挂车","شاحنة مسطحة / نصف مقطورة","Camion pianale / semirimorchio","Бортовой грузовик / полуприцеп"],
+  ["Base vie (bungalow)","Baucontainer","Bouwkeet","工地板房","مقصورة الموقع","Baracca di cantiere","Бытовка"],
+  ["Conteneur de stockage","Lagercontainer","Opslagcontainer","储物集装箱","حاوية تخزين","Container di deposito","Складской контейнер"],
+  ["WC de chantier","Baustellen-WC","Bouwplaatstoilet","工地厕所","مرحاض الموقع","WC di cantiere","Туалетная кабина"],
+  ["Benne à déchets","Abfallmulde","Afvalcontainer","垃圾箱","حاوية نفايات","Cassone rifiuti","Контейнер для отходов"],
+  ["Benne de tri","Sortiermulde","Sorteercontainer","分类垃圾箱","حاوية فرز","Cassone per la differenziata","Контейнер для сортировки"],
+  ["Silo","Silo","Silo","筒仓","صومعة","Silo","Силос"],
+  ["Groupe électrogène","Stromaggregat","Aggregaat","发电机组","مولد كهربائي","Gruppo elettrogeno","Генератор"],
+  ["Coffret électrique","Baustromverteiler","Bouwstroomkast","配电箱","لوحة كهربائية","Quadro elettrico","Электрощит"],
+  ["Point d'eau","Wasseranschluss","Waterpunt","供水点","نقطة مياه","Punto acqua","Точка водоснабжения"],
+  ["Mât d'éclairage","Lichtmast","Lichtmast","照明灯塔","برج إنارة","Torre faro","Осветительная мачта"],
+  ["Zone de stockage","Lagerfläche","Opslagzone","堆放区","منطقة تخزين","Area di stoccaggio","Зона складирования"],
+  ["Aire de livraison","Anlieferungsfläche","Leveringszone","卸货区","منطقة التسليم","Area di consegna","Зона разгрузки"],
+  ["Clôture de chantier","Bauzaun","Bouwhek","工地围挡","سياج الموقع","Recinzione di cantiere","Ограждение стройплощадки"],
+  ["Entrée de chantier","Baustelleneinfahrt","Ingang bouwplaats","工地入口","مدخل الموقع","Ingresso cantiere","Въезд на стройплощадку"],
+  ["Cheminement piéton","Fußgängerweg","Voetgangerspad","人行通道","ممر المشاة","Percorso pedonale","Пешеходный проход"],
+  ["Point de rassemblement","Sammelplatz","Verzamelplaats","集合点","نقطة التجمع","Punto di raccolta","Место сбора"],
+  ["Extincteur","Feuerlöscher","Brandblusser","灭火器","طفاية حريق","Estintore","Огнетушитель"],
+  ["Trousse de secours","Erste-Hilfe-Kasten","EHBO-kit","急救箱","حقيبة إسعافات أولية","Cassetta di pronto soccorso","Аптечка"],
+  ["Danger","Gefahr","Gevaar","危险","خطر","Pericolo","Опасность"],
+  ["Cône de balisage","Leitkegel","Verkeerskegel","锥形路标","قمع مروري","Cono segnaletico","Сигнальный конус"],
+  ["Sens de circulation","Fahrtrichtung","Rijrichting","行驶方向","اتجاه السير","Senso di circolazione","Направление движения"],
+  ["Accès interdit","Zutritt verboten","Verboden toegang","禁止进入","ممنوع الدخول","Accesso vietato","Вход запрещён"],
+  ["Port du casque obligatoire","Helmpflicht","Helm verplicht","必须佩戴安全帽","ارتداء الخوذة إلزامي","Obbligo del casco","Работать в каске"],
+  ["Stationnement","Parkplatz","Parkeren","停车","موقف","Parcheggio","Стоянка"],
 ]);
 // --- fin des langues ajoutées ---
 
@@ -2973,6 +3154,7 @@ function totalText(m) {
   if (m.type === 'sketch') { const n = pathsOf(m).length; return `${n} trait${n > 1 ? 's' : ''}`; }
   if (m.type === 'draw') return trText(SHAPE_NAMES[m.shape] || 'Dessin');
   if (m.type === 'text') { const t = String(m.text || '').split('\n')[0]; return '« ' + (t.length > 24 ? t.slice(0, 23) + '…' : t) + ' »'; }
+  if (m.type === 'sym') return m.showR && m.r ? `R ${fmt(m.r, m.r % 1 ? 1 : 0)} m` : (m.label || '');
   const { unit, total } = rowValues(m);
   if (total == null) return '—';
   return m.type === 'count' ? `${total} u` : `${fmt(total)} ${unit.u}`;
@@ -3532,6 +3714,7 @@ function draw() {
   }
   if (st.tool === 'pan' && st.hover && st.hover.page === st.page && st.measures.includes(st.hover)) drawHover(st.hover, px);
   if (st.tool === 'erase' && st.mouse && !st.erasing) { const h = eraseTargets(st.mouse); for (const t of h) drawDoomed(t, px); }
+  if (st.tool === 'sym' && st.mouse && SYMS[st.symSel]) drawSym(symNew(st.symSel, st.mouse), false, px, true);   // aperçu sous la souris
 
   if (st.cur) {
     const pts = st.cur.points.slice();
@@ -3726,8 +3909,9 @@ function drawSketch(m, hi, px) {
    Dessin : crayon, ligne, flèche, rectangle, ellipse — couleur et épaisseur au choix.
    Texte : un clic sur le plan ouvre une zone de saisie ; Entrée valide, Maj + Entrée passe à la ligne.
    Avec le Pointeur : un clic sélectionne, glisser déplace, double-clic sur un texte le modifie. */
-const NOTE_TYPES = ['sketch', 'draw', 'text'];
+const NOTE_TYPES = ['sketch', 'draw', 'text', 'sym'];
 const isNote = m => !!m && NOTE_TYPES.includes(m.type);
+const isMovable = m => !!m && (m.type === 'draw' || m.type === 'text' || m.type === 'sym');   // se déplace en le faisant glisser
 const SHAPE_NAMES = { pen: 'Crayon', line: 'Ligne', arrow: 'Flèche', rect: 'Rectangle', ellipse: 'Ellipse' };
 const NOTE_COLORS = ['#e5484d', '#f76b15', '#f5b400', '#30a46c', '#1f6feb', '#8e4ec6', '#111827'];
 const DRAW_W = [2, 4, 8];            // épaisseurs (pixels à l'écran au moment du tracé)
@@ -3743,6 +3927,7 @@ function ellipsePts(a, b, n = 64) {
 }
 // contour d'une annotation (pour la sélection, le survol et la gomme)
 function noteOutline(m) {
+  if (m.type === 'sym') return [symCorners(m)];
   if (m.type === 'text') { const b = textBox(m); return [[{ x: b.x, y: b.y }, { x: b.x + b.w, y: b.y }, { x: b.x + b.w, y: b.y + b.h }, { x: b.x, y: b.y + b.h }, { x: b.x, y: b.y }]]; }
   if (m.type === 'draw') {
     const [a, b] = m.points;
@@ -3754,6 +3939,7 @@ function noteOutline(m) {
   return pathsOf(m);
 }
 function noteHit(m, p, tol) {
+  if (m.type === 'sym') { const h = m.size / 2, a = (m.rot || 0) * Math.PI / 180, dx = p.x - m.x, dy = p.y - m.y, lx = dx * Math.cos(a) + dy * Math.sin(a), ly = -dx * Math.sin(a) + dy * Math.cos(a); return Math.abs(lx) <= h + tol && Math.abs(ly) <= h + tol; }
   if (m.type === 'text') { const b = textBox(m); return p.x >= b.x - tol && p.x <= b.x + b.w + tol && p.y >= b.y - tol && p.y <= b.y + b.h + tol; }
   for (const pts of noteOutline(m)) for (let i = 1; i < pts.length; i++) if (segDist(p, pts[i - 1], pts[i]) < tol + (m.width || 0) / 2) return true;
   return false;
@@ -3886,12 +4072,328 @@ function renderNoteBar() {
   bar.querySelectorAll('.nb-bg').forEach(b => b.onclick = () => { opt.bg = !opt.bg; saveOpts(); renderNoteBar(); });
   translateNode(bar);
 }
+/* ---------- Mode opératoire : symboles de chantier (grues, manitous, chariots, échafaudages…) ----------
+   Chaque symbole est dessiné dans un carré de 64 × 64 : liste de formes simples, utilisée à la fois pour
+   la galerie (SVG) et pour le plan (canevas, net à tous les zooms).
+   r : rectangle [x, y, l, h, arrondi, fond, trait, épaisseur]   c : cercle [x, y, rayon, fond, trait, ép.]
+   e : ellipse [x, y, rx, ry, rotation°, fond, trait, ép.]       p : tracé SVG [d, fond, trait, ép.]
+   l : bras d'engin (trait épais cerné) [d, couleur, épaisseur]  t : texte [texte, x, y, taille, couleur]
+   s : taille par défaut sur le plan (m) ; r : rayon d'action (m) ; R : rayon affiché à la pose. */
+const SYM_Y = '#f5b400', SYM_D = '#2b2f36', SYM_G = '#9ca3af', SYM_K = '#3f4650', SYM_GL = '#bfdbfe', SYM_O = '#f97316', SYM_B = '#2563eb', SYM_W = '#c08a52';
+const symWheel = (x, y, r) => [['c', x, y, r, SYM_K, SYM_D, 1.2], ['c', x, y, r * .42, '#d1d5db', SYM_D, .6]];
+const symCab = (x, col = '#3b82f6') => [['p', `M${x} 48V30h9l5 8v10Z`, col, SYM_D, 1.2], ['p', `M${x + 2} 32h6l3 5h-9Z`, SYM_GL, SYM_D, .7]];
+const symHook = (x, y1, y2) => [['p', `M${x} ${y1}V${y2}`, 0, SYM_D, .8], ['r', x - 2, y2, 4, 3, .6, SYM_D, 0, 0], ['p', `M${x} ${y2 + 3}v2.5a2 2 0 1 0 2.4 2`, 0, SYM_D, 1.1]];
+const SYM_CATS = [
+  ['levage', 'Levage'], ['manut', 'Manutention'], ['hauteur', 'Accès en hauteur'],
+  ['engins', 'Engins et camions'], ['instal', 'Installations de chantier'], ['secu', 'Sécurité et circulation'],
+];
+const SYMS = {
+  // ---- levage ----
+  grue_tour: { n: 'Grue à tour', cat: 'levage', s: 12, r: 40, R: 1, g: [
+    ['r', 12, 57, 16, 4, .5, SYM_G, SYM_D, 1], ['r', 18, 12, 4, 45, 0, SYM_Y, SYM_D, 1.1],
+    ['p', 'M18 14L22 20L18 26L22 32L18 38L22 44L18 50L22 56', 0, SYM_D, .7],
+    ['p', 'M18 12L20 3L22 12Z', SYM_Y, SYM_D, 1], ['p', 'M20 3L61 10M20 3L5 10', 0, SYM_D, .7],
+    ['r', 3, 10, 59, 3, 0, SYM_Y, SYM_D, 1], ['p', 'M24 10L27 13L30 10L33 13L36 10L39 13L42 10L45 13L48 10L51 13L54 10L57 13L60 10', 0, SYM_D, .5],
+    ['r', 3, 13, 8, 6, .5, '#6b7280', SYM_D, 1], ['r', 22, 13, 5, 5, .5, SYM_GL, SYM_D, .9], ...symHook(50, 13, 34)] },
+  grue_mobile: { n: 'Grue mobile', cat: 'levage', s: 12, r: 30, R: 1, g: [
+    ['p', 'M14 34L56 4L59 8L18 38Z', SYM_Y, SYM_D, 1.1], ...symHook(58, 7, 24),
+    ['r', 4, 40, 48, 8, 1, SYM_Y, SYM_D, 1.1], ['r', 12, 32, 20, 8, 1, SYM_Y, SYM_D, 1.1], ['r', 24, 25, 8, 9, 1, SYM_GL, SYM_D, .9],
+    ['p', 'M50 48V31h7l4 7v10Z', SYM_Y, SYM_D, 1.1], ['p', 'M52 33h4l3 5h-7Z', SYM_GL, SYM_D, .7],
+    ['p', 'M6 48L2 55M48 48L52 55M0 55h6M48 55h7', 0, SYM_D, 1.4], ...symWheel(12, 51, 4), ...symWheel(21, 51, 4), ...symWheel(35, 51, 4), ...symWheel(44, 51, 4)] },
+  camion_grue: { n: 'Camion-grue', cat: 'levage', s: 10, r: 15, R: 1, g: [
+    ['r', 3, 38, 38, 6, 0, '#6b7280', SYM_D, 1], ['r', 3, 44, 56, 4, 0, SYM_D, 0, 0], ...symCab(46),
+    ['r', 38, 26, 5, 14, .5, SYM_Y, SYM_D, 1], ['l', 'M40 27L28 12L8 20', SYM_Y, 3.4], ...symHook(8, 21, 30),
+    ['r', 8, 30, 14, 8, 0, SYM_W, SYM_D, .8], ...symWheel(12, 51, 4.5), ...symWheel(23, 51, 4.5), ...symWheel(52, 51, 4.5)] },
+  grue_araignee: { n: 'Mini-grue araignée', cat: 'levage', s: 6, r: 12, R: 1, g: [
+    ['p', 'M24 40L8 30L3 54M40 40L56 30L61 54', 0, SYM_D, 3.2], ['p', 'M24 40L8 30L3 54M40 40L56 30L61 54', 0, SYM_Y, 1.8],
+    ['l', 'M30 38L52 10', SYM_Y, 3.2], ...symHook(52, 11, 24),
+    ['r', 21, 34, 22, 9, 2, SYM_Y, SYM_D, 1.1], ['r', 22, 43, 20, 7, 3.5, SYM_K, SYM_D, 1], ['c', 27, 46.5, 1.6, '#d1d5db', 0, 0], ['c', 37, 46.5, 1.6, '#d1d5db', 0, 0]] },
+  monte_materiaux: { n: 'Monte-matériaux', cat: 'levage', s: 4, g: [
+    ['r', 18, 57, 28, 4, .5, SYM_G, SYM_D, 1], ['r', 26, 4, 6, 53, 0, SYM_Y, SYM_D, 1.1],
+    ['p', 'M26 6L32 12L26 18L32 24L26 30L32 36L26 42L32 48L26 54', 0, SYM_D, .7],
+    ['r', 32, 32, 22, 4, 0, '#6b7280', SYM_D, 1], ['p', 'M34 32V22h18v10M34 26h18', 0, SYM_D, 1.1], ['r', 37, 24, 10, 8, 0, SYM_W, SYM_D, .8]] },
+  // ---- manutention ----
+  manitou: { n: 'Manitou (chariot télescopique)', cat: 'manut', s: 7, r: 14, g: [
+    ['l', 'M12 33L54 14', SYM_Y, 5], ['r', 53, 9, 3.5, 13, .5, SYM_D, 0, 0], ['p', 'M55 22H63', 0, SYM_D, 2.2],
+    ['p', 'M6 45V35h42l7 6v4Z', SYM_Y, SYM_D, 1.2], ['p', 'M21 35V20h10l3 15Z', SYM_GL, SYM_D, 1.2], ['p', 'M20 20h12', 0, SYM_D, 2],
+    ...symWheel(16, 48, 7), ...symWheel(45, 48, 7)] },
+  manitou_rotatif: { n: 'Manitou rotatif', cat: 'manut', s: 8, r: 21, g: [
+    ['l', 'M20 34L56 8', SYM_Y, 4.6], ['p', 'M55 9V20', 0, SYM_D, .8], ...symHook(55, 20, 26),
+    ['r', 7, 42, 48, 6, 1, SYM_Y, SYM_D, 1.1], ['p', 'M16 42V32h24v10Z', SYM_Y, SYM_D, 1.1], ['r', 30, 23, 9, 11, 1, SYM_GL, SYM_D, 1],
+    ['p', 'M8 46L3 56M54 46L60 56M0 56h7M57 56h7', 0, SYM_D, 1.8], ...symWheel(15, 51, 5.5), ...symWheel(46, 51, 5.5)] },
+  chariot_elevateur: { n: 'Chariot élévateur', cat: 'manut', s: 4, g: [
+    ['r', 38, 8, 4, 41, 0, '#6b7280', SYM_D, 1], ['r', 42, 30, 3, 17, 0, SYM_D, 0, 0], ['p', 'M44 48H62', 0, SYM_D, 2.4],
+    ['r', 46, 32, 15, 14, 0, '#d6a76c', SYM_D, 1], ['p', 'M46 39h15M53.5 32v14', 0, '#8a5a2b', .7],
+    ['p', 'M5 47V31q0-4 4-4h27v20Z', SYM_Y, SYM_D, 1.2], ['p', 'M13 27V11h21v16', 0, SYM_D, 2], ['r', 15, 21, 9, 6, 1, SYM_D, 0, 0],
+    ...symWheel(13, 50, 6), ...symWheel(32, 50, 6)] },
+  transpalette: { n: 'Transpalette', cat: 'manut', s: 2, g: [
+    ['p', 'M12 46L5 22', 0, SYM_D, 2.6], ['p', 'M1 21h9', 0, SYM_D, 3], ['r', 8, 42, 11, 10, 1.5, '#dc2626', SYM_D, 1],
+    ['r', 19, 48, 40, 4, 0, '#6b7280', SYM_D, 1], ['r', 21, 40, 36, 8, 0, SYM_W, SYM_D, 1], ['p', 'M21 44h36M33 40v8M45 40v8', 0, '#8a5a2b', .7],
+    ['r', 23, 22, 32, 18, 0, '#d6a76c', SYM_D, 1], ['p', 'M23 31h32', 0, '#8a5a2b', .7], ['c', 13, 55, 3, SYM_K, SYM_D, 1], ['c', 55, 55, 2.5, SYM_K, SYM_D, 1]] },
+  dumper: { n: 'Dumper', cat: 'manut', s: 4, g: [
+    ['p', 'M34 44V28h26l-5 16Z', SYM_Y, SYM_D, 1.2], ['p', 'M38 28l2-4 4 2 4-4 5 3 4-1 3 4', '#9ca3af', SYM_D, .8],
+    ['r', 6, 36, 30, 10, 1, SYM_Y, SYM_D, 1.1], ['p', 'M12 36V16h12v20', 0, SYM_D, 2], ['r', 14, 30, 8, 6, 1, SYM_D, 0, 0],
+    ...symWheel(15, 49, 7), ...symWheel(47, 49, 7)] },
+  // ---- accès en hauteur ----
+  echafaudage: { n: 'Échafaudage de façade', cat: 'hauteur', s: 6, g: [
+    ['r', 8, 17, 48, 3, 0, SYM_W, SYM_D, .8], ['r', 8, 35, 48, 3, 0, SYM_W, SYM_D, .8], ['r', 8, 53, 48, 3, 0, SYM_W, SYM_D, .8],
+    ['p', 'M8 4V60M32 4V60M56 4V60', 0, '#4b5563', 2.4], ['p', 'M8 8H56M8 26H56M8 44H56', 0, '#4b5563', 1.4],
+    ['p', 'M8 53L32 35M32 35L56 17', 0, '#4b5563', 1.1], ['p', 'M4 60h8M28 60h8M52 60h8', 0, SYM_D, 2]] },
+  echafaudage_roulant: { n: 'Échafaudage roulant', cat: 'hauteur', s: 3, g: [
+    ['r', 16, 13, 32, 3, 0, SYM_W, SYM_D, .8], ['p', 'M18 4V54M46 4V54', 0, '#4b5563', 2.4],
+    ['p', 'M18 7H46M18 22H46M18 30H46M18 38H46M18 46H46', 0, '#4b5563', 1.3], ['p', 'M18 46L46 22', 0, '#4b5563', 1],
+    ['p', 'M18 44L7 55M46 44L57 55', 0, '#4b5563', 1.6], ['c', 18, 57, 3, SYM_K, SYM_D, 1], ['c', 46, 57, 3, SYM_K, SYM_D, 1]] },
+  nacelle_ciseaux: { n: 'Nacelle ciseaux', cat: 'hauteur', s: 3, g: [
+    ['p', 'M10 6V16H54V6M10 10H54', 0, SYM_D, 1.4], ['r', 8, 16, 48, 4, 0, SYM_O, SYM_D, 1],
+    ['p', 'M14 20L50 32L14 44M50 20L14 32L50 44', 0, SYM_D, 2.2], ['r', 10, 44, 44, 8, 1, SYM_O, SYM_D, 1.1],
+    ...symWheel(17, 54, 4), ...symWheel(47, 54, 4)] },
+  nacelle_articulee: { n: 'Nacelle articulée', cat: 'hauteur', s: 6, r: 15, g: [
+    ['l', 'M22 36L29 14L47 20', SYM_O, 3.6], ['p', 'M47 20V14', 0, SYM_D, 1.6],
+    ['p', 'M42 14h18v-9M42 14V5M42 8h18', 0, SYM_D, 1.3], ['r', 42, 12, 18, 3, 0, SYM_O, SYM_D, .8],
+    ['r', 6, 42, 38, 8, 1, SYM_O, SYM_D, 1.1], ['r', 13, 34, 16, 8, 1, SYM_O, SYM_D, 1.1],
+    ...symWheel(14, 52, 5), ...symWheel(37, 52, 5)] },
+  nacelle_camion: { n: 'Nacelle sur camion', cat: 'hauteur', s: 9, r: 20, g: [
+    ['l', 'M14 31L38 9', '#e5e7eb', 3.4], ['p', 'M33 3h14v8H33ZM33 6h14', SYM_O, SYM_D, 1.1],
+    ['r', 4, 31, 38, 11, 1, '#e5e7eb', SYM_D, 1.1], ['r', 4, 42, 56, 4, 0, SYM_D, 0, 0], ...symCab(46, SYM_O),
+    ...symWheel(12, 50, 4.5), ...symWheel(23, 50, 4.5), ...symWheel(52, 50, 4.5)] },
+  tour_escalier: { n: 'Tour d\'escalier', cat: 'hauteur', s: 4, g: [
+    ['p', 'M14 56L50 43M50 43L14 30M14 30L50 17', 0, SYM_W, 3.4], ['p', 'M14 50L50 37M50 37L14 24M14 24L50 11', 0, SYM_D, .8],
+    ['p', 'M12 4V60M52 4V60', 0, '#4b5563', 2.4], ['p', 'M12 6H52M12 17H52M12 30H52M12 43H52M12 56H52', 0, '#4b5563', 1.2]] },
+  garde_corps: { n: 'Garde-corps', cat: 'hauteur', s: 3, g: [
+    ['p', 'M8 16V54M32 16V54M56 16V54', 0, '#4b5563', 2.6], ['p', 'M8 18H56M8 34H56', 0, '#4b5563', 2],
+    ['r', 8, 46, 48, 7, 0, '#facc15', SYM_D, 1], ['p', 'M14 46l-5 7M24 46l-5 7M34 46l-5 7M44 46l-5 7M54 46l-5 7', 0, SYM_D, 2], ['p', 'M4 56h56', 0, SYM_D, 1.4]] },
+  etaiement: { n: 'Étaiement', cat: 'hauteur', s: 3, g: [
+    ['r', 4, 4, 56, 5, 0, SYM_Y, SYM_D, 1], ['p', 'M10 9H22M26 9H38M42 9H54M10 58H22M26 58H38M42 58H54', 0, SYM_D, 2.4],
+    ['r', 15, 10, 2, 22, 0, SYM_G, SYM_D, .6], ['r', 31, 10, 2, 22, 0, SYM_G, SYM_D, .6], ['r', 47, 10, 2, 22, 0, SYM_G, SYM_D, .6],
+    ['r', 14, 31, 4, 26, 0, SYM_O, SYM_D, .8], ['r', 30, 31, 4, 26, 0, SYM_O, SYM_D, .8], ['r', 46, 31, 4, 26, 0, SYM_O, SYM_D, .8]] },
+  // ---- engins et camions ----
+  pelle: { n: 'Pelle hydraulique', cat: 'engins', s: 8, r: 9, g: [
+    ['l', 'M30 34L46 10L58 28', SYM_Y, 3.6], ['p', 'M54 27h9l-2 10-9-3Z', SYM_D, SYM_D, 1],
+    ['p', 'M6 43V31h26l5 5v7Z', SYM_Y, SYM_D, 1.2], ['r', 18, 20, 12, 12, 1, SYM_GL, SYM_D, 1],
+    ['r', 4, 43, 38, 11, 5.5, SYM_K, SYM_D, 1.2], ['c', 10, 48.5, 3, '#d1d5db', 0, 0], ['c', 23, 48.5, 2.2, '#d1d5db', 0, 0], ['c', 36, 48.5, 3, '#d1d5db', 0, 0]] },
+  mini_pelle: { n: 'Mini-pelle', cat: 'engins', s: 4, r: 5, g: [
+    ['l', 'M30 38L42 20L52 34', SYM_Y, 3], ['p', 'M49 33h7l-1 8-7-3Z', SYM_D, SYM_D, 1],
+    ['p', 'M12 46V34h20l4 4v8Z', SYM_Y, SYM_D, 1.1], ['p', 'M16 34V20h12v14', 0, SYM_D, 2], ['r', 18, 28, 8, 6, 1, SYM_D, 0, 0],
+    ['r', 12, 46, 28, 9, 4.5, SYM_K, SYM_D, 1.1], ['c', 17, 50.5, 2.4, '#d1d5db', 0, 0], ['c', 35, 50.5, 2.4, '#d1d5db', 0, 0],
+    ['p', 'M6 46h5v9H6Z', SYM_Y, SYM_D, 1]] },
+  chargeuse: { n: 'Chargeuse', cat: 'engins', s: 7, g: [
+    ['l', 'M30 38L48 28', SYM_Y, 4], ['p', 'M45 18h13l3 17H45Z', SYM_Y, SYM_D, 1.2],
+    ['p', 'M5 46V30h21v16Z', SYM_Y, SYM_D, 1.2], ['r', 14, 15, 13, 15, 1, SYM_GL, SYM_D, 1], ['p', 'M13 15h15', 0, SYM_D, 2],
+    ['r', 24, 33, 16, 10, 0, SYM_Y, SYM_D, 1.1], ...symWheel(14, 49, 8), ...symWheel(40, 49, 8)] },
+  compacteur: { n: 'Compacteur', cat: 'engins', s: 5, g: [
+    ['p', 'M34 34L44 32L50 36', 0, SYM_D, 2.2], ['c', 47, 45, 12, SYM_G, SYM_D, 1.4], ['c', 47, 45, 4, '#d1d5db', SYM_D, .8],
+    ['p', 'M6 47V32h24l6 6v9Z', SYM_Y, SYM_D, 1.2], ['p', 'M12 32V13h13v19', 0, SYM_D, 2], ['r', 14, 26, 9, 6, 1, SYM_D, 0, 0],
+    ...symWheel(16, 49, 8)] },
+  camion_benne: { n: 'Camion benne', cat: 'engins', s: 9, g: [
+    ['p', 'M3 41V24h41v17Z', SYM_G, SYM_D, 1.2], ['p', 'M10 24v17M18 24v17M26 24v17M34 24v17', 0, '#6b7280', .8],
+    ['r', 3, 41, 57, 5, 0, SYM_D, 0, 0], ...symCab(47), ...symWheel(11, 50, 5), ...symWheel(22, 50, 5), ...symWheel(52, 50, 5)] },
+  toupie: { n: 'Camion toupie (béton)', cat: 'engins', s: 9, g: [
+    ['e', 24, 30, 20, 10, -12, '#e5e7eb', SYM_D, 1.2], ['p', 'M13 26l3 9M21 23l3 11M29 21l3 11M37 21l2 7', 0, SYM_O, 2.2],
+    ['p', 'M43 28l6 8', 0, SYM_D, 2], ['r', 3, 41, 57, 5, 0, SYM_D, 0, 0], ...symCab(47, '#e5e7eb'),
+    ...symWheel(11, 50, 5), ...symWheel(22, 50, 5), ...symWheel(52, 50, 5)] },
+  pompe_beton: { n: 'Pompe à béton', cat: 'engins', s: 11, r: 32, R: 1, g: [
+    ['l', 'M10 30L44 24L12 18L42 12', SYM_Y, 2.8], ['r', 3, 31, 42, 10, 1, SYM_G, SYM_D, 1.1],
+    ['r', 3, 41, 57, 5, 0, SYM_D, 0, 0], ...symCab(47, '#e5e7eb'), ['p', 'M4 46L0 55M44 46L48 55', 0, SYM_D, 1.8],
+    ...symWheel(11, 50, 5), ...symWheel(22, 50, 5), ...symWheel(52, 50, 5)] },
+  camion_plateau: { n: 'Camion plateau / semi', cat: 'engins', s: 14, g: [
+    ['r', 4, 26, 20, 12, 0, '#d6a76c', SYM_D, 1], ['r', 26, 30, 16, 8, 0, SYM_W, SYM_D, 1], ['p', 'M4 32h20', 0, '#8a5a2b', .7],
+    ['r', 2, 38, 44, 5, 0, '#6b7280', SYM_D, 1], ['r', 40, 43, 20, 4, 0, SYM_D, 0, 0], ...symCab(48),
+    ...symWheel(8, 49, 4.2), ...symWheel(17, 49, 4.2), ...symWheel(42, 50, 4.5), ...symWheel(54, 50, 4.5)] },
+  // ---- installations de chantier ----
+  base_vie: { n: 'Base vie (bungalow)', cat: 'instal', s: 7, g: [
+    ['r', 4, 20, 56, 34, 1, '#e5e7eb', SYM_D, 1.2], ['r', 2, 16, 60, 5, 0, '#6b7280', SYM_D, 1],
+    ['r', 9, 27, 13, 10, 0, SYM_GL, SYM_D, 1], ['r', 42, 27, 13, 10, 0, SYM_GL, SYM_D, 1], ['r', 27, 29, 10, 25, 0, SYM_B, SYM_D, 1],
+    ['c', 35, 42, 1, '#fff', 0, 0], ['r', 24, 54, 16, 4, 0, SYM_G, SYM_D, 1]] },
+  conteneur: { n: 'Conteneur de stockage', cat: 'instal', s: 6, g: [
+    ['r', 4, 16, 56, 38, 1, '#1d4ed8', SYM_D, 1.2], ['p', 'M10 18V52M16 18V52M22 18V52M28 18V52M34 18V52M40 18V52', 0, '#1e3a8a', 1.1],
+    ['p', 'M48 18V52', 0, SYM_D, 1], ['p', 'M52 22V48M56 22V48', 0, '#d1d5db', 1.6]] },
+  wc: { n: 'WC de chantier', cat: 'instal', s: 2, g: [
+    ['r', 18, 10, 28, 48, 2, SYM_B, SYM_D, 1.2], ['p', 'M16 12q16-10 32 0Z', '#1e40af', SYM_D, 1], ['r', 22, 16, 20, 40, 1, '#3b82f6', SYM_D, 1],
+    ['t', 'WC', 32, 30, 10, '#fff'], ['c', 38, 40, 1.2, '#fff', 0, 0]] },
+  benne: { n: 'Benne à déchets', cat: 'instal', s: 4, g: [
+    ['p', 'M10 24l6-6 6 4 8-8 8 6 6-4 10 8', '#9ca3af', SYM_D, .8], ['p', 'M5 24H59L52 50H12Z', '#16a34a', SYM_D, 1.2],
+    ['p', 'M18 24L20 50M32 24V50M46 24L44 50', 0, '#14532d', 1], ['c', 9, 33, 2.4, SYM_K, SYM_D, .8], ['c', 55, 33, 2.4, SYM_K, SYM_D, .8]] },
+  bennes_tri: { n: 'Benne de tri', cat: 'instal', s: 4, g: [
+    ['p', 'M5 22H59L52 50H12Z', SYM_B, SYM_D, 1.2], ['t', 'TRI', 32, 36, 13, '#fff'], ['c', 9, 31, 2.4, SYM_K, SYM_D, .8], ['c', 55, 31, 2.4, SYM_K, SYM_D, .8]] },
+  silo: { n: 'Silo', cat: 'instal', s: 4, g: [
+    ['p', 'M22 40L15 61M42 40L49 61M18 52H46', 0, SYM_D, 1.8], ['r', 20, 3, 24, 37, 4, '#e5e7eb', SYM_D, 1.2],
+    ['p', 'M20 12H44M20 26H44', 0, SYM_G, 1], ['p', 'M20 40H44L35 50H29Z', '#e5e7eb', SYM_D, 1.2]] },
+  groupe_electrogene: { n: 'Groupe électrogène', cat: 'instal', s: 3, g: [
+    ['p', 'M50 22V12', 0, SYM_D, 2.4], ['r', 6, 22, 52, 28, 2, SYM_Y, SYM_D, 1.2], ['p', 'M12 30h18M12 36h18M12 42h18', 0, SYM_D, 1.2],
+    ['p', 'M45 26l-7 12h5l-3 10 9-14h-5l3-8Z', '#111827', 0, 0], ['r', 10, 50, 7, 5, 0, SYM_D, 0, 0], ['r', 47, 50, 7, 5, 0, SYM_D, 0, 0]] },
+  coffret_elec: { n: 'Coffret électrique', cat: 'instal', s: 2, g: [
+    ['r', 16, 5, 32, 50, 2, '#e5e7eb', SYM_D, 1.2], ['p', 'M32 14L45 37H19Z', '#facc15', SYM_D, 1.1],
+    ['p', 'M33 19l-4 9h3l-2 7 6-10h-3l2-6Z', SYM_D, 0, 0], ['p', 'M24 55v6M40 55v6', 0, SYM_D, 2.4], ['r', 41, 42, 3, 6, 1, SYM_D, 0, 0]] },
+  point_eau: { n: 'Point d\'eau', cat: 'instal', s: 1.5, g: [
+    ['r', 13, 7, 18, 3, 1.5, SYM_D, 0, 0], ['r', 20, 10, 4, 8, 0, SYM_G, SYM_D, 1],
+    ['p', 'M4 18h28a10 10 0 0 1 10 10v6h-8v-5a3 3 0 0 0-3-3H4Z', SYM_G, SYM_D, 1.2],
+    ['p', 'M38 40q-7 9-7 13a7 7 0 0 0 14 0q0-4-7-13Z', '#3b82f6', SYM_D, 1]] },
+  mat_eclairage: { n: 'Mât d\'éclairage', cat: 'instal', s: 3, g: [
+    ['p', 'M24 18L14 34M32 18V36M40 18L50 34', 0, '#facc15', 1.6], ['p', 'M32 54V14', 0, SYM_D, 3],
+    ['r', 18, 5, 28, 10, 1, '#374151', SYM_D, 1], ['r', 20, 11, 24, 3, 0, '#fde047', 0, 0],
+    ['r', 20, 52, 24, 6, 1, SYM_Y, SYM_D, 1], ['c', 25, 59, 3, SYM_K, SYM_D, 1], ['c', 39, 59, 3, SYM_K, SYM_D, 1]] },
+  stockage: { n: 'Zone de stockage', cat: 'instal', s: 4, g: [
+    ['r', 4, 50, 26, 5, 0, SYM_W, SYM_D, 1], ['r', 6, 32, 22, 18, 0, '#d6a76c', SYM_D, 1], ['p', 'M6 41h22M17 32v18', 0, '#8a5a2b', .7],
+    ['r', 34, 50, 26, 5, 0, SYM_W, SYM_D, 1], ['r', 36, 22, 22, 28, 0, '#9ca3af', SYM_D, 1], ['p', 'M36 29h22M36 36h22M36 43h22M47 22v28', 0, '#6b7280', .8],
+    ['p', 'M4 58h56', 0, SYM_D, 1.2]] },
+  livraison: { n: 'Aire de livraison', cat: 'instal', s: 6, g: [
+    ['r', 4, 4, 56, 56, 6, SYM_B, SYM_D, 1.2], ['p', 'M10 40V22h24v18ZM34 28h9l7 7v5H34Z', '#fff', 0, 0],
+    ['c', 18, 42, 4, SYM_B, '#fff', 2], ['c', 42, 42, 4, SYM_B, '#fff', 2], ['t', 'LIVRAISON', 32, 53, 7.5, '#fff']] },
+  // ---- sécurité et circulation ----
+  cloture: { n: 'Clôture de chantier', cat: 'secu', s: 3.5, g: [
+    ['p', 'M12 10V50M18 10V50M24 10V50M30 10V50M36 10V50M42 10V50M48 10V50M54 10V50M6 18H58M6 26H58M6 34H58M6 42H58', 0, SYM_G, .8],
+    ['r', 6, 10, 52, 40, 0, 0, '#6b7280', 2.2], ['r', 2, 50, 12, 8, 1, SYM_O, SYM_D, 1], ['r', 50, 50, 12, 8, 1, SYM_O, SYM_D, 1]] },
+  portail: { n: 'Entrée de chantier', cat: 'secu', s: 6, g: [
+    ['p', 'M10 22V58M54 22V58', 0, SYM_D, 3], ['r', 12, 26, 19, 26, 0, 0, '#6b7280', 1.6], ['r', 33, 26, 19, 26, 0, 0, '#6b7280', 1.6],
+    ['p', 'M12 26L31 52M33 52L52 26', 0, '#6b7280', 1], ['r', 14, 4, 36, 13, 2, '#16a34a', SYM_D, 1], ['t', 'ENTRÉE', 32, 10.8, 8, '#fff']] },
+  pieton: { n: 'Cheminement piéton', cat: 'secu', s: 2.5, g: [
+    ['c', 32, 32, 28, SYM_B, SYM_D, 1.2], ['c', 34, 15, 4.5, '#fff', 0, 0],
+    ['p', 'M33 22L29 37L22 48M29 37L38 48M32 26L23 33M32 26L41 31', 0, '#fff', 4.5]] },
+  rassemblement: { n: 'Point de rassemblement', cat: 'secu', s: 2.5, g: [
+    ['r', 4, 4, 56, 56, 6, '#16a34a', SYM_D, 1.2],
+    ['p', 'M10 10l9 9M10 10h7M10 10v7M54 10l-9 9M54 10h-7M54 10v7M10 54l9-9M10 54h7M10 54v-7M54 54l-9-9M54 54h-7M54 54v-7', 0, '#fff', 2.6],
+    ['c', 25, 27, 3.4, '#fff', 0, 0], ['c', 32, 25, 3.4, '#fff', 0, 0], ['c', 39, 27, 3.4, '#fff', 0, 0],
+    ['p', 'M20 42v-7a5 5 0 0 1 10 0v7ZM27 40v-8a5 5 0 0 1 10 0v8ZM34 42v-7a5 5 0 0 1 10 0v7Z', '#fff', '#16a34a', 1]] },
+  extincteur: { n: 'Extincteur', cat: 'secu', s: 1.5, g: [
+    ['p', 'M27 14Q13 18 16 36', 0, SYM_D, 2.6], ['p', 'M36 12H48', 0, SYM_D, 2.8], ['r', 27, 8, 10, 9, 1, '#374151', SYM_D, 1],
+    ['r', 22, 17, 20, 42, 6, '#dc2626', SYM_D, 1.2], ['r', 25, 31, 14, 11, 0, '#fff', 0, 0], ['p', 'M28 35h8M28 38h6', 0, '#dc2626', 1]] },
+  secours: { n: 'Trousse de secours', cat: 'secu', s: 2.5, g: [
+    ['r', 4, 4, 56, 56, 6, '#16a34a', SYM_D, 1.2], ['p', 'M26 12h12v14h14v12H38v14H26V38H12V26h14Z', '#fff', 0, 0]] },
+  danger: { n: 'Danger', cat: 'secu', s: 2.5, g: [
+    ['p', 'M32 4L62 58H2Z', '#facc15', SYM_D, 2.6], ['r', 29.5, 22, 5, 20, 2, SYM_D, 0, 0], ['c', 32, 49, 3.2, SYM_D, 0, 0]] },
+  cone: { n: 'Cône de balisage', cat: 'secu', s: 1, g: [
+    ['p', 'M26 8h12l10 44H16Z', SYM_O, SYM_D, 1.2], ['p', 'M23.5 21h17l2 9h-21Z', '#fff', 0, 0], ['p', 'M20.6 36h22.8l2 8H18.6Z', '#fff', 0, 0],
+    ['r', 8, 52, 48, 6, 1, SYM_O, SYM_D, 1.2]] },
+  circulation: { n: 'Sens de circulation', cat: 'secu', s: 3, g: [
+    ['r', 4, 14, 56, 36, 4, SYM_B, SYM_D, 1.2], ['p', 'M10 28h28v-8l16 12-16 12v-8H10Z', '#fff', 0, 0]] },
+  interdit: { n: 'Accès interdit', cat: 'secu', s: 2.5, g: [
+    ['c', 32, 32, 28, '#dc2626', SYM_D, 1.2], ['r', 12, 27, 40, 10, 1, '#fff', 0, 0]] },
+  casque: { n: 'Port du casque obligatoire', cat: 'secu', s: 2.5, g: [
+    ['c', 32, 32, 28, SYM_B, SYM_D, 1.2], ['p', 'M16 40a16 16 0 0 1 32 0Z', '#fff', 0, 0], ['r', 12, 39, 40, 6, 3, '#fff', 0, 0],
+    ['p', 'M32 25V39M25 28l2 11M39 28l-2 11', 0, SYM_B, 1.6]] },
+  parking: { n: 'Stationnement', cat: 'secu', s: 3, g: [
+    ['r', 6, 6, 52, 52, 8, SYM_B, SYM_D, 1.2], ['t', 'P', 32, 34, 40, '#fff']] },
+};
+// galerie : symbole en SVG
+function symSvg(id, size = 36) {
+  const S = SYMS[id]; if (!S) return '';
+  const a = (k, v) => v ? ` ${k}="${v}"` : '';
+  const fs = (f, s, w) => `${a('fill', f || 'none')}${s ? a('stroke', s) + a('stroke-width', w) : ''}`;
+  const el = S.g.map(p => {
+    switch (p[0]) {
+      case 'r': return `<rect x="${p[1]}" y="${p[2]}" width="${p[3]}" height="${p[4]}"${a('rx', p[5])}${fs(p[6], p[7], p[8])}/>`;
+      case 'c': return `<circle cx="${p[1]}" cy="${p[2]}" r="${p[3]}"${fs(p[4], p[5], p[6])}/>`;
+      case 'e': return `<ellipse cx="${p[1]}" cy="${p[2]}" rx="${p[3]}" ry="${p[4]}" transform="rotate(${p[5]} ${p[1]} ${p[2]})"${fs(p[6], p[7], p[8])}/>`;
+      case 'p': return `<path d="${p[1]}"${fs(p[2], p[3], p[4])}/>`;
+      case 'l': return `<path d="${p[1]}" fill="none" stroke="${SYM_D}" stroke-width="${p[3] + 2.2}"/><path d="${p[1]}" fill="none" stroke="${p[2]}" stroke-width="${p[3]}"/>`;
+      case 't': return `<text x="${p[2]}" y="${p[3]}" font-size="${p[4]}" font-weight="800" text-anchor="middle" dominant-baseline="central" fill="${p[5]}" font-family="Segoe UI,Arial,sans-serif">${p[1]}</text>`;
+    }
+    return '';
+  }).join('');
+  return `<svg viewBox="0 0 64 64" width="${size}" height="${size}" stroke-linecap="round" stroke-linejoin="round">${el}</svg>`;
+}
+// plan : symbole dessiné sur le canevas (repère du symbole : carré 64 × 64)
+const symPaths = new Map();
+const symPath = d => { let p = symPaths.get(d); if (!p) symPaths.set(d, p = new Path2D(d)); return p; };
+function symRR(c, x, y, w, h, r) { r = Math.min(r || 0, w / 2, h / 2); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+function symPaint(c, id, flip) {
+  const S = SYMS[id]; if (!S) return;
+  c.lineCap = 'round'; c.lineJoin = 'round';
+  const go = (P, f, s, w) => { if (f) { c.fillStyle = f; P ? c.fill(P) : c.fill(); } if (s && w) { c.strokeStyle = s; c.lineWidth = w; P ? c.stroke(P) : c.stroke(); } };
+  for (const p of S.g) {
+    if (p[0] === 'p') { go(symPath(p[1]), p[2], p[3], p[4]); continue; }
+    if (p[0] === 'l') { const P = symPath(p[1]); go(P, 0, SYM_D, p[3] + 2.2); go(P, 0, p[2], p[3]); continue; }
+    if (p[0] === 't') { c.save(); c.translate(p[2], p[3]); if (flip) c.scale(-1, 1); c.font = `800 ${p[4]}px "Segoe UI",Arial,sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = p[5]; c.fillText(p[1], 0, 0); c.restore(); continue; }
+    c.beginPath();
+    if (p[0] === 'r') { symRR(c, p[1], p[2], p[3], p[4], p[5]); go(null, p[6], p[7], p[8]); }
+    else if (p[0] === 'c') { c.arc(p[1], p[2], p[3], 0, 2 * Math.PI); go(null, p[4], p[5], p[6]); }
+    else if (p[0] === 'e') { c.ellipse(p[1], p[2], p[3], p[4], p[5] * Math.PI / 180, 0, 2 * Math.PI); go(null, p[6], p[7], p[8]); }
+  }
+}
+// coins du symbole (carré tourné) : sélection, survol, gomme
+function symCorners(m) {
+  const h = m.size / 2, a = (m.rot || 0) * Math.PI / 180, c = Math.cos(a), si = Math.sin(a);
+  return [[-h, -h], [h, -h], [h, h], [-h, h], [-h, -h]].map(([x, y]) => ({ x: m.x + x * c - y * si, y: m.y + x * si + y * c }));
+}
+const hexA = (hex, a) => { const n = parseInt(String(hex).slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; };
+st.symHideR = (() => { try { return localStorage.getItem('metrix:symHideR') === '1'; } catch { return false; } })();
+function drawSym(m, hi, px, ghost) {
+  const S = SYMS[m.sym]; if (!S) return;
+  const k = scale(m.page), col = m.color || '#e5484d';
+  ctx.save();
+  if (m.showR && m.r > 0 && k && !st.symHideR) {   // rayon d'action à l'échelle du plan
+    const R = m.r / k, a = -Math.PI / 4;
+    ctx.beginPath(); ctx.arc(m.x, m.y, R, 0, 2 * Math.PI);
+    ctx.fillStyle = hexA(col, ghost ? .04 : .07); ctx.fill();
+    ctx.setLineDash([10 * px, 6 * px]); ctx.lineWidth = 2 * px; ctx.strokeStyle = col; ctx.stroke(); ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.lineTo(m.x + R * Math.cos(a), m.y + R * Math.sin(a)); ctx.lineWidth = 1.2 * px; ctx.stroke();
+    text(`R = ${fmt(m.r, m.r % 1 ? 1 : 0)} m`, m.x + R * .6 * Math.cos(a), m.y + R * .6 * Math.sin(a), px, col, 11);
+  }
+  ctx.translate(m.x, m.y); ctx.rotate((m.rot || 0) * Math.PI / 180);
+  const h = m.size / 2;
+  if (hi) { ctx.beginPath(); symRR(ctx, -h - 5 * px, -h - 5 * px, m.size + 10 * px, m.size + 10 * px, 6 * px); ctx.fillStyle = 'rgba(250,204,21,.35)'; ctx.fill(); ctx.strokeStyle = '#e0a800'; ctx.lineWidth = 1.5 * px; ctx.stroke(); }
+  if (m.flip) ctx.scale(-1, 1);
+  ctx.scale(m.size / 64, m.size / 64); ctx.translate(-32, -32);
+  if (ghost) ctx.globalAlpha = .55;
+  symPaint(ctx, m.sym, m.flip);
+  ctx.restore();
+  if (m.label) text(m.label, m.x, m.y + m.size / 2 + 11 * px, px, col, 11);
+}
+// nouveau symbole : taille réelle si l'échelle est réglée, sinon taille fixe à l'écran
+function symNew(id, p) {
+  const S = SYMS[id], k = scale();
+  const size = Math.max(k ? S.s / k : 56 / st.view.z, 14 / st.view.z);
+  return { type: 'sym', page: st.page, sym: id, x: p.x, y: p.y, size, rot: 0, flip: false, r: S.r || 0, showR: !!S.R, label: '', color: S.r ? '#e5484d' : '#1f6feb' };
+}
+function symPlace(p) {
+  const id = st.symSel; if (!SYMS[id]) return;
+  const n = st.measures.filter(x => x.type === 'sym' && x.sym === id).length + 1;
+  const m = { id: st.nextId++, ...symNew(id, p), name: `${trText(SYMS[id].n)} ${n}` };
+  st.measures.push(m); st.sel = m.id;
+  symRecentAdd(id);
+  setTool('pan'); persist(); refresh();
+}
+// galerie (bouton « Symboles »)
+const symRecent = () => { try { return JSON.parse(localStorage.getItem('metrix:symRecent') || '[]').filter(id => SYMS[id]); } catch { return []; } };
+function symRecentAdd(id) { try { localStorage.setItem('metrix:symRecent', JSON.stringify([id, ...symRecent().filter(x => x !== id)].slice(0, 12))); } catch {} }
+const symNorm = x => String(x).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+function renderSymGallery() {
+  const q = symNorm($('symQ').value.trim());
+  const match = id => !q || symNorm(trText(SYMS[id].n)).includes(q) || symNorm(SYMS[id].n).includes(q);
+  const item = id => `<button class="sym-it" type="button" data-id="${id}" title="${esc(trText(SYMS[id].n))}">${symSvg(id, 34)}</button>`;
+  let h = '';
+  const rec = q ? [] : symRecent();
+  if (rec.length) h += `<div class="sym-h">${esc(trText('Symboles récemment utilisés'))}</div><div class="sym-g">${rec.map(item).join('')}</div>`;
+  for (const [c, label] of SYM_CATS) {
+    const ids = Object.keys(SYMS).filter(id => SYMS[id].cat === c && match(id));
+    if (ids.length) h += `<div class="sym-h">${esc(trText(label))}</div><div class="sym-g">${ids.map(item).join('')}</div>`;
+  }
+  $('symGal').innerHTML = h || `<div class="sym-none">${esc(trText('Aucun symbole trouvé.'))}</div>`;
+  $('symGal').querySelectorAll('.sym-it').forEach(b => b.onclick = () => symChoose(b.dataset.id));
+}
+function symOpen() {
+  const pop = $('symPop');
+  if (!pop.hidden) return symClose();
+  if (!st.img) return notify('Ouvrez d\'abord un plan.');
+  const r = $('symBtn').getBoundingClientRect();
+  pop.style.left = Math.max(8, Math.min(r.left, innerWidth - Math.min(586, innerWidth - 16) - 8)) + 'px';
+  pop.style.top = (r.bottom + 4) + 'px';
+  $('symQ').value = ''; renderSymGallery(); pop.hidden = false;
+  if (!IS_TOUCH) setTimeout(() => $('symQ').focus(), 0);
+}
+function symClose() { $('symPop').hidden = true; }
+function symChoose(id) {
+  symClose(); st.symSel = id;
+  HELP.sym = `Symbole — cliquez sur le plan pour placer « ${SYMS[id].n} » · Échap pour annuler`;
+  setTool('sym');
+}
 function drawMeasure(m, hi, px) {
   if (m.type === 'area' && !m.preview) return drawArea(m, hi, px);
   if (m.type === 'line' && !m.preview) return drawLine(m, hi, px);
   if (m.type === 'sketch') return drawSketch(m, hi, px);
   if (m.type === 'draw') return drawDraw(m, hi, px);
   if (m.type === 'text') return drawText(m, hi, px);
+  if (m.type === 'sym') return drawSym(m, hi, px);
   const p = m.points; if (!p.length) return;
   ctx.lineJoin = 'round'; ctx.lineCap = 'round';
   if (m.type === 'count') {
@@ -3995,7 +4497,7 @@ function hitTest(p) {
   const tol = 8 / st.view.z;
   const list = st.measures.filter(m => m.page === st.page).reverse();
   for (const m of list) {   // priorité aux points et aux traits
-    if (m.type === 'draw' || m.type === 'text') { if (noteHit(m, p, tol)) return m; continue; }
+    if (isMovable(m)) { if (noteHit(m, p, tol)) return m; continue; }
     if (m.type === 'count' && m.points.some(q => dist(q, p) < tol*1.3)) return m;
     if (m.type !== 'count') {
       const outlines = m.type === 'area' ? zonesOf(m).map(z => closed(z.points)) : pathsOf(m);
@@ -4017,7 +4519,7 @@ function eraseTargets(p) {
     if (m.type === 'count') {
       const idx = m.points.map((q, i) => dist(q, p) <= tol ? i : -1).filter(i => i >= 0);
       if (idx.length) out.push({ m, idx });   // seuls les points touchés sont effacés
-    } else if (m.type === 'draw' || m.type === 'text') {
+    } else if (isMovable(m)) {
       if (noteHit(m, p, tol)) out.push({ m, whole: true });   // dessin, texte : effacés en entier
     } else if (m.type === 'area') {
       // surface : la gomme efface le vide ou la zone touchés, pas toute la surface
@@ -4093,7 +4595,7 @@ function drawHover(m, px) {
   if (m.type === 'count') {
     for (const q of m.points) { ctx.beginPath(); ctx.arc(q.x, q.y, 12*px, 0, Math.PI*2); ctx.strokeStyle = 'rgba(14,165,233,.35)'; ctx.lineWidth = 6*px; ctx.stroke(); ctx.strokeStyle = '#0284c7'; ctx.lineWidth = 1.5*px; ctx.stroke(); }
   } else {
-    const shapes = m.type === 'area' ? zonesOf(m).map(z => z.points) : (m.type === 'draw' || m.type === 'text') ? noteOutline(m) : pathsOf(m);
+    const shapes = m.type === 'area' ? zonesOf(m).map(z => z.points) : isMovable(m) ? noteOutline(m) : pathsOf(m);
     for (const p of shapes) {
       if (!p.length) continue;
       const path = () => { ctx.beginPath(); p.forEach((q,i) => i ? ctx.lineTo(q.x,q.y) : ctx.moveTo(q.x,q.y)); if (m.type === 'area') ctx.closePath(); };
@@ -6609,13 +7111,13 @@ function renderTree() {
   const list = $('list');
   if (!st.measures.length) { list.innerHTML = '<div class="tree-empty">Aucun métré. Choisissez un outil dans le groupe « Mesurer » du ruban.</div>'; return; }
   let h = '<div class="tree">';
-  for (const type of ['area','line','count','sketch']) {
-    const items = st.measures.filter(m => m.type === type || (type === 'sketch' && isNote(m)));
+  for (const type of ['area','line','count','sym','sketch']) {
+    const items = st.measures.filter(m => m.type === type || (type === 'sketch' && isNote(m) && m.type !== 'sym'));
     if (!items.length) continue;
     const sum = items.reduce((s, m) => s + (rowValues(m).total ?? 0), 0);
     const u = type === 'count' ? 'u' : type === 'line' ? 'm' : 'm²';
     const closed = st.collapsed[type];
-    h += `<div class="node" data-type="${type}"><span class="tw">${closed ? '+' : '−'}</span>${ICON[type]}<b>${GROUPS[type]}</b> (${items.length})<span class="v">${type === 'sketch' ? '' : type === 'count' ? sum + ' ' + u : fmt(sum) + ' ' + u}</span></div>`;
+    h += `<div class="node" data-type="${type}"><span class="tw">${closed ? '+' : '−'}</span>${ICON[type]}<b>${GROUPS[type]}</b> (${items.length})<span class="v">${type === 'sketch' || type === 'sym' ? '' : type === 'count' ? sum + ' ' + u : fmt(sum) + ' ' + u}</span></div>`;
     if (!closed) for (const m of items)
       h += `<div class="leaf${m.id === st.sel ? ' sel' : ''}" data-id="${m.id}"><span class="sw" style="background:${m.color}"></span><span class="nm">${(m.id === st.addZone || m.id === st.addLine || m.id === st.addSketch) && m.page === st.page ? '<span title="Surface en cours : les prochains tracés s’y ajoutent" style="color:var(--blue)">✎ </span>' : ''}${esc(m.name)}${st.isPdf ? ` <span style="color:#999">p.${m.page}</span>` : ''}${m.type === 'area' && zonesOf(m).length > 1 ? ` <span style="color:var(--blue)" title="zones regroupées dans ce métré">· ${zonesOf(m).length} zones</span>` : ''}${m.type === 'line' && pathsOf(m).length > 1 ? ` <span style="color:var(--blue)" title="tronçons additionnés dans ce métré">· ${pathsOf(m).length} tronçons</span>` : ''}${m.type === 'area' && allVoids(m).length ? ` <span class="neg" title="vides tracés dans cette surface">− ${allVoids(m).length} vide${allVoids(m).length > 1 ? 's' : ''}</span>` : ''}</span><span class="v">${totalText(m)}</span></div>`;
   }
@@ -6646,6 +7148,40 @@ function renderProps() {
       </table>${k ? '' : '<button class="pbtn" id="pScale">Régler l\'échelle…</button>'}`
       : '<div class="props-empty">Aucun plan ouvert.</div>';
     const b = $('pScale'); if (b) b.onclick = scaleDialog;
+    return;
+  }
+  if (m.type === 'sym') {   // symbole de mode opératoire : pas de quantité
+    const S = SYMS[m.sym] || { n: 'Symbole' }, k = scale(m.page), num1 = v => +(+v).toFixed(1);
+    box.innerHTML = `<table class="pg">
+      <tr class="grp-row"><th colspan="2">Mode opératoire</th></tr>
+      <tr><th>Symbole</th><td><span class="sym-pi">${symSvg(m.sym, 22)}</span> ${esc(trText(S.n))}</td></tr>
+      <tr><th>Désignation</th><td><input id="pName" value="${esc(m.name)}"></td></tr>
+      <tr><th>Repère</th><td><input id="pLabel" value="${esc(m.label || '')}" placeholder="${esc(trText('Ex. : G1, M2…'))}"></td></tr>
+      <tr><th>Taille</th><td style="white-space:nowrap">${k ? `<input id="pSize" type="number" min="0.1" step="0.5" style="width:62px" value="${num1(m.size * k)}"> m ` : ''}<button class="pbtn" id="pSmaller" style="margin:0 2px">−</button><button class="pbtn" id="pBigger" style="margin:0">+</button></td></tr>
+      <tr><th>Rotation</th><td style="white-space:nowrap"><button class="pbtn" id="pRotL" style="margin:0 2px 0 0" title="${esc(trText('Tourner de 15° à gauche'))}">↺</button><input id="pRot" type="number" step="15" style="width:52px" value="${Math.round(m.rot || 0)}"> °<button class="pbtn" id="pRotR" style="margin:0 0 0 2px" title="${esc(trText('Tourner de 15° à droite'))}">↻</button></td></tr>
+      <tr><th>Miroir</th><td><input id="pFlip" type="checkbox" style="width:auto"${m.flip ? ' checked' : ''}> <label for="pFlip">Retourner</label></td></tr>
+      <tr><th>Rayon d'action</th><td style="white-space:nowrap"><input id="pShowR" type="checkbox" style="width:auto"${m.showR ? ' checked' : ''}> <input id="pR" type="number" min="0" step="1" style="width:56px" value="${num1(m.r || 0)}"> m</td></tr>
+      <tr><th>Couleur</th><td><input id="pColor" type="color" value="${m.color}"></td></tr>
+      ${st.isPdf ? `<tr><th>Page</th><td>${m.page}</td></tr>` : ''}
+      </table>
+      ${k ? '' : '<p style="margin:8px 10px 0;color:#b42318;line-height:1.4">Réglez l\'échelle du plan pour poser les symboles à leur taille réelle et voir les rayons d\'action.</p>'}
+      <p style="margin:8px 10px 0;color:var(--muted);line-height:1.4">Symbole de mode opératoire : non compté dans le métré. Avec le Pointeur, glissez-le pour le déplacer.</p>
+      <button class="pbtn" id="pDel">Supprimer</button>`;
+    const upd = (tree) => { persist(); if (tree) renderTree(); draw(); };
+    $('pName').onchange = e => { m.name = e.target.value || trText(S.n); persist(); refresh(); };
+    $('pLabel').oninput = e => { m.label = e.target.value; upd(true); };
+    if (k) $('pSize').onchange = e => { const v = num(e.target.value); if (v > 0) { m.size = v / k; upd(); } };
+    const resize = f => { m.size *= f; if (k) $('pSize').value = num1(m.size * k); upd(); };
+    $('pSmaller').onclick = () => resize(1 / 1.15); $('pBigger').onclick = () => resize(1.15);
+    const rot = v => { m.rot = ((Math.round(v) % 360) + 360) % 360; $('pRot').value = m.rot; upd(); };
+    $('pRot').onchange = e => rot(num(e.target.value) || 0);
+    $('pRotL').onclick = () => rot((m.rot || 0) - 15); $('pRotR').onclick = () => rot((m.rot || 0) + 15);
+    $('pFlip').onchange = e => { m.flip = e.target.checked; upd(); };
+    $('pShowR').onchange = e => { m.showR = e.target.checked; if (m.showR && !(m.r > 0)) { m.r = 10; $('pR').value = 10; } upd(true); };
+    $('pR').onchange = e => { const v = num(e.target.value); m.r = v > 0 ? v : 0; m.showR = m.r > 0; $('pShowR').checked = m.showR; upd(true); };
+    $('pColor').oninput = e => { m.color = e.target.value; upd(true); };
+    $('pDel').onclick = () => del(m);
+    translateNode(box);
     return;
   }
   if (m.type === 'draw' || m.type === 'text') {   // dessin ou texte : annotation, pas de quantité
@@ -6835,6 +7371,7 @@ function setTool(t) {
   st.tool = t; st.cur = null; st.hover = null; st.shape = null;
   renderNoteBar();
   document.querySelectorAll('.tool').forEach(b => b.classList.toggle('active', b.dataset.tool === t));
+  $('symBtn').classList.toggle('active', t === 'sym');
   updateHelp();
   cv.style.cursor = t === 'pan' ? 'default' : t === 'erase' ? 'none' : t === 'text' ? 'text' : 'crosshair';
   draw();
@@ -6999,7 +7536,7 @@ cv.addEventListener('mousedown', e => {
     drag = { x: e.clientX, y: e.clientY, vx: st.view.x, vy: st.view.y, moved:false, mid: e.button === 1 || st.space };
     if (st.tool === 'pan' && e.button === 0 && !st.space && st.img) {   // un dessin ou un texte sous la souris : on le déplace
       const r = cv.getBoundingClientRect(), w = toWorld(e.clientX - r.left, e.clientY - r.top), h = hitTest(w);
-      if (h && (h.type === 'draw' || h.type === 'text')) drag.move = { m: h, w, orig: JSON.stringify(h.type === 'text' ? { x: h.x, y: h.y } : h.points) };
+      if (isMovable(h)) drag.move = { m: h, w, orig: JSON.stringify(h.type === 'draw' ? h.points : { x: h.x, y: h.y }) };
     }
     e.preventDefault();
   } else if (st.tool === 'draw' && e.button === 0 && st.img) {   // outil Dessin : début d'une forme
@@ -7024,7 +7561,7 @@ window.addEventListener('mousemove', e => {
     if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 3) { drag.moved = true; cv.style.cursor = 'grabbing'; }
     if (drag.moved && drag.move) {   // déplacement d'un dessin ou d'un texte
       const w = toWorld(e.clientX - r.left, e.clientY - r.top), dx = w.x - drag.move.w.x, dy = w.y - drag.move.w.y, o = JSON.parse(drag.move.orig), m = drag.move.m;
-      if (m.type === 'text') { m.x = o.x + dx; m.y = o.y + dy; } else m.points = o.map(q => ({ x: q.x + dx, y: q.y + dy }));
+      if (m.type !== 'draw') { m.x = o.x + dx; m.y = o.y + dy; } else m.points = o.map(q => ({ x: q.x + dx, y: q.y + dy }));
       draw(); return;
     }
     if (drag.moved) { st.view.x = drag.vx + e.clientX - drag.x; st.view.y = drag.vy + e.clientY - drag.y; draw(); }
@@ -7054,7 +7591,7 @@ window.addEventListener('mousemove', e => {
     const h = st.img ? hitTest(st.mouse) : null;
     if (h !== st.hover) { st.hover = h; cv.style.cursor = h ? 'pointer' : 'default'; draw(); }
   }
-  if (st.cur || st.tool === 'erase' || (st.snap && SNAP_TOOLS.includes(st.tool))) draw();
+  if (st.cur || st.tool === 'erase' || st.tool === 'sym' || (st.snap && SNAP_TOOLS.includes(st.tool))) draw();
 });
 window.addEventListener('mouseup', () => {
   if (st.shape) { finishShape(); return; }
@@ -7077,6 +7614,7 @@ cv.addEventListener('click', e => {
     openTextEditor(h && h.type === 'text' ? h : null, p); return;
   }
   const r = cv.getBoundingClientRect(), p = toWorld(e.clientX - r.left, e.clientY - r.top);
+  if (st.tool === 'sym') { if (st.img) symPlace(p); return; }
   if (st.tool === 'pan') { const m = hitTest(p); st.sel = m ? m.id : null; if (m && m.type === 'area') st.addZone = m.id; if (m && m.type === 'line') st.addLine = m.id; if (m && m.type === 'sketch') st.addSketch = m.id; updateHelp(); refresh(); return; }
   addPoint(p);
 });
@@ -7216,6 +7754,15 @@ window.addEventListener('keyup', e => { st.shift = e.shiftKey; if (e.code === 'S
 
 /* ---------- boutons ---------- */
 document.querySelectorAll('.tool').forEach(b => b.onclick = () => setTool(b.dataset.tool));
+$('symBtn').querySelector('.sym-ico').outerHTML = symSvg('grue_tour', 32);
+$('symBtn').onclick = e => { e.stopPropagation(); symOpen(); };
+$('symPop').addEventListener('click', e => e.stopPropagation());
+$('symPop').addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Escape') symClose(); if (e.key === 'Enter') { const b = $('symGal').querySelector('.sym-it'); if (b) b.click(); } });
+$('symQ').oninput = renderSymGallery;
+document.addEventListener('click', () => { if (!$('symPop').hidden) symClose(); });
+window.addEventListener('resize', symClose);
+$('symRChk').checked = !st.symHideR;
+$('symRChk').onchange = e => { st.symHideR = !e.target.checked; try { localStorage.setItem('metrix:symHideR', st.symHideR ? '1' : '0'); } catch {} draw(); };
 /* ---------- personnalisation du ruban : micro-flèche à droite du nom de chaque groupe ----------
    Elle ouvre la liste des boutons du groupe : on coche ceux à garder. Le choix est mémorisé. */
 const rbKey = b => b.id || b.dataset.tool || (b.querySelector('input[type=file]') || {}).id || null;
@@ -7507,7 +8054,7 @@ function projectPlansDialog() {
   if (!curProject) return;
   saveDoc();
   const rows = docs.map((d, i) => {
-    const pdf = d.isPdf, pages = d.pdf ? d.pdf.numPages : 1, n = (d.measures || []).filter(m => m.type !== 'draw').length;
+    const pdf = d.isPdf, pages = d.pdf ? d.pdf.numPages : 1, n = (d.measures || []).filter(m => !isNote(m)).length;
     return `<div class="pp-it${d === activeDoc ? ' on' : ''}" data-i="${i}" title="${esc(d.fileName)}"><span class="ic${pdf ? '' : ' img'}">${pdf ? 'PDF' : 'IMG'}</span>`
       + `<span class="nm">${esc(d.fileName)}</span><small>${trText(`${pages} page${pages > 1 ? 's' : ''}`)} · ${trText(`${n} métré${n > 1 ? 's' : ''}`)}</small>`
       + `<button class="pp-x" type="button" title="${esc(trText('Retirer ce plan du projet'))}">✕</button></div>`;
