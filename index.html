@@ -1018,12 +1018,6 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
   </div><div class="cap">Mesurer</div></div>
 
   <div class="grp"><div class="items">
-    <button class="rb rb-mid" id="aiBtn" title="Métré intelligent : une IA vous pose quelques questions puis trace les métrés sur le plan">
-      <svg viewBox="0 0 32 32"><rect x="3" y="7" width="20" height="18" rx="3" fill="#eef4fc" stroke="#7a8ca5" stroke-width="1.4"/><path d="M7 20l4-5 3 3 5-6" fill="none" stroke="#1f5fbf" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><path d="M25 3l1.4 3.6L30 8l-3.6 1.4L25 13l-1.4-3.6L20 8l3.6-1.4z" fill="#8e4ec6"/><path d="M27 17l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z" fill="#d6409f"/></svg>
-      Assistant IA</button>
-  </div><div class="cap">Métré intelligent</div></div>
-
-  <div class="grp"><div class="items">
     <div class="rstack">
       <button class="rb sm tool" data-tool="voidrect" title="Vide rectangulaire à déduire d'une surface : fenêtre, porte, trémie… (D)">
         <svg viewBox="0 0 32 32"><rect x="3" y="5" width="26" height="22" fill="#5cc35a" stroke="#1e7a1c" stroke-width="1.5"/><rect x="10" y="10" width="12" height="12" fill="#fff" stroke="#b42318" stroke-width="1.5" stroke-dasharray="3 2"/><path d="M10 16l6-6M10 22l12-12M16 22l6-6" stroke="#b42318" stroke-width="1"/></svg>
@@ -1044,12 +1038,6 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
         Texte</button>
     </div>
   </div><div class="cap">Annoter</div></div>
-
-  <div class="grp"><div class="items">
-    <button class="rb rb-mid" id="symBtn" title="Mode opératoire : grues, manitous, chariots, échafaudages, nacelles, installations et signalisation de chantier">
-      <svg class="sym-ico" viewBox="0 0 32 32"></svg>
-      <span>Symboles<span class="dd">▼</span></span></button>
-  </div><div class="cap">Mode opératoire</div></div>
 
   <div class="grp"><div class="items">
     <button class="rb rb-mid" id="fit" title="Ajuster à la fenêtre (F)">
@@ -1089,6 +1077,18 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
         Fermer le projet</button>
     </div>
   </div><div class="cap">Projet</div></div>
+
+  <div class="grp"><div class="items">
+    <button class="rb rb-mid" id="symBtn" title="Mode opératoire : grues, manitous, chariots, échafaudages, nacelles, installations et signalisation de chantier">
+      <svg class="sym-ico" viewBox="0 0 32 32"></svg>
+      <span>Symboles<span class="dd">▼</span></span></button>
+  </div><div class="cap">Mode opératoire</div></div>
+
+  <div class="grp"><div class="items">
+    <button class="rb rb-mid" id="aiBtn" title="Métré intelligent : une IA vous pose quelques questions puis trace les métrés sur le plan">
+      <svg viewBox="0 0 32 32"><rect x="3" y="7" width="20" height="18" rx="3" fill="#eef4fc" stroke="#7a8ca5" stroke-width="1.4"/><path d="M7 20l4-5 3 3 5-6" fill="none" stroke="#1f5fbf" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><path d="M25 3l1.4 3.6L30 8l-3.6 1.4L25 13l-1.4-3.6L20 8l3.6-1.4z" fill="#8e4ec6"/><path d="M27 17l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z" fill="#d6409f"/></svg>
+      Assistant IA</button>
+  </div><div class="cap">Métré intelligent</div></div>
 </header>
 
 <div class="work">
@@ -1390,7 +1390,7 @@ let ctx = cv.getContext('2d');   // remplacé un instant par le canevas d'une pa
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.29';
+const METRIX_VERSION = '3.30';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
