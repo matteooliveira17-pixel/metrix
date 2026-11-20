@@ -244,6 +244,17 @@
   html.dark .sym-h { background:#2f3540; color:#dfe5ee; }
   html.dark .sym-it { background:#e9edf3; }
   html.dark .sym-it:hover { background:#fff; border-color:#4c86d8; }
+  .dlg:has(.svc) { width:min(420px, 94vw); }
+  .svc { display:flex; flex-direction:column; gap:8px; margin:14px 14px 10px; }
+  .svc-o { display:flex; align-items:center; gap:10px; padding:10px 12px; border:1.5px solid #d3dae5; border-radius:8px; cursor:pointer; text-align:left; }
+  .svc-o:has(input:checked) { border-color:#2b579a; background:#eef4fd; }
+  .svc-o input { width:auto; margin:0; }
+  .svc-o b { display:block; font-size:13px; }
+  .svc-o small { display:block; color:#5b6778; margin-top:2px; line-height:1.35; }
+  .svc-i { flex:none; font-size:10px; font-weight:800; color:#fff; border-radius:4px; padding:5px 5px; }
+  .svc-pdf { background:#c0392b; } .svc-prj { background:#2b579a; }
+  html.dark .svc-o { border-color:#46505e; } html.dark .svc-o:has(input:checked) { background:#323c4b; border-color:#4c86d8; }
+  html.dark .svc-o small { color:#a6b1c2; }
   /* boîte de dialogue */
   .modal { position:fixed; inset:0; background:rgba(0,0,0,.08); display:flex; align-items:center; justify-content:center; z-index:50; }
   .dlg { background:#fff; border:1px solid #7a8899; box-shadow:0 8px 28px rgba(0,0,0,.3); width:300px; }
@@ -910,7 +921,8 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
   <div class="filemenu" id="fileMenu" hidden>
     <div id="menuNewPrj">Nouveau projet…</div>
     <div data-click="#load">Ouvrir un projet…</div>
-    <div data-click="#save">Enregistrer le projet<kbd>Ctrl+S</kbd></div>
+    <div data-click="#save">Enregistrer<kbd>Ctrl+S</kbd></div>
+    <div id="menuPdf">Enregistrer le plan en PDF…</div>
     <div id="menuClosePrj">Fermer le projet</div>
     <hr>
     <div data-click="#file">Ouvrir un plan…<kbd>Ctrl+O</kbd></div>
@@ -1319,11 +1331,12 @@ const ICON = {
   sym: '<svg viewBox="0 0 16 16"><path d="M5 15V4M2 4h13M5 1v3M12 4v5" fill="none" stroke="#c28a00" stroke-width="1.8"/><path d="M2 4h3v2H2z" fill="#6b7280"/></svg>',
 };
 
-const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const cv = document.getElementById('cv');
+let ctx = cv.getContext('2d');   // remplacé un instant par le canevas d'une page lors de l'export PDF
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.27';
+const METRIX_VERSION = '3.28';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -2232,6 +2245,17 @@ addTr([
   ["Réglez l'échelle du plan pour voir le rayon d'action.","Set the plan scale to see the working radius.","Defina a escala da planta para ver o raio de ação.","Ajuste la escala del plano para ver el radio de acción."],
   ["Symbole de mode opératoire : non compté dans le métré. Avec le Pointeur : glissez-le pour le déplacer, tirez un coin pour changer sa taille, la poignée ronde pour le tourner (Maj : par 15°).","Method statement symbol: not counted in the takeoff. With the Pointer: drag it to move it, pull a corner to resize it, the round handle to rotate it (Shift: 15° steps).","Símbolo de modo operatório: não contado na medição. Com o Ponteiro: arraste-o para o mover, puxe um canto para mudar o tamanho e a pega redonda para o rodar (Shift: de 15° em 15°).","Símbolo de modo operativo: no se cuenta en la medición. Con el Puntero: arrástrelo para moverlo, tire de una esquina para cambiar su tamaño y del tirador redondo para girarlo (Mayús: de 15° en 15°)."],
   ["Export Excel","Excel export","Exportar Excel","Exportar Excel"],
+  ["Enregistrer le plan en PDF…","Save the plan as PDF…","Guardar a planta em PDF…","Guardar el plano en PDF…"],
+  ["Préparation du PDF : page {n} / {k}…","Preparing the PDF: page {n} / {k}…","A preparar o PDF: página {n} / {k}…","Preparando el PDF: página {n} / {k}…"],
+  ["Préparation du PDF…","Preparing the PDF…","A preparar o PDF…","Preparando el PDF…"],
+  ["métré","takeoff","medição","medición"],
+  ["Installez la dernière version de Métrix depuis le site pour enregistrer en PDF.","Install the latest version of Métrix from the website to save as PDF.","Instale a versão mais recente do Métrix a partir do site para guardar em PDF.","Instale la última versión de Métrix desde el sitio web para guardar en PDF."],
+  ["Plan enregistré en PDF","Plan saved as PDF","Planta guardada em PDF","Plano guardado en PDF"],
+  ["Enregistrement en PDF impossible : {e}","Unable to save as PDF: {e}","Não foi possível guardar em PDF: {e}","No se puede guardar en PDF: {e}"],
+  ["Plan en PDF","Plan as PDF","Planta em PDF","Plano en PDF"],
+  ["Le plan avec vos métrés, annotations et symboles, à imprimer ou à envoyer.","The plan with your takeoffs, notes and symbols, to print or send.","A planta com as suas medições, anotações e símbolos, para imprimir ou enviar.","El plano con sus mediciones, anotaciones y símbolos, para imprimir o enviar."],
+  ["Projet Métrix (.metrix)","Métrix project (.metrix)","Projeto Métrix (.metrix)","Proyecto Métrix (.metrix)"],
+  ["Pour reprendre le travail plus tard, ici ou sur un autre ordinateur.","To resume work later, here or on another computer.","Para retomar o trabalho mais tarde, aqui ou noutro computador.","Para retomar el trabajo más tarde, aquí o en otro ordenador."],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -3071,6 +3095,17 @@ addTr2([
   ["Réglez l'échelle du plan pour voir le rayon d'action.","Stellen Sie den Planmaßstab ein, um den Arbeitsradius zu sehen.","Stel de schaal van de tekening in om het werkbereik te zien.","请设置图纸比例以显示作业半径。","اضبط مقياس المخطط لرؤية نصف قطر العمل.","Imposta la scala del disegno per vedere il raggio d'azione.","Задайте масштаб чертежа, чтобы видеть радиус действия."],
   ["Symbole de mode opératoire : non compté dans le métré. Avec le Pointeur : glissez-le pour le déplacer, tirez un coin pour changer sa taille, la poignée ronde pour le tourner (Maj : par 15°).","Symbol des Arbeitsablaufs: wird im Aufmaß nicht gezählt. Mit dem Zeiger: ziehen zum Verschieben, an einer Ecke ziehen für die Größe, am runden Griff zum Drehen (Umschalt: in 15°-Schritten).","Symbool van de werkmethode: telt niet mee in de meting. Met de Aanwijzer: sleep om te verplaatsen, trek aan een hoek om de grootte te wijzigen, aan de ronde greep om te draaien (Shift: per 15°).","施工方案符号：不计入测量。使用指针：拖动可移动，拖动角点可调整大小，拖动圆形手柄可旋转（Shift：按 15°）。","رمز طريقة التنفيذ: لا يُحتسب في القياس. بالمؤشر: اسحبه لتحريكه، واسحب زاوية لتغيير حجمه، والمقبض الدائري لتدويره (Shift: بخطوات 15°).","Simbolo della modalità operativa: non conteggiato nel computo. Con il Puntatore: trascinalo per spostarlo, tira un angolo per cambiarne la dimensione, la maniglia rotonda per ruotarlo (Maiusc: a passi di 15°).","Символ ППР: не учитывается в замерах. Указателем: перетащите, чтобы переместить, потяните за угол, чтобы изменить размер, за круглую ручку — чтобы повернуть (Shift: шаг 15°)."],
   ["Export Excel","Excel-Export","Excel-export","导出 Excel","تصدير Excel","Esporta Excel","Экспорт в Excel"],
+  ["Enregistrer le plan en PDF…","Plan als PDF speichern…","Tekening opslaan als pdf…","将图纸保存为 PDF…","حفظ المخطط بصيغة PDF…","Salva il disegno in PDF…","Сохранить чертёж в PDF…"],
+  ["Préparation du PDF : page {n} / {k}…","PDF wird vorbereitet: Seite {n} / {k}…","Pdf wordt voorbereid: pagina {n} / {k}…","正在准备 PDF：第 {n} / {k} 页…","جارٍ تجهيز ملف PDF: الصفحة {n} / {k}…","Preparazione del PDF: pagina {n} / {k}…","Подготовка PDF: страница {n} / {k}…"],
+  ["Préparation du PDF…","PDF wird vorbereitet…","Pdf wordt voorbereid…","正在准备 PDF…","جارٍ تجهيز ملف PDF…","Preparazione del PDF…","Подготовка PDF…"],
+  ["métré","Aufmaß","meting","测量","قياس","computo","замеры"],
+  ["Installez la dernière version de Métrix depuis le site pour enregistrer en PDF.","Installieren Sie die neueste Métrix-Version von der Website, um als PDF zu speichern.","Installeer de nieuwste versie van Métrix via de website om als pdf op te slaan.","请从网站安装最新版 Métrix 以保存为 PDF。","ثبّت أحدث إصدار من Métrix من الموقع للحفظ بصيغة PDF.","Installa l'ultima versione di Métrix dal sito per salvare in PDF.","Установите последнюю версию Métrix с сайта, чтобы сохранять в PDF."],
+  ["Plan enregistré en PDF","Plan als PDF gespeichert","Tekening opgeslagen als pdf","图纸已保存为 PDF","تم حفظ المخطط بصيغة PDF","Disegno salvato in PDF","Чертёж сохранён в PDF"],
+  ["Enregistrement en PDF impossible : {e}","Speichern als PDF nicht möglich: {e}","Opslaan als pdf niet mogelijk: {e}","无法保存为 PDF：{e}","تعذّر الحفظ بصيغة PDF: {e}","Impossibile salvare in PDF: {e}","Не удалось сохранить в PDF: {e}"],
+  ["Plan en PDF","Plan als PDF","Tekening als pdf","PDF 图纸","المخطط بصيغة PDF","Disegno in PDF","Чертёж в PDF"],
+  ["Le plan avec vos métrés, annotations et symboles, à imprimer ou à envoyer.","Der Plan mit Ihren Aufmaßen, Anmerkungen und Symbolen, zum Drucken oder Versenden.","De tekening met uw metingen, notities en symbolen, om af te drukken of te versturen.","包含测量、标注和符号的图纸，可打印或发送。","المخطط مع قياساتك وتعليقاتك ورموزك، للطباعة أو الإرسال.","Il disegno con le tue misure, annotazioni e simboli, da stampare o inviare.","Чертёж с вашими замерами, пометками и символами — для печати или отправки."],
+  ["Projet Métrix (.metrix)","Métrix-Projekt (.metrix)","Métrix-project (.metrix)","Métrix 项目（.metrix）","مشروع Métrix ‏(.metrix)","Progetto Métrix (.metrix)","Проект Métrix (.metrix)"],
+  ["Pour reprendre le travail plus tard, ici ou sur un autre ordinateur.","Um die Arbeit später fortzusetzen, hier oder auf einem anderen Computer.","Om later verder te werken, hier of op een andere computer.","以便稍后在本机或其他电脑上继续工作。","لاستئناف العمل لاحقًا، هنا أو على حاسوب آخر.","Per riprendere il lavoro più tardi, qui o su un altro computer.","Чтобы продолжить работу позже — здесь или на другом компьютере."],
 ]);
 // --- fin des langues ajoutées ---
 
@@ -8065,7 +8100,7 @@ async function saveAsNew(fname, makeText) {
 // enregistre le projet dans son fichier (au même endroit, sans redemander) ; renvoie true si c'est fait
 async function saveProject() {
   if (!docs.length) { notify('Ouvrez d\'abord un plan.'); return false; }
-  if (!curProject) { askProjectName(); return false; }
+  if (!curProject) { saveChoiceDialog(); return false; }
   if (prjSaving) return false; prjSaving = true;
   try {
     const plans = docsPlans(), active = Math.max(0, docs.indexOf(activeDoc)), P = curProject;
@@ -8086,6 +8121,86 @@ async function saveProject() {
   } catch (e) { notify('Enregistrement du projet impossible : ' + (e.message || e)); return false; }
   finally { prjSaving = false; }
 }
+/* ---------- enregistrement du plan en PDF : chaque page avec ses métrés, annotations et symboles ----------
+   Les pages sont redessinées à 200 ppp environ puis rangées dans un PDF (images JPEG), aux dimensions du plan d'origine. */
+function pdfFromJpegs(pages) {   // pages : [{ jpg (octets JPEG), w, h (pixels), pw, ph (points) }]
+  const enc = new TextEncoder(), parts = [], offs = []; let len = 0;
+  const push = x => { const b = typeof x === 'string' ? enc.encode(x) : x; parts.push(b); len += b.length; };
+  const obj = (n, body) => { offs[n] = len; push(`${n} 0 obj\n`); body(); push('\nendobj\n'); };
+  const N = pages.length, n2 = v => (Math.round(v * 100) / 100).toString();
+  push('%PDF-1.4\n'); push(new Uint8Array([37, 226, 227, 207, 211, 10]));
+  obj(1, () => push('<< /Type /Catalog /Pages 2 0 R >>'));
+  obj(2, () => push(`<< /Type /Pages /Kids [${pages.map((_, i) => `${4 + i * 3} 0 R`).join(' ')}] /Count ${N} >>`));
+  obj(3, () => push(`<< /Producer (Metrix ${METRIX_VERSION}) /Creator (Metrix) >>`));
+  pages.forEach((p, i) => {
+    const o = 4 + i * 3, cs = `q ${n2(p.pw)} 0 0 ${n2(p.ph)} 0 0 cm /Im${i} Do Q`;
+    obj(o, () => push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${n2(p.pw)} ${n2(p.ph)}] /Resources << /XObject << /Im${i} ${o + 2} 0 R >> >> /Contents ${o + 1} 0 R >>`));
+    obj(o + 1, () => push(`<< /Length ${cs.length} >>\nstream\n${cs}\nendstream`));
+    obj(o + 2, () => { push(`<< /Type /XObject /Subtype /Image /Width ${p.w} /Height ${p.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${p.jpg.length} >>\nstream\n`); push(p.jpg); push('\nendstream'); });
+  });
+  const x = len, size = 4 + N * 3;
+  push(`xref\n0 ${size}\n0000000000 65535 f \n`);
+  for (let n = 1; n < size; n++) push(String(offs[n]).padStart(10, '0') + ' 00000 n \n');
+  push(`trailer\n<< /Size ${size} /Root 1 0 R /Info 3 0 R >>\nstartxref\n${x}\n%%EOF\n`);
+  const out = new Uint8Array(len); let o = 0; for (const b of parts) { out.set(b, o); o += b.length; }
+  return out;
+}
+let pdfExporting = false;
+async function exportPlanPdf() {
+  if (!st.img || !activeDoc) return notify('Ouvrez d\'abord un plan.');
+  if (pdfExporting) return; pdfExporting = true;
+  persist(); saveDoc();
+  const d = activeDoc, N = d.isPdf ? d.pdf.numPages : 1, ptPerWorld = d.isPdf ? 1 / PDF_RENDER : 72 / 150;
+  const px = .7 / ptPerWorld;   // textes et traits des métrés : environ 0,7 fois leur taille à l'écran à 100 %
+  const pages = [], screenCtx = ctx, page0 = st.page;
+  try {
+    for (let n = 1; n <= N; n++) {
+      toast(N > 1 ? `Préparation du PDF : page ${n} / ${N}…` : 'Préparation du PDF…');
+      let c, W, H;
+      if (d.isPdf) {
+        const p = await d.pdf.getPage(n), v1 = p.getViewport({ scale: PDF_RENDER });
+        W = v1.width; H = v1.height;
+        const f = Math.min(200 / 72 * ptPerWorld, Math.sqrt(2.4e7 / (W * H)));   // pixels de sortie par unité du plan
+        const vp = p.getViewport({ scale: PDF_RENDER * f });
+        c = document.createElement('canvas'); c.width = Math.floor(vp.width); c.height = Math.floor(vp.height);
+        const cx = c.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, c.width, c.height);
+        await p.render({ canvasContext: cx, viewport: vp }).promise;
+      } else {
+        W = imgW(); H = imgH();
+        const f = Math.min(1, Math.sqrt(2.4e7 / (W * H)));
+        c = document.createElement('canvas'); c.width = Math.floor(W * f); c.height = Math.floor(H * f);
+        const cx = c.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, c.width, c.height); cx.drawImage(st.img, 0, 0, c.width, c.height);
+      }
+      // métrés de la page, dessinés comme à l'écran (sans sélection)
+      ctx = c.getContext('2d'); st.page = n;
+      try { ctx.setTransform(c.width / W, 0, 0, c.height / H, 0, 0); for (const m of st.measures) if (m.page === n) { ctx.save(); drawMeasure(m, false, px); ctx.restore(); } }
+      finally { ctx = screenCtx; st.page = page0; }
+      const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .88));
+      pages.push({ jpg: new Uint8Array(await blob.arrayBuffer()), w: c.width, h: c.height, pw: W * ptPerWorld, ph: H * ptPerWorld });
+      c.width = c.height = 0;
+    }
+    const data = pdfFromJpegs(pages), name = baseName() + ' - ' + trText('métré') + '.pdf';
+    if (NATIVE) {
+      if (!metrixCaps().includes('saveB64')) return notify('Installez la dernière version de Métrix depuis le site pour enregistrer en PDF.');
+      let bin = ''; for (let i = 0; i < data.length; i += 0x8000) bin += String.fromCharCode.apply(null, data.subarray(i, i + 0x8000));
+      const r = await nativeCall({ cmd: 'saveB64', name, b64: btoa(bin) });
+      if (r.ok) toast('Plan enregistré en PDF'); else if (r.msg) notify(r.msg);
+    } else { download(name, new Blob([data], { type: 'application/pdf' }), 'application/pdf'); toast('Plan enregistré en PDF'); }
+  } catch (e) { notify('Enregistrement en PDF impossible : ' + (e.message || e)); }
+  finally { ctx = screenCtx; st.page = page0; pdfExporting = false; draw(); }
+}
+// « Enregistrer » sans projet : plan en PDF (avec les métrés) ou projet Métrix
+function saveChoiceDialog() {
+  dialog('Enregistrer', `<div class="svc">
+    <label class="svc-o"><input type="radio" name="svc" value="pdf" checked><span class="svc-i svc-pdf">PDF</span><span><b>Plan en PDF</b><small>Le plan avec vos métrés, annotations et symboles, à imprimer ou à envoyer.</small></span></label>
+    <label class="svc-o"><input type="radio" name="svc" value="prj"><span class="svc-i svc-prj">MTX</span><span><b>Projet Métrix (.metrix)</b><small>Pour reprendre le travail plus tard, ici ou sur un autre ordinateur.</small></span></label>
+  </div>`, () => {
+    const v = ($('dlgBody').querySelector('input[name=svc]:checked') || {}).value;
+    setTimeout(() => v === 'prj' ? askProjectName() : exportPlanPdf(), 0);
+  });
+  $('dlgOk').textContent = 'Enregistrer';
+}
+$('menuPdf').onclick = () => exportPlanPdf();
 function askProjectName() {
   dialog('Enregistrer en projet', `<p style="margin:14px 16px 8px;text-align:left">Les plans ouverts et leurs métrés seront rangés dans un seul fichier projet (.metrix), que vous pourrez ouvrir sur un autre ordinateur.</p>
     <div class="row" style="margin:0 16px 12px"><label for="pjName">Nom du projet :</label><input id="pjName" style="flex:1" value="${esc(baseName())}"></div>`, () => {
