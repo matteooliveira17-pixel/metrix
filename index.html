@@ -255,6 +255,41 @@
   .svc-pdf { background:#c0392b; } .svc-prj { background:#2b579a; }
   html.dark .svc-o { border-color:#46505e; } html.dark .svc-o:has(input:checked) { background:#323c4b; border-color:#4c86d8; }
   html.dark .svc-o small { color:#a6b1c2; }
+  /* Métré intelligent : panneau de discussion avec l'IA */
+  .ai-pan { position:fixed; z-index:30; right:8px; width:min(380px, calc(100vw - 16px)); display:flex; flex-direction:column; background:#fff; border:1px solid #9aa4b2; border-radius:10px; box-shadow:0 12px 34px rgba(0,0,0,.25); overflow:hidden; }
+  .ai-pan[hidden] { display:none; }
+  .ai-hd { display:flex; align-items:center; gap:4px; padding:8px 8px 8px 12px; background:linear-gradient(#f4f0fb,#ece6f7); border-bottom:1px solid #d9d0ea; }
+  .ai-hd b { flex:1; font-size:13px; color:#3b2a63; }
+  .ai-star { color:#8e4ec6; }
+  .ai-hd button { border:1px solid transparent; background:none; border-radius:4px; cursor:pointer; font:inherit; font-size:11.5px; padding:2px 6px; color:#4b3d6b; }
+  .ai-hd button:hover { background:#fff; border-color:#cbbfe3; }
+  .ai-key { padding:10px 12px; border-bottom:1px solid #e3e7ee; font-size:12px; line-height:1.45; }
+  .ai-key p { margin:0 0 6px; } .ai-key input { width:100%; box-sizing:border-box; padding:6px 8px; font:inherit; border:1px solid #aab5c5; border-radius:6px; }
+  .ai-kb { display:flex; gap:6px; margin:8px 0 6px; } .ai-kb .btn { width:auto; padding:3px 10px; }
+  .ai-small { color:#6b7686; font-size:11px; }
+  .ai-log { flex:1; overflow:auto; padding:10px; display:flex; flex-direction:column; gap:8px; font-size:12.5px; line-height:1.45; }
+  .ai-m { max-width:92%; padding:7px 10px; border-radius:10px; white-space:normal; word-wrap:break-word; }
+  .ai-m.u { align-self:flex-end; background:#2b579a; color:#fff; border-bottom-right-radius:3px; white-space:pre-wrap; }
+  .ai-m.a { align-self:flex-start; background:#f2f4f8; color:#1f2937; border-bottom-left-radius:3px; }
+  .ai-m.a p { margin:0 0 6px; } .ai-m.a p:last-child { margin:0; } .ai-m.a ul { margin:2px 0 6px 16px; padding:0; }
+  .ai-m.a table { border-collapse:collapse; margin:4px 0; font-size:11.5px; } .ai-m.a td, .ai-m.a th { border:1px solid #d5dbe5; padding:2px 6px; text-align:left; }
+  .ai-act { align-self:flex-start; font-size:11.5px; color:#2e7d4f; padding:0 4px; }
+  .ai-err { align-self:stretch; font-size:12px; color:#b42318; background:#fdecea; border:1px solid #f5c2bd; border-radius:8px; padding:6px 9px; }
+  .ai-wait { align-self:flex-start; color:#6b7686; font-size:12px; padding:2px 4px; }
+  .ai-wait i { display:inline-block; width:6px; height:6px; margin:0 1px; border-radius:50%; background:#8e4ec6; animation:aiDot 1s infinite ease-in-out; }
+  .ai-wait i:nth-child(2) { animation-delay:.15s; } .ai-wait i:nth-child(3) { animation-delay:.3s; }
+  @keyframes aiDot { 0%, 80%, 100% { opacity:.25; transform:scale(.8); } 40% { opacity:1; transform:scale(1); } }
+  .ai-sug { display:flex; flex-wrap:wrap; gap:5px; }
+  .ai-sug button { border:1px solid #cbbfe3; background:#faf8fe; color:#4b3d6b; border-radius:14px; padding:3px 9px; font:inherit; font-size:11.5px; cursor:pointer; }
+  .ai-sug button:hover { background:#efe9fa; }
+  .ai-in { display:flex; gap:6px; padding:8px; border-top:1px solid #e3e7ee; }
+  .ai-in textarea { flex:1; resize:none; font:inherit; font-size:12.5px; padding:6px 8px; border:1px solid #aab5c5; border-radius:6px; }
+  .ai-in .btn { width:auto; padding:0 12px; }
+  html.dark .ai-pan { background:#262b33; border-color:#4a5260; }
+  html.dark .ai-hd { background:linear-gradient(#2f2a3d,#2a2536); border-color:#45405a; } html.dark .ai-hd b, html.dark .ai-hd button { color:#ddd3f3; }
+  html.dark .ai-m.a { background:#2f3540; color:#e6e9ee; } html.dark .ai-m.a td, html.dark .ai-m.a th { border-color:#4a5260; }
+  html.dark .ai-key, html.dark .ai-in { border-color:#3d4450; } html.dark .ai-in textarea, html.dark .ai-key input { background:#1f232a; color:#e6e9ee; border-color:#4a5260; }
+  html.dark .ai-sug button { background:#2f2a3d; border-color:#45405a; color:#ddd3f3; }
   /* boîte de dialogue */
   .modal { position:fixed; inset:0; background:rgba(0,0,0,.08); display:flex; align-items:center; justify-content:center; z-index:50; }
   .dlg { background:#fff; border:1px solid #7a8899; box-shadow:0 8px 28px rgba(0,0,0,.3); width:300px; }
@@ -983,6 +1018,12 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
   </div><div class="cap">Mesurer</div></div>
 
   <div class="grp"><div class="items">
+    <button class="rb rb-mid" id="aiBtn" title="Métré intelligent : une IA vous pose quelques questions puis trace les métrés sur le plan">
+      <svg viewBox="0 0 32 32"><rect x="3" y="7" width="20" height="18" rx="3" fill="#eef4fc" stroke="#7a8ca5" stroke-width="1.4"/><path d="M7 20l4-5 3 3 5-6" fill="none" stroke="#1f5fbf" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><path d="M25 3l1.4 3.6L30 8l-3.6 1.4L25 13l-1.4-3.6L20 8l3.6-1.4z" fill="#8e4ec6"/><path d="M27 17l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z" fill="#d6409f"/></svg>
+      Assistant IA</button>
+  </div><div class="cap">Métré intelligent</div></div>
+
+  <div class="grp"><div class="items">
     <div class="rstack">
       <button class="rb sm tool" data-tool="voidrect" title="Vide rectangulaire à déduire d'une surface : fenêtre, porte, trémie… (D)">
         <svg viewBox="0 0 32 32"><rect x="3" y="5" width="26" height="22" fill="#5cc35a" stroke="#1e7a1c" stroke-width="1.5"/><rect x="10" y="10" width="12" height="12" fill="#fff" stroke="#b42318" stroke-width="1.5" stroke-dasharray="3 2"/><path d="M10 16l6-6M10 22l12-12M16 22l6-6" stroke="#b42318" stroke-width="1"/></svg>
@@ -1283,6 +1324,19 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
   </div>
 </div></div>
 
+<aside class="ai-pan" id="aiPan" hidden>
+  <div class="ai-hd"><b><span class="ai-star">✦</span> Métré intelligent</b>
+    <button id="aiNew" type="button" title="Nouvelle conversation">Nouvelle</button><button id="aiKeyBtn" type="button" title="Clé API Claude">Clé</button><button id="aiX" type="button" title="Fermer">✕</button></div>
+  <div class="ai-key" id="aiKeyBox" hidden>
+    <p><b>Clé API Claude</b></p>
+    <p>Le métré intelligent utilise l'IA Claude d'Anthropic. Créez une clé API sur <a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener">platform.claude.com</a> (compte Anthropic, paiement à l'usage : quelques centimes par question), puis collez-la ici.</p>
+    <input id="aiKeyIn" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-…">
+    <div class="ai-kb"><button class="btn def" id="aiKeySave" type="button">Enregistrer la clé</button><button class="btn" id="aiKeyDel" type="button">Supprimer la clé</button></div>
+    <p class="ai-small">La clé reste sur cet ordinateur. La page du plan affichée est envoyée à Anthropic pour être analysée.</p>
+  </div>
+  <div class="ai-log" id="aiLog"></div>
+  <div class="ai-in"><textarea id="aiQ" rows="2" placeholder="Ex. : métré les surfaces de toutes les pièces"></textarea><button class="btn def" id="aiSend" type="button">Envoyer</button></div>
+</aside>
 <div class="sym-pop" id="symPop" hidden><input id="symQ" type="search" placeholder="Rechercher un symbole (grue, manitou, nacelle…)" autocomplete="off"><label class="sym-opt"><input type="checkbox" id="symRChk"> Afficher les rayons d'action des grues et des engins</label><div id="symGal"></div></div>
 <div class="modal" id="modal" hidden><div class="dlg">
   <div class="t"><span id="dlgTitle"></span><button id="dlgX">✕</button></div>
@@ -1336,7 +1390,7 @@ let ctx = cv.getContext('2d');   // remplacé un instant par le canevas d'une pa
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.28';
+const METRIX_VERSION = '3.29';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -2256,6 +2310,45 @@ addTr([
   ["Le plan avec vos métrés, annotations et symboles, à imprimer ou à envoyer.","The plan with your takeoffs, notes and symbols, to print or send.","A planta com as suas medições, anotações e símbolos, para imprimir ou enviar.","El plano con sus mediciones, anotaciones y símbolos, para imprimir o enviar."],
   ["Projet Métrix (.metrix)","Métrix project (.metrix)","Projeto Métrix (.metrix)","Proyecto Métrix (.metrix)"],
   ["Pour reprendre le travail plus tard, ici ou sur un autre ordinateur.","To resume work later, here or on another computer.","Para retomar o trabalho mais tarde, aqui ou noutro computador.","Para retomar el trabajo más tarde, aquí o en otro ordenador."],
+  ["Assistant IA","AI assistant","Assistente IA","Asistente IA"],
+  ["Métré intelligent","Smart takeoff","Medição inteligente","Medición inteligente"],
+  ["Métré intelligent : une IA vous pose quelques questions puis trace les métrés sur le plan","Smart takeoff: an AI asks you a few questions, then draws the takeoffs on the plan","Medição inteligente: uma IA faz-lhe algumas perguntas e depois traça as medições na planta","Medición inteligente: una IA le hace algunas preguntas y luego traza las mediciones en el plano"],
+  ["Nouvelle","New","Nova","Nueva"],
+  ["Nouvelle conversation","New conversation","Nova conversa","Nueva conversación"],
+  ["Clé","Key","Chave","Clave"],
+  ["Clé API Claude","Claude API key","Chave API Claude","Clave API de Claude"],
+  ["Le métré intelligent utilise l'IA Claude d'Anthropic. Créez une clé API sur","Smart takeoff uses Anthropic's Claude AI. Create an API key on","A medição inteligente usa a IA Claude da Anthropic. Crie uma chave API em","La medición inteligente usa la IA Claude de Anthropic. Cree una clave API en"],
+  ["(compte Anthropic, paiement à l'usage : quelques centimes par question), puis collez-la ici.","(Anthropic account, pay as you go: a few cents per question), then paste it here.","(conta Anthropic, pagamento por utilização: alguns cêntimos por pergunta) e cole-a aqui.","(cuenta de Anthropic, pago por uso: unos céntimos por pregunta) y péguela aquí."],
+  ["Enregistrer la clé","Save the key","Guardar a chave","Guardar la clave"],
+  ["Supprimer la clé","Delete the key","Eliminar a chave","Eliminar la clave"],
+  ["La clé reste sur cet ordinateur. La page du plan affichée est envoyée à Anthropic pour être analysée.","The key stays on this computer. The displayed plan page is sent to Anthropic for analysis.","A chave fica neste computador. A página da planta apresentada é enviada à Anthropic para ser analisada.","La clave se queda en este ordenador. La página del plano mostrada se envía a Anthropic para analizarla."],
+  ["Ex. : métré les surfaces de toutes les pièces","E.g. measure the areas of all rooms","Ex.: medir as áreas de todas as divisões","Ej.: medir las superficies de todas las habitaciones"],
+  ["Envoyer","Send","Enviar","Enviar"],
+  ["Arrêter","Stop","Parar","Detener"],
+  ["Bonjour ! Dites-moi ce que vous voulez métrer sur la page affichée : je vous poserai quelques questions, puis je tracerai les métrés sur le plan. Vous pourrez les corriger à la souris.","Hello! Tell me what you want to measure on the displayed page: I'll ask you a few questions, then draw the takeoffs on the plan. You can correct them with the mouse.","Olá! Diga-me o que quer medir na página apresentada: farei algumas perguntas e depois traçarei as medições na planta. Poderá corrigi-las com o rato.","¡Hola! Dígame qué quiere medir en la página mostrada: le haré algunas preguntas y luego trazaré las mediciones en el plano. Podrá corregirlas con el ratón."],
+  ["Surfaces de toutes les pièces","Areas of all rooms","Áreas de todas as divisões","Superficies de todas las habitaciones"],
+  ["Linéaire des murs et cloisons","Length of walls and partitions","Comprimento das paredes e divisórias","Longitud de muros y tabiques"],
+  ["Compter les portes et les fenêtres","Count doors and windows","Contar portas e janelas","Contar puertas y ventanas"],
+  ["Régler l'échelle du plan","Set the plan scale","Definir a escala da planta","Ajustar la escala del plano"],
+  ["Clé API refusée : vérifiez-la (bouton « Clé »).","API key rejected: check it (“Key” button).","Chave API recusada: verifique-a (botão « Chave »).","Clave API rechazada: compruébela (botón « Clave »)."],
+  ["Trop de demandes pour le moment : réessayez dans une minute.","Too many requests right now: try again in a minute.","Demasiados pedidos neste momento: tente de novo dentro de um minuto.","Demasiadas solicitudes en este momento: vuelva a intentarlo en un minuto."],
+  ["Crédit insuffisant sur votre compte Anthropic.","Insufficient credit on your Anthropic account.","Crédito insuficiente na sua conta Anthropic.","Crédito insuficiente en su cuenta de Anthropic."],
+  ["Le service d'IA est surchargé : réessayez dans un instant.","The AI service is overloaded: try again in a moment.","O serviço de IA está sobrecarregado: tente de novo daqui a pouco.","El servicio de IA está saturado: vuelva a intentarlo en un momento."],
+  ["Erreur de l'IA : {e}","AI error: {e}","Erro da IA: {e}","Error de la IA: {e}"],
+  ["Demande interrompue.","Request stopped.","Pedido interrompido.","Solicitud interrumpida."],
+  ["Impossible de joindre le service d'IA : vérifiez la connexion internet.","Unable to reach the AI service: check the internet connection.","Não foi possível contactar o serviço de IA: verifique a ligação à internet.","No se puede contactar con el servicio de IA: compruebe la conexión a internet."],
+  ["L'IA a refusé cette demande.","The AI declined this request.","A IA recusou este pedido.","La IA rechazó esta solicitud."],
+  ["Réponse trop longue, coupée : demandez une partie à la fois.","Answer too long and cut off: ask for one part at a time.","Resposta demasiado longa, cortada: peça uma parte de cada vez.","Respuesta demasiado larga, cortada: pida una parte cada vez."],
+  ["L'IA analyse le plan…","The AI is analysing the plan…","A IA está a analisar a planta…","La IA está analizando el plano…"],
+  ["Collez d'abord votre clé API Claude.","Paste your Claude API key first.","Cole primeiro a sua chave API Claude.","Pegue primero su clave API de Claude."],
+  ["Cette clé ne ressemble pas à une clé API Claude (elle commence par « sk-ant- »).","This doesn't look like a Claude API key (it starts with “sk-ant-”).","Esta chave não parece uma chave API Claude (começa por « sk-ant- »).","Esta clave no parece una clave API de Claude (empieza por « sk-ant- »)."],
+  ["Clé API enregistrée sur cet ordinateur","API key saved on this computer","Chave API guardada neste computador","Clave API guardada en este ordenador"],
+  ["Clé API supprimée","API key deleted","Chave API eliminada","Clave API eliminada"],
+  ["Surfaces tracées","Areas drawn","Áreas traçadas","Superficies trazadas"],
+  ["Longueurs tracées","Lengths drawn","Comprimentos traçados","Longitudes trazadas"],
+  ["Éléments comptés","Items counted","Elementos contados","Elementos contados"],
+  ["Échelle réglée","Scale set","Escala definida","Escala ajustada"],
+  ["Métrés supprimés","Takeoffs deleted","Medições eliminadas","Mediciones eliminadas"],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -3106,6 +3199,45 @@ addTr2([
   ["Le plan avec vos métrés, annotations et symboles, à imprimer ou à envoyer.","Der Plan mit Ihren Aufmaßen, Anmerkungen und Symbolen, zum Drucken oder Versenden.","De tekening met uw metingen, notities en symbolen, om af te drukken of te versturen.","包含测量、标注和符号的图纸，可打印或发送。","المخطط مع قياساتك وتعليقاتك ورموزك، للطباعة أو الإرسال.","Il disegno con le tue misure, annotazioni e simboli, da stampare o inviare.","Чертёж с вашими замерами, пометками и символами — для печати или отправки."],
   ["Projet Métrix (.metrix)","Métrix-Projekt (.metrix)","Métrix-project (.metrix)","Métrix 项目（.metrix）","مشروع Métrix ‏(.metrix)","Progetto Métrix (.metrix)","Проект Métrix (.metrix)"],
   ["Pour reprendre le travail plus tard, ici ou sur un autre ordinateur.","Um die Arbeit später fortzusetzen, hier oder auf einem anderen Computer.","Om later verder te werken, hier of op een andere computer.","以便稍后在本机或其他电脑上继续工作。","لاستئناف العمل لاحقًا، هنا أو على حاسوب آخر.","Per riprendere il lavoro più tardi, qui o su un altro computer.","Чтобы продолжить работу позже — здесь или на другом компьютере."],
+  ["Assistant IA","KI-Assistent","AI-assistent","AI 助手","مساعد الذكاء الاصطناعي","Assistente IA","ИИ-помощник"],
+  ["Métré intelligent","Intelligentes Aufmaß","Slimme meting","智能测量","القياس الذكي","Computo intelligente","Умные замеры"],
+  ["Métré intelligent : une IA vous pose quelques questions puis trace les métrés sur le plan","Intelligentes Aufmaß: Eine KI stellt Ihnen einige Fragen und zeichnet dann die Aufmaße auf den Plan","Slimme meting: een AI stelt u enkele vragen en tekent dan de metingen op de tekening","智能测量：AI 先向您提几个问题，然后在图纸上绘制测量","القياس الذكي: يطرح عليك الذكاء الاصطناعي بعض الأسئلة ثم يرسم القياسات على المخطط","Computo intelligente: un'IA ti fa alcune domande, poi traccia le misure sul disegno","Умные замеры: ИИ задаёт несколько вопросов, затем выполняет замеры на чертеже"],
+  ["Nouvelle","Neu","Nieuw","新建","جديدة","Nuova","Новая"],
+  ["Nouvelle conversation","Neues Gespräch","Nieuw gesprek","新对话","محادثة جديدة","Nuova conversazione","Новый разговор"],
+  ["Clé","Schlüssel","Sleutel","密钥","المفتاح","Chiave","Ключ"],
+  ["Clé API Claude","Claude-API-Schlüssel","Claude API-sleutel","Claude API 密钥","مفتاح Claude API","Chiave API Claude","Ключ API Claude"],
+  ["Le métré intelligent utilise l'IA Claude d'Anthropic. Créez une clé API sur","Das intelligente Aufmaß nutzt die KI Claude von Anthropic. Erstellen Sie einen API-Schlüssel auf","Slimme meting gebruikt de AI Claude van Anthropic. Maak een API-sleutel aan op","智能测量使用 Anthropic 的 Claude AI。请在以下网站创建 API 密钥：","يستخدم القياس الذكي الذكاء الاصطناعي Claude من Anthropic. أنشئ مفتاح API على","Il computo intelligente usa l'IA Claude di Anthropic. Crea una chiave API su","Умные замеры используют ИИ Claude от Anthropic. Создайте ключ API на"],
+  ["(compte Anthropic, paiement à l'usage : quelques centimes par question), puis collez-la ici.","(Anthropic-Konto, Bezahlung nach Nutzung: wenige Cent pro Frage) und fügen Sie ihn hier ein.","(Anthropic-account, betalen per gebruik: enkele centen per vraag) en plak hem hier.","（Anthropic 账户，按用量付费：每个问题几美分），然后粘贴到这里。","(حساب Anthropic، الدفع حسب الاستخدام: بضعة سنتات لكل سؤال)، ثم الصقه هنا.","(account Anthropic, pagamento a consumo: pochi centesimi per domanda), poi incollala qui.","(аккаунт Anthropic, оплата по факту: несколько центов за вопрос), затем вставьте его сюда."],
+  ["Enregistrer la clé","Schlüssel speichern","Sleutel opslaan","保存密钥","حفظ المفتاح","Salva la chiave","Сохранить ключ"],
+  ["Supprimer la clé","Schlüssel löschen","Sleutel verwijderen","删除密钥","حذف المفتاح","Elimina la chiave","Удалить ключ"],
+  ["La clé reste sur cet ordinateur. La page du plan affichée est envoyée à Anthropic pour être analysée.","Der Schlüssel bleibt auf diesem Computer. Die angezeigte Planseite wird zur Analyse an Anthropic gesendet.","De sleutel blijft op deze computer. De getoonde tekeningpagina wordt ter analyse naar Anthropic gestuurd.","密钥保存在本机。显示的图纸页面会发送给 Anthropic 进行分析。","يبقى المفتاح على هذا الحاسوب. تُرسل صفحة المخطط المعروضة إلى Anthropic لتحليلها.","La chiave resta su questo computer. La pagina del disegno visualizzata viene inviata ad Anthropic per l'analisi.","Ключ остаётся на этом компьютере. Открытая страница чертежа отправляется в Anthropic для анализа."],
+  ["Ex. : métré les surfaces de toutes les pièces","z. B. Flächen aller Räume aufmessen","Bijv. meet de oppervlakte van alle ruimtes","例如：测量所有房间的面积","مثال: قِس مساحات جميع الغرف","Es.: misura le superfici di tutte le stanze","Напр.: измерь площади всех помещений"],
+  ["Envoyer","Senden","Versturen","发送","إرسال","Invia","Отправить"],
+  ["Arrêter","Stoppen","Stoppen","停止","إيقاف","Interrompi","Остановить"],
+  ["Bonjour ! Dites-moi ce que vous voulez métrer sur la page affichée : je vous poserai quelques questions, puis je tracerai les métrés sur le plan. Vous pourrez les corriger à la souris.","Hallo! Sagen Sie mir, was Sie auf der angezeigten Seite aufmessen möchten: Ich stelle Ihnen einige Fragen und zeichne dann die Aufmaße auf den Plan. Sie können sie mit der Maus korrigieren.","Hallo! Vertel me wat u op de getoonde pagina wilt meten: ik stel u enkele vragen en teken dan de metingen op de tekening. U kunt ze met de muis corrigeren.","您好！请告诉我您想在当前页面上测量什么：我会先问几个问题，然后在图纸上绘制测量。您可以用鼠标修改它们。","مرحبًا! أخبرني بما تريد قياسه في الصفحة المعروضة: سأطرح عليك بعض الأسئلة ثم أرسم القياسات على المخطط. يمكنك تصحيحها بالفأرة.","Ciao! Dimmi cosa vuoi misurare nella pagina visualizzata: ti farò qualche domanda, poi traccerò le misure sul disegno. Potrai correggerle con il mouse.","Здравствуйте! Скажите, что нужно измерить на открытой странице: я задам несколько вопросов, затем выполню замеры на чертеже. Их можно поправить мышью."],
+  ["Surfaces de toutes les pièces","Flächen aller Räume","Oppervlakte van alle ruimtes","所有房间的面积","مساحات جميع الغرف","Superfici di tutte le stanze","Площади всех помещений"],
+  ["Linéaire des murs et cloisons","Länge der Wände und Trennwände","Lengte van muren en scheidingswanden","墙体和隔墙长度","أطوال الجدران والفواصل","Lunghezza di muri e tramezzi","Длина стен и перегородок"],
+  ["Compter les portes et les fenêtres","Türen und Fenster zählen","Deuren en ramen tellen","统计门窗数量","عدّ الأبواب والنوافذ","Conta porte e finestre","Посчитать двери и окна"],
+  ["Régler l'échelle du plan","Planmaßstab einstellen","Schaal van de tekening instellen","设置图纸比例","ضبط مقياس المخطط","Imposta la scala del disegno","Задать масштаб чертежа"],
+  ["Clé API refusée : vérifiez-la (bouton « Clé »).","API-Schlüssel abgelehnt: Bitte prüfen (Schaltfläche „Schlüssel“).","API-sleutel geweigerd: controleer hem (knop „Sleutel”).","API 密钥被拒绝：请检查（“密钥”按钮）。","تم رفض مفتاح API: تحقق منه (زر «المفتاح»).","Chiave API rifiutata: controllala (pulsante «Chiave»).","Ключ API отклонён: проверьте его (кнопка «Ключ»)."],
+  ["Trop de demandes pour le moment : réessayez dans une minute.","Zu viele Anfragen: Versuchen Sie es in einer Minute erneut.","Te veel verzoeken op dit moment: probeer het over een minuut opnieuw.","请求过多：请一分钟后重试。","طلبات كثيرة حاليًا: أعد المحاولة بعد دقيقة.","Troppe richieste al momento: riprova tra un minuto.","Слишком много запросов: повторите через минуту."],
+  ["Crédit insuffisant sur votre compte Anthropic.","Unzureichendes Guthaben auf Ihrem Anthropic-Konto.","Onvoldoende tegoed op uw Anthropic-account.","您的 Anthropic 账户余额不足。","رصيد غير كافٍ في حساب Anthropic الخاص بك.","Credito insufficiente sul tuo account Anthropic.","Недостаточно средств на аккаунте Anthropic."],
+  ["Le service d'IA est surchargé : réessayez dans un instant.","Der KI-Dienst ist überlastet: Versuchen Sie es gleich erneut.","De AI-dienst is overbelast: probeer het zo opnieuw.","AI 服务繁忙：请稍后重试。","خدمة الذكاء الاصطناعي مثقلة: أعد المحاولة بعد قليل.","Il servizio di IA è sovraccarico: riprova tra un attimo.","Сервис ИИ перегружен: повторите чуть позже."],
+  ["Erreur de l'IA : {e}","KI-Fehler: {e}","AI-fout: {e}","AI 错误：{e}","خطأ في الذكاء الاصطناعي: {e}","Errore dell'IA: {e}","Ошибка ИИ: {e}"],
+  ["Demande interrompue.","Anfrage abgebrochen.","Verzoek onderbroken.","请求已中断。","تم إيقاف الطلب.","Richiesta interrotta.","Запрос прерван."],
+  ["Impossible de joindre le service d'IA : vérifiez la connexion internet.","KI-Dienst nicht erreichbar: Prüfen Sie die Internetverbindung.","Kan de AI-dienst niet bereiken: controleer de internetverbinding.","无法连接 AI 服务：请检查网络连接。","تعذّر الوصول إلى خدمة الذكاء الاصطناعي: تحقق من الاتصال بالإنترنت.","Impossibile raggiungere il servizio di IA: controlla la connessione internet.","Не удаётся подключиться к сервису ИИ: проверьте интернет."],
+  ["L'IA a refusé cette demande.","Die KI hat diese Anfrage abgelehnt.","De AI heeft dit verzoek geweigerd.","AI 拒绝了此请求。","رفض الذكاء الاصطناعي هذا الطلب.","L'IA ha rifiutato questa richiesta.","ИИ отклонил этот запрос."],
+  ["Réponse trop longue, coupée : demandez une partie à la fois.","Antwort zu lang und abgeschnitten: Fragen Sie nach jeweils einem Teil.","Antwoord te lang en afgebroken: vraag één deel tegelijk.","回答过长被截断：请一次只问一部分。","الإجابة طويلة جدًا وقُطعت: اطلب جزءًا واحدًا في كل مرة.","Risposta troppo lunga, interrotta: chiedi una parte alla volta.","Ответ слишком длинный и обрезан: просите по частям."],
+  ["L'IA analyse le plan…","Die KI analysiert den Plan…","De AI analyseert de tekening…","AI 正在分析图纸…","يحلل الذكاء الاصطناعي المخطط…","L'IA sta analizzando il disegno…","ИИ анализирует чертёж…"],
+  ["Collez d'abord votre clé API Claude.","Fügen Sie zuerst Ihren Claude-API-Schlüssel ein.","Plak eerst uw Claude API-sleutel.","请先粘贴您的 Claude API 密钥。","الصق مفتاح Claude API أولًا.","Incolla prima la tua chiave API Claude.","Сначала вставьте ключ API Claude."],
+  ["Cette clé ne ressemble pas à une clé API Claude (elle commence par « sk-ant- »).","Das sieht nicht wie ein Claude-API-Schlüssel aus (er beginnt mit „sk-ant-“).","Dit lijkt geen Claude API-sleutel (die begint met „sk-ant-”).","这不像 Claude API 密钥（应以“sk-ant-”开头）。","لا يبدو هذا مفتاح Claude API (يبدأ بـ «sk-ant-»).","Non sembra una chiave API Claude (inizia con «sk-ant-»).","Это не похоже на ключ API Claude (он начинается с «sk-ant-»)."],
+  ["Clé API enregistrée sur cet ordinateur","API-Schlüssel auf diesem Computer gespeichert","API-sleutel opgeslagen op deze computer","API 密钥已保存在本机","تم حفظ مفتاح API على هذا الحاسوب","Chiave API salvata su questo computer","Ключ API сохранён на этом компьютере"],
+  ["Clé API supprimée","API-Schlüssel gelöscht","API-sleutel verwijderd","API 密钥已删除","تم حذف مفتاح API","Chiave API eliminata","Ключ API удалён"],
+  ["Surfaces tracées","Flächen gezeichnet","Oppervlakken getekend","已绘制面积","تم رسم المساحات","Superfici tracciate","Площади построены"],
+  ["Longueurs tracées","Längen gezeichnet","Lengtes getekend","已绘制长度","تم رسم الأطوال","Lunghezze tracciate","Длины построены"],
+  ["Éléments comptés","Elemente gezählt","Elementen geteld","已计数","تم عدّ العناصر","Elementi contati","Элементы подсчитаны"],
+  ["Échelle réglée","Maßstab eingestellt","Schaal ingesteld","比例已设置","تم ضبط المقياس","Scala impostata","Масштаб задан"],
+  ["Métrés supprimés","Aufmaße gelöscht","Metingen verwijderd","已删除测量","تم حذف القياسات","Misure eliminate","Замеры удалены"],
 ]);
 // --- fin des langues ajoutées ---
 
@@ -8121,6 +8253,205 @@ async function saveProject() {
   } catch (e) { notify('Enregistrement du projet impossible : ' + (e.message || e)); return false; }
   finally { prjSaving = false; }
 }
+/* ---------- Métré intelligent : une IA (Claude, d'Anthropic) pose des questions puis trace les métrés ----------
+   La page du plan affichée est envoyée en image ; l'IA répond et appelle des outils (régler l'échelle, tracer des
+   surfaces, des longueurs, des comptages) en coordonnées de pixels de cette image. Métrix calcule les quantités.
+   Chaque utilisateur utilise sa propre clé API (gardée sur cet ordinateur). Appel direct depuis la page (pas de serveur). */
+const AI_MODEL = 'claude-opus-5-5', AI_IMG_MAX = 2400;
+const AI = { msgs: [], busy: false, sent: null, img: null, ctrl: null };
+const aiKey = () => { try { return localStorage.getItem('metrix:aiKey') || ''; } catch { return ''; } };
+const AI_SYSTEM = `Tu es l'assistant « Métré intelligent » de Métrix, un logiciel de métré pour le bâtiment. Ton interlocuteur est un conducteur de travaux ou un métreur.
+Tu vois l'image de la page du plan affichée. Ton rôle : réaliser les métrés demandés en traçant, avec tes outils, des surfaces, des longueurs et des comptages sur ce plan.
+
+Méthode :
+1. Avant de tracer, pose les questions vraiment utiles, en une seule fois (3 au maximum), courtes : quoi métrer (surfaces de pièces, linéaire de murs, cloisons, plinthes, nombre de portes…), quelles pièces ou zones, hauteur sous plafond si des surfaces de murs sont utiles, nus intérieurs ou axes. Si la demande est déjà claire, trace directement.
+2. Si l'échelle de la page n'est pas réglée, lis-la dans le cartouche si possible et propose-la ; une fois confirmée, règle-la avec l'outil regler_echelle (plan PDF) ou regler_echelle_par_cote (deux points d'une cote connue).
+3. Trace en coordonnées de pixels de l'image (origine en haut à gauche, x vers la droite, y vers le bas). Pour une pièce, suis le nu intérieur des murs, sommet par sommet, dans l'ordre. Donne à chaque métré un nom clair (ex. « Séjour », « Cloisons 72 mm »). Regroupe dans un même appel tous les éléments d'un même type.
+4. Métrix calcule les quantités : ne les invente jamais, reprends celles renvoyées par les outils.
+5. Termine par un court récapitulatif (tableau simple) et rappelle que les tracés peuvent être corrigés à la souris. Si un résultat te paraît faux, supprime-le avec supprimer_metres puis retrace-le.
+Sois concis, avec le vocabulaire du chantier. Réponds dans la langue de l'utilisateur.`;
+const aiPt = { type: 'object', properties: { x: { type: 'number' }, y: { type: 'number' } }, required: ['x', 'y'], additionalProperties: false };
+const aiObj = (props, req) => ({ type: 'object', properties: props, required: req, additionalProperties: false });
+const AI_TOOLS = [
+  { name: 'regler_echelle', description: 'Règle l\'échelle de la page affichée d\'un plan PDF, par exemple 50 pour 1:50.', strict: true,
+    input_schema: aiObj({ echelle: { type: 'number', description: 'Dénominateur de l\'échelle (50 pour 1:50).' } }, ['echelle']) },
+  { name: 'regler_echelle_par_cote', description: 'Règle l\'échelle à partir de deux points de l\'image séparés par une longueur réelle connue (cote lue sur le plan).', strict: true,
+    input_schema: aiObj({ x1: { type: 'number' }, y1: { type: 'number' }, x2: { type: 'number' }, y2: { type: 'number' }, longueur_m: { type: 'number' } }, ['x1', 'y1', 'x2', 'y2', 'longueur_m']) },
+  { name: 'tracer_surfaces', description: 'Trace des surfaces (pièces, zones) : chaque contour est un polygone fermé en pixels de l\'image. hauteur_m (ou null) sert au calcul des surfaces verticales.', strict: true,
+    input_schema: aiObj({ surfaces: { type: 'array', items: aiObj({ nom: { type: 'string' }, contour: { type: 'array', items: aiPt }, hauteur_m: { type: ['number', 'null'] } }, ['nom', 'contour', 'hauteur_m']) } }, ['surfaces']) },
+  { name: 'tracer_longueurs', description: 'Trace des longueurs (murs, cloisons, plinthes, réseaux) : polylignes ouvertes en pixels de l\'image. hauteur_m (ou null) donne la surface verticale (murs).', strict: true,
+    input_schema: aiObj({ longueurs: { type: 'array', items: aiObj({ nom: { type: 'string' }, points: { type: 'array', items: aiPt }, hauteur_m: { type: ['number', 'null'] } }, ['nom', 'points', 'hauteur_m']) } }, ['longueurs']) },
+  { name: 'compter', description: 'Compte des éléments (portes, fenêtres, prises…) : un point par élément, en pixels de l\'image.', strict: true,
+    input_schema: aiObj({ comptages: { type: 'array', items: aiObj({ nom: { type: 'string' }, points: { type: 'array', items: aiPt } }, ['nom', 'points']) } }, ['comptages']) },
+  { name: 'supprimer_metres', description: 'Supprime des métrés de cette page tracés par l\'assistant, d\'après leur nom exact.', strict: true,
+    input_schema: aiObj({ noms: { type: 'array', items: { type: 'string' } } }, ['noms']) },
+];
+// image de la page affichée, réduite pour l'IA (côté max AI_IMG_MAX)
+async function aiPageImage() {
+  const W = imgW(), H = imgH(), k = Math.min(1, AI_IMG_MAX / Math.max(W, H));
+  const c = document.createElement('canvas'); c.width = Math.round(W * k); c.height = Math.round(H * k);
+  const cx = c.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, c.width, c.height); cx.drawImage(st.img, 0, 0, c.width, c.height);
+  const url = c.toDataURL('image/jpeg', .9);
+  return { w: c.width, h: c.height, f: W / c.width, data: url.slice(url.indexOf(',') + 1) };
+}
+function aiState() {
+  const k = scale(), list = st.measures.filter(m => m.page === st.page && !isNote(m));
+  const ech = k ? (st.isPdf ? `1:${Math.round(k / (0.0254 / 72 / PDF_RENDER))}` : `1 px = ${fmt(k * 1000)} mm`) : 'non réglée';
+  return `[État de Métrix] Plan « ${st.fileName} », page ${st.page}${st.isPdf ? ' / ' + st.pdf.numPages : ''} (${st.isPdf ? 'PDF' : 'image'}). Échelle de la page : ${ech}.`
+    + (list.length ? ` Métrés déjà présents sur cette page : ${list.map(m => `« ${m.name} » (${totalText(m)})`).join(', ')}.` : ' Aucun métré sur cette page.');
+}
+// outils appelés par l'IA
+function aiRunTool(name, inp) {
+  const f = AI.img ? AI.img.f : 1, P = q => ({ x: Math.max(0, Math.min(imgW(), +q.x * f)), y: Math.max(0, Math.min(imgH(), +q.y * f)) });
+  const add = (type, nom, extra) => { const m = { id: st.nextId++, type, page: st.page, color: COLORS[st.measures.length % COLORS.length], name: String(nom || trText(TYPES[type])).slice(0, 80), height: null, qty: 1, ai: true, ...extra }; st.measures.push(m); return m; };
+  const done = ms => { st.addZone = null; st.addLine = null; persist(); refresh(); return ms.map(m => `« ${m.name} » : ${totalText(m)}`).join('\n') + (scale() ? '' : '\n(échelle non réglée : quantités non calculées)'); };
+  if (name === 'regler_echelle') {
+    if (!st.isPdf) return { text: 'Plan en image : utilise regler_echelle_par_cote.', err: true };
+    if (!(inp.echelle > 0)) return { text: 'Échelle invalide.', err: true };
+    st.scales[st.page] = 0.0254 / 72 / PDF_RENDER * inp.echelle; persist(); refresh();
+    return { text: `Échelle réglée : 1:${inp.echelle}. ` + aiState() };
+  }
+  if (name === 'regler_echelle_par_cote') {
+    const d = dist(P({ x: inp.x1, y: inp.y1 }), P({ x: inp.x2, y: inp.y2 }));
+    if (!(d > 0) || !(inp.longueur_m > 0)) return { text: 'Points ou longueur invalides.', err: true };
+    st.scales[st.page] = inp.longueur_m / d; persist(); refresh();
+    return { text: 'Échelle réglée par la cote. ' + aiState() };
+  }
+  if (name === 'tracer_surfaces') {
+    const ms = (inp.surfaces || []).filter(s => (s.contour || []).length >= 3).map(s => add('area', s.nom, { zones: [{ points: s.contour.map(P), voids: [] }], height: s.hauteur_m > 0 ? s.hauteur_m : null }));
+    return ms.length ? { text: done(ms) } : { text: 'Aucune surface valide (3 sommets minimum).', err: true };
+  }
+  if (name === 'tracer_longueurs') {
+    const ms = (inp.longueurs || []).filter(s => (s.points || []).length >= 2).map(s => add('line', s.nom, { paths: [s.points.map(P)], height: s.hauteur_m > 0 ? s.hauteur_m : null }));
+    return ms.length ? { text: done(ms) } : { text: 'Aucune longueur valide (2 points minimum).', err: true };
+  }
+  if (name === 'compter') {
+    const ms = (inp.comptages || []).filter(s => (s.points || []).length).map(s => add('count', s.nom, { points: s.points.map(P) }));
+    return ms.length ? { text: done(ms) } : { text: 'Aucun point à compter.', err: true };
+  }
+  if (name === 'supprimer_metres') {
+    const noms = new Set(inp.noms || []), gone = st.measures.filter(m => m.ai && m.page === st.page && noms.has(m.name));
+    st.measures = st.measures.filter(m => !gone.includes(m));
+    if (gone.some(m => m.id === st.sel)) st.sel = null;
+    persist(); refresh();
+    return { text: gone.length ? `Supprimés : ${gone.map(m => '« ' + m.name + ' »').join(', ')}.` : 'Aucun métré de l\'assistant ne porte ces noms.' };
+  }
+  return { text: 'Outil inconnu.', err: true };
+}
+const AI_ACT = { tracer_surfaces: 'Surfaces tracées', tracer_longueurs: 'Longueurs tracées', compter: 'Éléments comptés', regler_echelle: 'Échelle réglée', regler_echelle_par_cote: 'Échelle réglée', supprimer_metres: 'Métrés supprimés' };
+// texte de l'IA : petit Markdown (gras, listes, tableaux)
+function aiMd(t) {
+  const inl = x => esc(x).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/`([^`]+)`/g, '<code>$1</code>');
+  const out = [], lines = String(t).split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    if (/^\s*\|.*\|\s*$/.test(l)) {
+      const rows = []; while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) rows.push(lines[i++]); i--;
+      out.push('<table>' + rows.filter(r => !/^\s*\|[\s:|-]+\|\s*$/.test(r)).map((r, j) => '<tr>' + r.trim().slice(1, -1).split('|').map(c => `<${j ? 'td' : 'th'}>${inl(c.trim())}</${j ? 'td' : 'th'}>`).join('') + '</tr>').join('') + '</table>');
+    } else if (/^\s*[-*•]\s+/.test(l)) {
+      const items = []; while (i < lines.length && /^\s*[-*•]\s+/.test(lines[i])) items.push(lines[i++].replace(/^\s*[-*•]\s+/, '')); i--;
+      out.push('<ul>' + items.map(x => `<li>${inl(x)}</li>`).join('') + '</ul>');
+    } else if (/^#{1,4}\s+/.test(l)) out.push(`<p><b>${inl(l.replace(/^#+\s+/, ''))}</b></p>`);
+    else if (l.trim()) out.push(`<p>${inl(l)}</p>`);
+  }
+  return out.join('');
+}
+function aiAdd(cls, html) { const d = document.createElement('div'); d.className = cls; d.innerHTML = html; $('aiLog').appendChild(d); $('aiLog').scrollTop = 1e9; return d; }
+function aiWelcome() {
+  $('aiLog').innerHTML = '';
+  aiAdd('ai-m a', aiMd(trText('Bonjour ! Dites-moi ce que vous voulez métrer sur la page affichée : je vous poserai quelques questions, puis je tracerai les métrés sur le plan. Vous pourrez les corriger à la souris.')));
+  const s = aiAdd('ai-sug', ['Surfaces de toutes les pièces', 'Linéaire des murs et cloisons', 'Compter les portes et les fenêtres', 'Régler l\'échelle du plan'].map(x => `<button type="button">${esc(trText(x))}</button>`).join(''));
+  s.querySelectorAll('button').forEach(b => b.onclick = () => { $('aiQ').value = b.textContent; aiSend(); });
+}
+function aiPlace() {
+  const p = $('aiPan'), r = $('stage').getBoundingClientRect();
+  p.style.top = Math.max(8, r.top) + 'px'; p.style.height = Math.max(260, r.height) + 'px';
+}
+function aiOpen() {
+  const p = $('aiPan');
+  if (!p.hidden) { p.hidden = true; $('aiBtn').classList.remove('active'); return; }
+  aiPlace(); p.hidden = false; $('aiBtn').classList.add('active');
+  if (!$('aiLog').children.length) aiWelcome();
+  $('aiKeyBox').hidden = !!aiKey();
+  setTimeout(() => (aiKey() ? $('aiQ') : $('aiKeyIn')).focus(), 0);
+}
+async function aiCall() {
+  AI.ctrl = new AbortController();
+  const t = setTimeout(() => AI.ctrl.abort(), 240000);
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST', signal: AI.ctrl.signal,
+      headers: { 'content-type': 'application/json', 'x-api-key': aiKey(), 'anthropic-version': '2026-10-21',
+        'anthropic-beta': 'server-side-fallback-2026-07-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: AI_MODEL, max_tokens: 16000, system: AI_SYSTEM, tools: AI_TOOLS, messages: AI.msgs,
+        output_config: { effort: 'high' }, cache_control: { type: 'ephemeral' }, fallbacks: 'default' }),
+    });
+    const j = await r.json().catch(() => null);
+    if (!r.ok) {
+      const msg = j && j.error && j.error.message || '';
+      throw new Error(r.status === 401 ? trText('Clé API refusée : vérifiez-la (bouton « Clé »).')
+        : r.status === 429 ? trText('Trop de demandes pour le moment : réessayez dans une minute.')
+        : r.status === 402 || /credit|billing/i.test(msg) ? trText('Crédit insuffisant sur votre compte Anthropic.')
+        : r.status >= 500 ? trText('Le service d\'IA est surchargé : réessayez dans un instant.')
+        : trText(`Erreur de l'IA : ${msg || r.status}`));
+    }
+    return j;
+  } catch (e) {
+    if (e.name === 'AbortError') throw new Error(trText('Demande interrompue.'));
+    if (e instanceof TypeError) throw new Error(trText('Impossible de joindre le service d\'IA : vérifiez la connexion internet.'));
+    throw e;
+  } finally { clearTimeout(t); AI.ctrl = null; }
+}
+async function aiSend() {
+  const q = $('aiQ').value.trim(); if (!q || AI.busy) return;
+  if (!aiKey()) { $('aiKeyBox').hidden = false; $('aiKeyIn').focus(); return notify('Collez d\'abord votre clé API Claude.'); }
+  if (!st.img) return notify('Ouvrez d\'abord un plan.');
+  $('aiQ').value = ''; aiAdd('ai-m u', esc(q));
+  AI.busy = true; $('aiSend').textContent = trText('Arrêter');
+  const wait = aiAdd('ai-wait', '<i></i><i></i><i></i> ' + esc(trText('L\'IA analyse le plan…')));
+  const base = AI.msgs.length, sent0 = AI.sent;
+  try {
+    const content = [], key = activeDoc.id + ':' + st.page;
+    if (AI.sent !== key) {   // nouvelle page : on envoie son image
+      AI.img = await aiPageImage(); AI.sent = key;
+      content.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: AI.img.data } });
+      content.push({ type: 'text', text: `Image de la page : ${AI.img.w} × ${AI.img.h} pixels.` });
+    }
+    content.push({ type: 'text', text: aiState() }, { type: 'text', text: q });
+    AI.msgs.push({ role: 'user', content });
+    for (let turn = 0; turn < 10; turn++) {
+      const res = await aiCall();
+      AI.msgs.push({ role: 'assistant', content: res.content });
+      for (const b of res.content) if (b.type === 'text' && b.text.trim()) aiAdd('ai-m a', aiMd(b.text));
+      if (res.stop_reason === 'refusal') { aiAdd('ai-err', esc(trText('L\'IA a refusé cette demande.'))); break; }
+      if (res.stop_reason === 'max_tokens') { aiAdd('ai-err', esc(trText('Réponse trop longue, coupée : demandez une partie à la fois.'))); break; }
+      const uses = res.content.filter(b => b.type === 'tool_use');
+      if (res.stop_reason !== 'tool_use' || !uses.length) break;
+      const results = [];
+      for (const u of uses) {
+        let r; try { r = aiRunTool(u.name, u.input || {}); } catch (e) { r = { text: 'Erreur : ' + (e.message || e), err: true }; }
+        if (!r.err) aiAdd('ai-act', '✓ ' + esc(trText(AI_ACT[u.name] || u.name)));
+        results.push({ type: 'tool_result', tool_use_id: u.id, content: r.text, ...(r.err ? { is_error: true } : {}) });
+      }
+      AI.msgs.push({ role: 'user', content: results });
+    }
+  } catch (e) {
+    aiAdd('ai-err', esc(e.message || String(e)));
+    AI.msgs.length = base; AI.sent = sent0;   // la question sans réponse est retirée de l'historique : on peut la reposer
+  } finally { wait.remove(); AI.busy = false; $('aiSend').textContent = trText('Envoyer'); }
+}
+$('aiBtn').onclick = aiOpen;
+$('aiX').onclick = () => { $('aiPan').hidden = true; $('aiBtn').classList.remove('active'); };
+$('aiNew').onclick = () => { if (AI.ctrl) AI.ctrl.abort(); AI.msgs = []; AI.sent = null; aiWelcome(); };
+$('aiKeyBtn').onclick = () => { $('aiKeyBox').hidden = !$('aiKeyBox').hidden; $('aiKeyIn').value = ''; };
+$('aiKeySave').onclick = () => { const k = $('aiKeyIn').value.trim(); if (!/^sk-ant-/.test(k)) return notify('Cette clé ne ressemble pas à une clé API Claude (elle commence par « sk-ant- »).'); try { localStorage.setItem('metrix:aiKey', k); } catch {} $('aiKeyIn').value = ''; $('aiKeyBox').hidden = true; toast('Clé API enregistrée sur cet ordinateur'); $('aiQ').focus(); };
+$('aiKeyDel').onclick = () => { try { localStorage.removeItem('metrix:aiKey'); } catch {} $('aiKeyIn').value = ''; toast('Clé API supprimée'); };
+$('aiSend').onclick = () => AI.busy ? AI.ctrl && AI.ctrl.abort() : aiSend();
+$('aiQ').addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); aiSend(); } });
+$('aiKeyIn').addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') $('aiKeySave').click(); });
+window.addEventListener('resize', () => { if (!$('aiPan').hidden) aiPlace(); });
+window.__metrixAI = { run: aiRunTool, state: aiState, img: aiPageImage, call: aiCall, msgs: AI, md: aiMd };   // autotest
+
 /* ---------- enregistrement du plan en PDF : chaque page avec ses métrés, annotations et symboles ----------
    Les pages sont redessinées à 200 ppp environ puis rangées dans un PDF (images JPEG), aux dimensions du plan d'origine. */
 function pdfFromJpegs(pages) {   // pages : [{ jpg (octets JPEG), w, h (pixels), pw, ph (points) }]
