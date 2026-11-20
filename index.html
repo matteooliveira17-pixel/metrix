@@ -200,6 +200,22 @@
   html.dark #stName { background:#1f232a; color:#e6e9ee; border-color:#4a5260; }
   html.dark .st-it { background:#2d333c; border-color:#46505e; }
   html.dark .st-note { background:#3a3220; border-color:#6b5a2a; color:#e9d39a; }
+  body:not(.has-prj) .prj-only { display:none !important; }
+  .dlg:has(.pp) { width:min(480px, 94vw); }
+  .pp { display:flex; flex-direction:column; gap:4px; margin:12px 12px 6px; max-height:52vh; overflow:auto; }
+  .pp-it { display:flex; align-items:center; gap:9px; padding:7px 9px; border:1px solid #dde3ec; border-radius:6px; background:#f8fafd; cursor:pointer; font-size:12.5px; }
+  .pp-it:hover { border-color:#2b579a; background:#eef4fd; }
+  .pp-it.on { border-color:#2b579a; box-shadow:inset 3px 0 0 #2b579a; }
+  .pp-it .ic { flex:none; font-size:9.5px; font-weight:700; color:#fff; background:#c0392b; border-radius:3px; padding:2px 4px; }
+  .pp-it .ic.img { background:#2b7a4b; }
+  .pp-it .nm { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600; }
+  .pp-it small { flex:none; color:#6b7686; }
+  .dlg p.pp-loc { margin:6px 14px 0; text-align:left; font-size:11.5px; color:#6b7686; word-break:break-all; }
+  .pp-b { margin:10px 12px 12px; }
+  .pp-b .btn { width:auto; }
+  html.dark .pp-it { background:#2d333c; border-color:#46505e; }
+  html.dark .pp-it:hover, html.dark .pp-it.on { border-color:#4c86d8; background:#323c4b; }
+  html.dark .dlg p.pp-loc { color:#a6b1c2; }
   /* boîte de dialogue */
   .modal { position:fixed; inset:0; background:rgba(0,0,0,.08); display:flex; align-items:center; justify-content:center; z-index:50; }
   .dlg { background:#fff; border:1px solid #7a8899; box-shadow:0 8px 28px rgba(0,0,0,.3); width:300px; }
@@ -968,6 +984,12 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
     <button class="rb" id="csv" title="Exporter le métré vers Excel">
       <svg viewBox="0 0 32 32"><path d="M6 2h14l6 6v22H6z" fill="#fff" stroke="#888"/><rect x="2" y="10" width="17" height="15" rx="1" fill="#1d7044"/><path d="M6 13l8 9M14 13l-8 9" stroke="#fff" stroke-width="2.2"/></svg>
       Exporter vers Excel</button>
+    <button class="rb prj-only" id="prjPlans" title="Voir les plans PDF du projet">
+      <svg viewBox="0 0 32 32"><rect x="11" y="2" width="17" height="21" fill="#fff" stroke="#9aa4b2"/><rect x="7.5" y="5" width="17" height="21" fill="#fff" stroke="#8a94a2"/><rect x="4" y="8" width="17" height="21" fill="#fff" stroke="#5f6670"/><rect x="6" y="20" width="13" height="7" rx="1" fill="#c0392b"/><text x="12.5" y="25.6" font-size="5.6" font-weight="700" text-anchor="middle" fill="#fff" font-family="Segoe UI,sans-serif">PDF</text></svg>
+      Plans du projet</button>
+    <button class="rb prj-only" id="prjClose" title="Enregistrer le projet puis revenir à l'écran d'accueil">
+      <svg viewBox="0 0 32 32"><path d="M3 4h17l4 4v17H3z" fill="#3a7bd5" stroke="#1e4f99"/><rect x="7" y="4" width="11" height="7" fill="#dfe9f7"/><rect x="6" y="15" width="14" height="10" fill="#fff"/><circle cx="23.5" cy="23.5" r="7" fill="#c0392b" stroke="#fff" stroke-width="1.2"/><path d="m20.5 20.5 6 6m0-6-6 6" stroke="#fff" stroke-width="2.2"/></svg>
+      Fermer le projet</button>
   </div><div class="cap">Projet</div></div>
 </header>
 
@@ -1182,7 +1204,7 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
     <div class="st-opts">
       <button class="st-opt" id="stNew" type="button">
         <svg viewBox="0 0 48 48"><path d="M5 12h14l3 4h21v24H5z" fill="#f4c542" stroke="#b8860b" stroke-width="1.5"/><path d="M5 20h38l-3 20H5z" fill="#ffd966" stroke="#b8860b" stroke-width="1.5"/><circle cx="36" cy="34" r="9" fill="#2e9e45"/><path d="M36 29v10M31 34h10" stroke="#fff" stroke-width="2.6"/></svg>
-        <span><b>Créer un projet</b><small>Choisissez un ou plusieurs PDF : ils seront rangés dans le fichier du projet quand vous l'enregistrerez.</small></span></button>
+        <span><b>Créer un projet</b><small>Choisissez un ou plusieurs PDF et l'endroit où enregistrer le fichier du projet : les PDF y sont rangés.</small></span></button>
       <button class="st-opt" id="stOpen" type="button">
         <svg viewBox="0 0 48 48"><path d="M10 4h20l8 8v32H10z" fill="#fff" stroke="#5f6670" stroke-width="1.5"/><path d="M30 4v8h8" fill="none" stroke="#5f6670" stroke-width="1.5"/><rect x="14" y="20" width="20" height="14" rx="2" fill="#2b579a"/><text x="24" y="30.5" font-size="8" font-weight="700" text-anchor="middle" fill="#fff" font-family="Segoe UI,sans-serif">MTX</text></svg>
         <span><b>Ouvrir un projet</b><small>Ouvrez un projet Métrix (.metrix), créé sur cet ordinateur ou sur un autre.</small></span></button>
@@ -1199,7 +1221,7 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
     <div class="st-list" id="stList"></div>
     <div class="st-add" id="stAdd" role="button" tabindex="0"><b>+ Ajouter des PDF…</b> ou déposez-les ici</div>
     <input id="stFiles" type="file" multiple accept="application/pdf,image/*" hidden>
-    <p class="st-hint">Les PDF sont rangés dans le fichier du projet (.metrix) quand vous cliquez sur Enregistrer : vous pourrez l'ouvrir sur un autre ordinateur.</p>
+    <p class="st-hint">En cliquant sur « Créer le projet », vous choisissez où enregistrer le fichier du projet (.metrix). Les PDF y sont rangés : vous pourrez l'ouvrir sur un autre ordinateur.</p>
     <div class="st-foot"><button class="btn" id="stBack" type="button">Retour</button><button class="btn def" id="stGo" type="button" disabled>Créer le projet</button></div>
   </div>
 </div></div>
@@ -1253,7 +1275,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.19';
+const METRIX_VERSION = '3.20';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -2067,6 +2089,22 @@ addTr([
   ["Le plan « {f} » du projet est illisible.","The plan “{f}” in the project cannot be read.","A planta « {f} » do projeto está ilegível.","El plano « {f} » del proyecto es ilegible."],
   ["Projet « {n} » ouvert : {k} plan(s)","Project “{n}” opened: {k} plan(s)","Projeto « {n} » aberto: {k} planta(s)","Proyecto « {n} » abierto: {k} plano(s)"],
   ["Ce fichier contient les métrés d'un seul plan : ouvrez d'abord ce plan, puis chargez le fichier.","This file contains the takeoffs of a single plan: open that plan first, then load the file.","Este ficheiro contém as medições de uma só planta: abra primeiro essa planta e depois carregue o ficheiro.","Este archivo contiene las mediciones de un solo plano: abra primero ese plano y luego cargue el archivo."],
+  ["Choisissez un ou plusieurs PDF et l'endroit où enregistrer le fichier du projet : les PDF y sont rangés.","Choose one or more PDFs and where to save the project file: the PDFs are stored in it.","Escolha um ou mais PDF e onde guardar o ficheiro do projeto: os PDF ficam guardados nele.","Elija uno o varios PDF y dónde guardar el archivo del proyecto: los PDF se guardan en él."],
+  ["En cliquant sur « Créer le projet », vous choisissez où enregistrer le fichier du projet (.metrix). Les PDF y sont rangés : vous pourrez l'ouvrir sur un autre ordinateur.","When you click “Create the project”, you choose where to save the project file (.metrix). The PDFs are stored in it: you can open it on another computer.","Ao clicar em « Criar o projeto », escolhe onde guardar o ficheiro do projeto (.metrix). Os PDF ficam guardados nele: poderá abri-lo noutro computador.","Al hacer clic en « Crear el proyecto », elige dónde guardar el archivo del proyecto (.metrix). Los PDF se guardan en él: podrá abrirlo en otro ordenador."],
+  ["Choisissez où enregistrer le fichier du projet pour le créer.","Choose where to save the project file to create it.","Escolha onde guardar o ficheiro do projeto para o criar.","Elija dónde guardar el archivo del proyecto para crearlo."],
+  ["Projet « {n} » créé et enregistré","Project “{n}” created and saved","Projeto « {n} » criado e guardado","Proyecto « {n} » creado y guardado"],
+  ["accès au fichier refusé","access to the file denied","acesso ao ficheiro recusado","acceso al archivo denegado"],
+  ["Enregistrement du projet…","Saving the project…","A guardar o projeto…","Guardando el proyecto…"],
+  ["Enregistrement du projet impossible.","Unable to save the project.","Não foi possível guardar o projeto.","No se puede guardar el proyecto."],
+  ["Fichier du projet :","Project file:","Ficheiro do projeto:","Archivo del proyecto:"],
+  ["Plans du projet « {n} »","Plans of the project “{n}”","Plantas do projeto « {n} »","Planos del proyecto « {n} »"],
+  ["+ Ajouter un plan…","+ Add a plan…","+ Adicionar uma planta…","+ Añadir un plano…"],
+  ["Fermer","Close","Fechar","Cerrar"],
+  ["Voir les plans PDF du projet","See the project's PDF plans","Ver as plantas PDF do projeto","Ver los planos PDF del proyecto"],
+  ["Enregistrer le projet puis revenir à l'écran d'accueil","Save the project, then return to the start screen","Guardar o projeto e voltar ao ecrã inicial","Guardar el proyecto y volver a la pantalla de inicio"],
+  ["Emplacement du projet non valide.","Invalid project location.","Localização do projeto inválida.","Ubicación del proyecto no válida."],
+  ["Enregistrement impossible : le dossier du projet n'est plus accessible.","Unable to save: the project folder is no longer accessible.","Não foi possível guardar: a pasta do projeto já não está acessível.","No se puede guardar: la carpeta del proyecto ya no es accesible."],
+  ["{n} page{s}","{n} page{s}","{n} página{s}","{n} página{s}"],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -2811,6 +2849,22 @@ addTr2([
   ["Le plan « {f} » du projet est illisible.","Der Plan „{f}“ im Projekt ist unlesbar.","De tekening „{f}” in het project is onleesbaar.","项目中的图纸“{f}”无法读取。","تعذّرت قراءة المخطط «{f}» في المشروع.","Il disegno «{f}» del progetto è illeggibile.","Чертёж «{f}» в проекте не читается."],
   ["Projet « {n} » ouvert : {k} plan(s)","Projekt „{n}“ geöffnet: {k} Plan/Pläne","Project „{n}” geopend: {k} tekening(en)","项目“{n}”已打开：{k} 张图纸","تم فتح المشروع «{n}»: {k} مخطط","Progetto «{n}» aperto: {k} disegno/i","Проект «{n}» открыт: чертежей — {k}"],
   ["Ce fichier contient les métrés d'un seul plan : ouvrez d'abord ce plan, puis chargez le fichier.","Diese Datei enthält die Aufmaße eines einzigen Plans: Öffnen Sie zuerst diesen Plan und laden Sie dann die Datei.","Dit bestand bevat de metingen van één tekening: open eerst die tekening en laad dan het bestand.","此文件只包含一张图纸的测量：请先打开该图纸，再加载此文件。","يحتوي هذا الملف على قياسات مخطط واحد فقط: افتح هذا المخطط أولًا ثم حمّل الملف.","Questo file contiene le misure di un solo disegno: apri prima quel disegno, poi carica il file.","Этот файл содержит замеры одного чертежа: сначала откройте этот чертёж, затем загрузите файл."],
+  ["Choisissez un ou plusieurs PDF et l'endroit où enregistrer le fichier du projet : les PDF y sont rangés.","Wählen Sie eine oder mehrere PDF-Dateien und den Speicherort der Projektdatei: Die PDFs werden darin abgelegt.","Kies een of meer pdf's en waar het projectbestand wordt opgeslagen: de pdf's worden erin bewaard.","选择一个或多个 PDF 以及项目文件的保存位置：PDF 会存入其中。","اختر ملف PDF واحدًا أو أكثر ومكان حفظ ملف المشروع: تُحفظ ملفات PDF داخله.","Scegli uno o più PDF e dove salvare il file del progetto: i PDF vengono salvati al suo interno.","Выберите один или несколько PDF и место для файла проекта: PDF сохраняются в нём."],
+  ["En cliquant sur « Créer le projet », vous choisissez où enregistrer le fichier du projet (.metrix). Les PDF y sont rangés : vous pourrez l'ouvrir sur un autre ordinateur.","Mit Klick auf „Projekt erstellen“ wählen Sie den Speicherort der Projektdatei (.metrix). Die PDFs werden darin abgelegt: Sie können sie auf einem anderen Computer öffnen.","Wanneer u op „Project maken” klikt, kiest u waar het projectbestand (.metrix) wordt opgeslagen. De pdf's worden erin bewaard: u kunt het op een andere computer openen.","点击“创建项目”时，您将选择项目文件（.metrix）的保存位置。PDF 会存入其中：可在其他电脑上打开。","عند النقر على «إنشاء المشروع» تختار مكان حفظ ملف المشروع (.metrix). تُحفظ ملفات PDF داخله: يمكنك فتحه على حاسوب آخر.","Facendo clic su «Crea il progetto», scegli dove salvare il file del progetto (.metrix). I PDF vengono salvati al suo interno: potrai aprirlo su un altro computer.","Нажав «Создать проект», вы выбираете, где сохранить файл проекта (.metrix). PDF сохраняются в нём: его можно открыть на другом компьютере."],
+  ["Choisissez où enregistrer le fichier du projet pour le créer.","Wählen Sie den Speicherort der Projektdatei, um das Projekt zu erstellen.","Kies waar het projectbestand wordt opgeslagen om het project te maken.","请选择项目文件的保存位置以创建项目。","اختر مكان حفظ ملف المشروع لإنشائه.","Scegli dove salvare il file del progetto per crearlo.","Выберите, где сохранить файл проекта, чтобы создать его."],
+  ["Projet « {n} » créé et enregistré","Projekt „{n}“ erstellt und gespeichert","Project „{n}” gemaakt en opgeslagen","项目“{n}”已创建并保存","تم إنشاء المشروع «{n}» وحفظه","Progetto «{n}» creato e salvato","Проект «{n}» создан и сохранён"],
+  ["accès au fichier refusé","Zugriff auf die Datei verweigert","toegang tot het bestand geweigerd","文件访问被拒绝","تم رفض الوصول إلى الملف","accesso al file negato","доступ к файлу запрещён"],
+  ["Enregistrement du projet…","Projekt wird gespeichert…","Project wordt opgeslagen…","正在保存项目…","جارٍ حفظ المشروع…","Salvataggio del progetto…","Сохранение проекта…"],
+  ["Enregistrement du projet impossible.","Projekt kann nicht gespeichert werden.","Project kan niet worden opgeslagen.","无法保存项目。","تعذّر حفظ المشروع.","Impossibile salvare il progetto.","Не удалось сохранить проект."],
+  ["Fichier du projet :","Projektdatei:","Projectbestand:","项目文件：","ملف المشروع:","File del progetto:","Файл проекта:"],
+  ["Plans du projet « {n} »","Pläne des Projekts „{n}“","Tekeningen van project „{n}”","项目“{n}”的图纸","مخططات المشروع «{n}»","Disegni del progetto «{n}»","Чертежи проекта «{n}»"],
+  ["+ Ajouter un plan…","+ Plan hinzufügen…","+ Tekening toevoegen…","+ 添加图纸…","+ إضافة مخطط…","+ Aggiungi un disegno…","+ Добавить чертёж…"],
+  ["Fermer","Schließen","Sluiten","关闭","إغلاق","Chiudi","Закрыть"],
+  ["Voir les plans PDF du projet","PDF-Pläne des Projekts anzeigen","De pdf-tekeningen van het project bekijken","查看项目的 PDF 图纸","عرض مخططات PDF للمشروع","Vedi i disegni PDF del progetto","Показать PDF-чертежи проекта"],
+  ["Enregistrer le projet puis revenir à l'écran d'accueil","Projekt speichern und zum Startbildschirm zurückkehren","Project opslaan en terugkeren naar het startscherm","保存项目并返回开始界面","حفظ المشروع ثم العودة إلى شاشة البداية","Salva il progetto e torna alla schermata iniziale","Сохранить проект и вернуться на начальный экран"],
+  ["Emplacement du projet non valide.","Ungültiger Speicherort des Projekts.","Ongeldige projectlocatie.","项目位置无效。","موقع المشروع غير صالح.","Posizione del progetto non valida.","Недопустимое расположение проекта."],
+  ["Enregistrement impossible : le dossier du projet n'est plus accessible.","Speichern nicht möglich: Der Projektordner ist nicht mehr erreichbar.","Opslaan niet mogelijk: de projectmap is niet meer bereikbaar.","无法保存：项目文件夹已无法访问。","تعذّر الحفظ: لم يعد مجلد المشروع متاحًا.","Impossibile salvare: la cartella del progetto non è più accessibile.","Не удалось сохранить: папка проекта больше недоступна."],
+  ["{n} page{s}","Seiten: {n}","pagina's: {n}","{n} 页","صفحات: {n}","pagine: {n}","страниц: {n}"],
 ]);
 // --- fin des langues ajoutées ---
 
@@ -2974,7 +3028,7 @@ function readNativeFile(kind, path, name, src, info) {
   x.onload = () => {
     const type = /\.pdf$/i.test(name) ? 'application/pdf' : /\.json$/i.test(name) ? 'application/json' : '';
     const f = new File([x.response], name, { type: type || x.response.type });
-    kind === 'ifc' ? ifcOpenFile(f, { src: src || null, ...info }) : kind === 'load' ? loadProject(f) : openFile(f, src || path);   // ancienne appli Mac : la copie temporaire sert d'emplacement
+    kind === 'ifc' ? ifcOpenFile(f, { src: src || null, ...info }) : kind === 'load' ? loadProject(f, src && /\.metrix$/i.test(src) ? { path: src } : null) : openFile(f, src || path);   // ancienne appli Mac : la copie temporaire sert d'emplacement
   };
   x.onerror = () => notify('Impossible de lire le fichier « ' + name + ' ».');
   x.timeout = 60000; x.ontimeout = () => notify('Le fichier « ' + name + ' » met trop de temps à s\'ouvrir. Réessayez, ou glissez-le directement sur la fenêtre.');
@@ -7245,10 +7299,10 @@ $('csv').onclick = () => {
   download(baseName() + '-metre.csv', csv, 'text/csv');
 };
 $('save').onclick = () => saveProject();
-async function loadProject(f) {
+async function loadProject(f, where) {
   let d;
   try { d = JSON.parse(await f.text()); } catch { return notify('Fichier de projet invalide.'); }
-  if (d && d.format === 'metrix-projet') return openProject(d);
+  if (d && d.format === 'metrix-projet') return openProject(d, where);
   try {
     if (!docs.length) return notify('Ce fichier contient les métrés d\'un seul plan : ouvrez d\'abord ce plan, puis chargez le fichier.');
     apply(d); startHide();
@@ -7262,7 +7316,7 @@ $('load').onchange = e => { const f = e.target.files[0]; if (f) loadProject(f); 
    Écran d'ouverture : créer un projet (plusieurs PDF), ouvrir un projet (.metrix, d'un autre ordinateur aussi),
    ou utiliser Métrix sans projet (comme avant). Le projet = les plans ouverts dans les onglets.
    À l'enregistrement, chaque plan est rangé dans le fichier (en base64) avec ses échelles, ses métrés et ses ouvrages. */
-let curProject = null;   // { name, created } ou null (sans projet)
+let curProject = null;   // { name, created, path (appli Mac), handle (Chrome / Edge) } ou null (sans projet)
 let stFiles = [];        // création : plans choisis [{ file, src }]
 const metrixCaps = () => window.__METRIX_CAPS || [];
 const isPlanFile = f => /\.(pdf|png|jpe?g|tiff?|gif|bmp|webp|heic)$/i.test(f.name) || /^(application\/pdf|image\/)/.test(f.type || '');
@@ -7271,6 +7325,7 @@ function setDocName() {
   const d = activeDoc, el = $('docName'); if (!el) return;
   el.textContent = [curProject && curProject.name, d && shortName(d.fileName, 48), 'Métrix'].filter(Boolean).join(' — ');
   el.title = [curProject && curProject.name, d && d.fileName].filter(Boolean).join(' — ');
+  document.body.classList.toggle('has-prj', !!curProject);   // boutons « Plans du projet » et « Fermer le projet »
 }
 function startShow(panel = 'home') {
   $('start').hidden = false; $('fileMenu').hidden = true;
@@ -7324,16 +7379,24 @@ async function stPick() {
 }
 function closeAllDocs() { persist(); saveDoc(); for (const d of docs.slice()) closeDoc(d); }
 async function createProject() {
-  if (!stFiles.length) return;
+  if (!stFiles.length || prjSaving) return;
   const list = stFiles.slice(), name = $('stName').value.trim() || list[0].file.name.replace(/\.[^.]+$/, '');
+  const created = new Date().toISOString();
+  // d'abord l'emplacement du fichier du projet (obligatoire), qui reçoit aussitôt les plans
+  let t = null;
+  prjSaving = true; $('stGo').disabled = true;
+  try { t = await saveAsNew(prjFileName(name), () => projectText(name, created, localPlans(list), 0)); }
+  catch (e) { notify('Enregistrement du projet impossible : ' + (e.message || e)); return; }
+  finally { prjSaving = false; $('stGo').disabled = !stFiles.length; }
+  if (!t) return notify('Choisissez où enregistrer le fichier du projet pour le créer.');
   stFiles = [];
   closeAllDocs();
-  curProject = { name, created: new Date().toISOString() };
+  curProject = { name, created, path: t.path || null, handle: t.handle || null };
   startHide(); setDocName();
   for (const x of list) await openFile(x.file, x.src);
   if (docs[0]) switchDoc(docs[0]);
   setDocName();
-  toast(`Projet « ${name} » créé : pensez à l'enregistrer`);
+  toast(`Projet « ${name} » créé et enregistré`);
 }
 // fichier .metrix : texte JSON, plans en base64
 const b64Of = f => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).replace(/^data:[^,]*,/, '')); r.onerror = () => rej(r.error); r.readAsDataURL(f); });
@@ -7343,25 +7406,67 @@ function b64Bytes(s) {
   return out.subarray(0, o);
 }
 let prjSaving = false;
+const prjFileName = name => (String(name).replace(/[\\/:*?"<>|]+/g, '-').trim() || 'Projet') + '.metrix';
+const emptyMetres = f => ({ fileName: f.name, scales: {}, measures: [], nextId: 1 });
+// plans ouverts (onglets) avec leurs métrés
+function docsPlans() {
+  persist(); saveDoc();
+  return docs.map(d => ({ file: d.file, metres: { fileName: d.fileName, scales: d.scales, measures: d.measures, nextId: d.nextId,
+    ouvrages: library.filter(o => d.measures.some(m => m.ouvrage === o.id)) } }));
+}
+// plans choisis à la création : métrés déjà gardés sur cet ordinateur pour ces plans, s'il y en a
+function localPlans(list) {
+  return list.map(x => { let m = null; try { m = JSON.parse(localStorage.getItem('metre:' + x.file.name + ':' + x.file.size)); } catch {} return { file: x.file, metres: m || emptyMetres(x.file) }; });
+}
+async function projectText(name, created, plans, active) {
+  const out = [];
+  for (const p of plans) out.push({ name: p.file.name, type: p.file.type || (/\.pdf$/i.test(p.file.name) ? 'application/pdf' : ''), size: p.file.size, metres: p.metres, data: await b64Of(p.file) });
+  return JSON.stringify({ app: 'Métrix', format: 'metrix-projet', version: 1, metrix: METRIX_VERSION, name, created, saved: new Date().toISOString(), active: active || 0, plans: out });
+}
+async function writeHandle(h, text) {
+  if (h.requestPermission && (await h.requestPermission({ mode: 'readwrite' })) !== 'granted') throw new Error(trText('accès au fichier refusé'));
+  const w = await h.createWritable(); await w.write(new Blob([text], { type: 'application/octet-stream' })); await w.close();
+}
+// choix de l'emplacement (fenêtre « Enregistrer sous ») puis écriture ; renvoie { path } / { handle } / { download }, ou null si annulé
+async function saveAsNew(fname, makeText) {
+  if (NATIVE) {
+    const text = await makeText();
+    const r = await nativeCall({ cmd: 'save', name: fname, text });
+    if (!r.ok) { if (r.msg) notify(r.msg); return null; }
+    return { path: r.path || null };
+  }
+  if (window.showSaveFilePicker) {   // Chrome, Edge (Windows) : on garde le fichier choisi pour les enregistrements suivants
+    let handle = null;
+    try { handle = await window.showSaveFilePicker({ suggestedName: fname, types: [{ description: 'Projet Métrix', accept: { 'application/octet-stream': ['.metrix'] } }] }); }
+    catch (e) { if (e && e.name === 'AbortError') return null; }
+    if (handle) { await writeHandle(handle, await makeText()); return { handle }; }
+  }
+  // autres navigateurs (Safari, iPhone, iPad…) : téléchargement
+  download(fname, new Blob([await makeText()], { type: 'application/octet-stream' }), 'application/octet-stream');
+  return { download: true };
+}
+// enregistre le projet dans son fichier (au même endroit, sans redemander) ; renvoie true si c'est fait
 async function saveProject() {
-  if (!docs.length) return notify('Ouvrez d\'abord un plan.');
-  if (!curProject) return askProjectName();
-  if (prjSaving) return; prjSaving = true;
+  if (!docs.length) { notify('Ouvrez d\'abord un plan.'); return false; }
+  if (!curProject) { askProjectName(); return false; }
+  if (prjSaving) return false; prjSaving = true;
   try {
-    persist(); saveDoc();
-    toast('Préparation du fichier du projet…');
-    const plans = [];
-    for (const d of docs) plans.push({ name: d.fileName, type: d.file.type || (d.isPdf ? 'application/pdf' : ''), size: d.file.size,
-      metres: { fileName: d.fileName, scales: d.scales, measures: d.measures, nextId: d.nextId, ouvrages: library.filter(o => d.measures.some(m => m.ouvrage === o.id)) },
-      data: await b64Of(d.file) });
-    const text = JSON.stringify({ app: 'Métrix', format: 'metrix-projet', version: 1, metrix: METRIX_VERSION, name: curProject.name,
-      created: curProject.created, saved: new Date().toISOString(), active: Math.max(0, docs.indexOf(activeDoc)), plans });
-    const name = (curProject.name.replace(/[\\/:*?"<>|]+/g, '-').trim() || 'Projet') + '.metrix';
-    if (NATIVE) {
-      const r = await nativeCall({ cmd: 'save', name, text });
-      if (r.ok) toast(`Projet enregistré : ${plans.length} plan(s) dans le fichier`); else if (r.msg) notify(r.msg);
-    } else { download(name, new Blob([text], { type: 'application/octet-stream' }), 'application/octet-stream'); toast(`Projet enregistré : ${plans.length} plan(s) dans le fichier`); }
-  } catch (e) { notify('Enregistrement du projet impossible : ' + (e.message || e)); }
+    const plans = docsPlans(), active = Math.max(0, docs.indexOf(activeDoc)), P = curProject;
+    const make = () => projectText(P.name, P.created, plans, active);
+    toast('Enregistrement du projet…');
+    if (P.path && metrixCaps().includes('saveTo')) {
+      const r = await nativeCall({ cmd: 'saveTo', path: P.path, text: await make() });
+      if (!r.ok) { notify(r.msg || 'Enregistrement du projet impossible.'); return false; }
+    } else if (P.handle) {
+      await writeHandle(P.handle, await make());
+    } else {
+      const t = await saveAsNew(prjFileName(P.name), make);
+      if (!t) return false;
+      if (t.path) P.path = t.path; if (t.handle) P.handle = t.handle;
+    }
+    toast(`Projet enregistré : ${plans.length} plan(s) dans le fichier`);
+    return true;
+  } catch (e) { notify('Enregistrement du projet impossible : ' + (e.message || e)); return false; }
   finally { prjSaving = false; }
 }
 function askProjectName() {
@@ -7371,10 +7476,10 @@ function askProjectName() {
       curProject = { name: n, created: new Date().toISOString() }; setDocName(); setTimeout(saveProject, 0);
     });
 }
-async function openProject(p) {
+async function openProject(p, where) {
   if (!Array.isArray(p.plans) || !p.plans.length) return notify('Fichier de projet invalide.');
   startHide(); closeAllDocs();
-  curProject = { name: p.name || 'Projet', created: p.created || null }; setDocName();
+  curProject = { name: p.name || 'Projet', created: p.created || null, path: where && where.path || null, handle: where && where.handle || null }; setDocName();
   toast(`Ouverture du projet « ${curProject.name} »…`);
   for (const pl of p.plans) {
     let f;
@@ -7388,8 +7493,25 @@ async function openProject(p) {
   setDocName();
   if (docs.length) toast(`Projet « ${curProject.name} » ouvert : ${docs.length} plan(s)`);
 }
-function closeProject() {
+async function closeProject() {
+  if (curProject && docs.length && !(await saveProject())) return;   // enregistrement annulé ou impossible : on reste
   closeAllDocs(); curProject = null; setDocName(); startShow();
+}
+// liste des plans du projet : nombre de pages et de métrés, clic = aller sur le plan
+function projectPlansDialog() {
+  if (!curProject) return;
+  saveDoc();
+  const rows = docs.map((d, i) => {
+    const pdf = d.isPdf, pages = d.pdf ? d.pdf.numPages : 1, n = (d.measures || []).filter(m => m.type !== 'draw').length;
+    return `<div class="pp-it${d === activeDoc ? ' on' : ''}" data-i="${i}" title="${esc(d.fileName)}"><span class="ic${pdf ? '' : ' img'}">${pdf ? 'PDF' : 'IMG'}</span>`
+      + `<span class="nm">${esc(d.fileName)}</span><small>${trText(`${pages} page${pages > 1 ? 's' : ''}`)} · ${trText(`${n} métré${n > 1 ? 's' : ''}`)}</small></div>`;
+  }).join('') || `<div class="st-empty">${trText('Aucun plan pour l\'instant.')}</div>`;
+  const where = curProject.path ? `<p class="pp-loc">${esc(trText('Fichier du projet :'))} ${esc(curProject.path)}</p>`
+    : curProject.handle ? `<p class="pp-loc">${esc(trText('Fichier du projet :'))} ${esc(curProject.handle.name)}</p>` : '';
+  dialog(`Plans du projet « ${curProject.name} »`, `<div class="pp">${rows}</div>${where}<div class="pp-b"><button class="btn" id="ppAdd" type="button">+ Ajouter un plan…</button></div>`, null, false);
+  $('dlgOk').textContent = 'Fermer';
+  $('dlgBody').querySelectorAll('.pp-it').forEach(el => el.onclick = () => { closeDialog(); switchDoc(docs[+el.dataset.i]); });
+  $('ppAdd').onclick = () => { closeDialog(); $('file').click(); };
 }
 // fichiers déposés : projet (.metrix) ou plans
 function dropFiles(list) {
@@ -7399,6 +7521,15 @@ function dropFiles(list) {
 }
 $('stNew').onclick = () => { stFiles = docs.map(d => ({ file: d.file, src: null })); $('stName').value = ''; startPanel('create'); };
 $('stOpen').onclick = () => $('load').click();
+if (!NATIVE && window.showOpenFilePicker) $('load').addEventListener('click', async e => {
+  e.preventDefault();
+  let h;
+  try { [h] = await window.showOpenFilePicker({ types: [{ description: 'Projet Métrix', accept: { 'application/octet-stream': ['.metrix'], 'application/json': ['.json'] } }] }); }
+  catch (err) { if (err && err.name === 'AbortError') return; return $('load').showPicker ? $('load').showPicker() : null; }
+  if (h) loadProject(await h.getFile(), /\.metrix$/i.test(h.name) ? { handle: h } : null);
+});
+$('prjPlans').onclick = projectPlansDialog;
+$('prjClose').onclick = closeProject;
 $('stFree').onclick = () => { curProject = null; setDocName(); startHide(); };
 $('stBack').onclick = () => startPanel('home');
 $('stGo').onclick = createProject;
