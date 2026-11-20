@@ -45,7 +45,7 @@
   .ribbon { display:flex; background:linear-gradient(var(--rib1), var(--rib2)); border-bottom:1px solid var(--rline); padding:3px 2px 0; overflow-x:auto; }
   .grp { display:flex; flex-direction:column; padding:0 3px; position:relative; }
   .grp + .grp::before { content:""; position:absolute; left:0; top:4px; bottom:4px; width:1px; background:linear-gradient(transparent, var(--rline) 20%, var(--rline) 80%, transparent); }
-  .grp .items { display:flex; align-items:flex-start; flex:1; }
+  .grp .items { display:flex; align-items:flex-start; justify-content:center; flex:1; }   /* boutons centrés sous le nom du groupe */
   .grp .cap { text-align:center; color:var(--cap); padding:3px 0 4px; white-space:nowrap; }
   .rb { display:flex; flex-direction:column; align-items:center; gap:2px; min-width:50px; max-width:72px; height:66px; padding:3px 4px; border:1px solid transparent; border-radius:2px; background:none; font:inherit; color:var(--txt); cursor:pointer; text-align:center; line-height:1.15; }
   .rb svg { width:32px; height:32px; flex:none; }
@@ -1040,6 +1040,12 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
   </div><div class="cap">Annoter</div></div>
 
   <div class="grp"><div class="items">
+    <button class="rb rb-mid" id="symBtn" title="Mode opératoire : grues, manitous, chariots, échafaudages, nacelles, installations et signalisation de chantier">
+      <svg class="sym-ico" viewBox="0 0 32 32"></svg>
+      <span>Symboles<span class="dd">▼</span></span></button>
+  </div><div class="cap">Mode opératoire</div></div>
+
+  <div class="grp"><div class="items">
     <button class="rb rb-mid" id="fit" title="Ajuster à la fenêtre (F)">
       <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#eef4fc" stroke="#7a8ca5" stroke-width="1.5"/><path d="M16 8v16M8 16h16" stroke="#1f5fbf" stroke-width="1.5"/><path d="m16 6-3 4h6zM16 26l-3-4h6zM6 16l4-3v6zM26 16l-4-3v6z" fill="#1f5fbf"/></svg>
       Ajuster à la fenêtre</button>
@@ -1077,12 +1083,6 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
         Fermer le projet</button>
     </div>
   </div><div class="cap">Projet</div></div>
-
-  <div class="grp"><div class="items">
-    <button class="rb rb-mid" id="symBtn" title="Mode opératoire : grues, manitous, chariots, échafaudages, nacelles, installations et signalisation de chantier">
-      <svg class="sym-ico" viewBox="0 0 32 32"></svg>
-      <span>Symboles<span class="dd">▼</span></span></button>
-  </div><div class="cap">Mode opératoire</div></div>
 
   <div class="grp"><div class="items">
     <button class="rb rb-mid" id="aiBtn" title="Métré intelligent : une IA vous pose quelques questions puis trace les métrés sur le plan">
@@ -1390,7 +1390,7 @@ let ctx = cv.getContext('2d');   // remplacé un instant par le canevas d'une pa
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.30';
+const METRIX_VERSION = '3.31';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
