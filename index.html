@@ -56,6 +56,8 @@
   .rstack { display:flex; flex-direction:column; gap:0; padding-top:1px; }
   .rb.sm { flex-direction:row; justify-content:flex-start; gap:5px; height:22px; min-width:0; max-width:none; padding:1px 6px 1px 3px; white-space:nowrap; }
   .rb.sm svg { width:16px; height:16px; }
+  .rrow { display:flex; gap:2px; }
+  .rrow .rb.sm { font-size:0; gap:0; padding:1px 5px; }   /* loupes seules : le texte reste dans l'infobulle */
   .rsep { width:1px; align-self:stretch; margin:6px 3px 4px; background:var(--rline); }
 
   /* zone de travail */
@@ -940,46 +942,53 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
     <button class="rb tool" data-tool="area" title="Surface polygonale (S)">
       <svg viewBox="0 0 32 32"><path d="M5 27V12h7V5h15v22z" fill="#5cc35a" stroke="#1e7a1c" stroke-width="1.5"/><path d="M5 27h22" stroke="#1e7a1c" stroke-width="2"/></svg>
       Surface</button>
-    <button class="rb tool" data-tool="rect" title="Surface rectangulaire (R)">
-      <svg viewBox="0 0 32 32"><rect x="4" y="8" width="24" height="17" fill="#9fd89a" stroke="#1e7a1c" stroke-width="1.5"/><g fill="#fff" stroke="#1e7a1c"><rect x="2" y="6" width="4" height="4"/><rect x="26" y="23" width="4" height="4"/></g></svg>
-      Rectangle</button>
-    <button class="rb tool" data-tool="circle" title="Cercle par son diamètre : cliquez les 2 extrémités (O)">
-      <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="12.5" fill="#9fd89a" stroke="#1e7a1c" stroke-width="1.6"/><path d="M5.2 22.2 26.8 9.8" stroke="#1e7a1c" stroke-width="1.6" stroke-dasharray="3 2"/><g fill="#fff" stroke="#1e7a1c" stroke-width="1.2"><rect x="3" y="20" width="4.4" height="4.4"/><rect x="24.6" y="7.6" width="4.4" height="4.4"/></g></svg>
-      Cercle</button>
     <button class="rb tool" data-tool="line" title="Longueur / périmètre (L)">
       <svg viewBox="0 0 32 32"><path d="M6 4v24h20" fill="none" stroke="#1f5fbf" stroke-width="2.5"/><g fill="#fff" stroke="#1f5fbf" stroke-width="1.5"><rect x="3" y="2" width="6" height="5"/><rect x="3" y="25" width="6" height="5"/><rect x="23" y="25" width="6" height="5"/></g><path d="M13 9h9M13 14h9M13 19h6" stroke="#1f5fbf" stroke-width="1.5"/></svg>
       Longueur</button>
-    <button class="rb tool" data-tool="arc" title="Arc : cliquez le départ, l'arrivée puis un point de la courbe (A)">
-      <svg viewBox="0 0 32 32"><path d="M4 26A14 14 0 0 1 28 26" fill="none" stroke="#1f5fbf" stroke-width="2.6"/><path d="M4 26h24" stroke="#1f5fbf" stroke-width="1" stroke-dasharray="2.5 2"/><g fill="#fff" stroke="#1f5fbf" stroke-width="1.4"><rect x="1.5" y="23.5" width="5" height="5"/><rect x="25.5" y="23.5" width="5" height="5"/><circle cx="16" cy="12" r="2.6"/></g></svg>
-      Arc</button>
-    <button class="rb tool" data-tool="free" title="Main levée : trait ouvert = longueur (m), boucle refermée = surface (m²) (P)">
-      <svg viewBox="0 0 32 32"><path d="M3 27C5 21 8.5 21 9.5 24.5S13.5 28 14.5 23.5 17 19.5 18.5 19.5" fill="none" stroke="#d6409f" stroke-width="2.4" stroke-linecap="round"/><g transform="translate(18.5 19.5) rotate(-45)"><path d="M0 0l6-3.2v6.4z" fill="#f3d9ae" stroke="#7a5a1a" stroke-width="1" stroke-linejoin="round"/><path d="M0 0l2.3-1.2v2.4z" fill="#2b2b2b"/><rect x="6" y="-3.2" width="10" height="6.4" fill="#f5c542" stroke="#8a6d12" stroke-width="1"/><path d="M6 0h10" stroke="#d9a516" stroke-width="1"/><rect x="16" y="-3.2" width="3.6" height="6.4" rx="1.2" fill="#ef8fae" stroke="#9f1239" stroke-width="1"/></g></svg>
-      Main levée</button>
-    <button class="rb tool" data-tool="count" title="Compteur (C)">
-      <svg viewBox="0 0 32 32"><g fill="#c0202a"><circle cx="9" cy="9" r="6"/><circle cx="23" cy="9" r="6"/><circle cx="16" cy="22" r="6"/></g><g fill="#fff" font-size="8" font-weight="700" text-anchor="middle" font-family="Segoe UI,sans-serif"><text x="9" y="12">1</text><text x="23" y="12">2</text><text x="16" y="25">3</text></g></svg>
-      Compteur</button>
-    <span class="rsep"></span>
-    <button class="rb" id="newSurfBtn" title="Commencer un nouveau métré : sinon, chaque tracé s'ajoute à la surface (ou à la longueur) en cours (N)">
-      <svg viewBox="0 0 32 32"><rect x="3" y="9" width="19" height="17" fill="#9fd89a" stroke="#1e7a1c" stroke-width="1.5"/><circle cx="23" cy="9" r="7" fill="#2b579a"/><path d="M23 5v8M19 9h8" stroke="#fff" stroke-width="2.2"/></svg>
-      <span id="newSurfLabel">Nouvelle surface</span></button>
+    <div class="rstack">
+      <button class="rb sm tool" data-tool="rect" title="Surface rectangulaire (R)">
+        <svg viewBox="0 0 32 32"><rect x="4" y="8" width="24" height="17" fill="#9fd89a" stroke="#1e7a1c" stroke-width="1.5"/><g fill="#fff" stroke="#1e7a1c"><rect x="2" y="6" width="4" height="4"/><rect x="26" y="23" width="4" height="4"/></g></svg>
+        Rectangle</button>
+      <button class="rb sm tool" data-tool="circle" title="Cercle par son diamètre : cliquez les 2 extrémités (O)">
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="12.5" fill="#9fd89a" stroke="#1e7a1c" stroke-width="1.6"/><path d="M5.2 22.2 26.8 9.8" stroke="#1e7a1c" stroke-width="1.6" stroke-dasharray="3 2"/><g fill="#fff" stroke="#1e7a1c" stroke-width="1.2"><rect x="3" y="20" width="4.4" height="4.4"/><rect x="24.6" y="7.6" width="4.4" height="4.4"/></g></svg>
+        Cercle</button>
+      <button class="rb sm tool" data-tool="arc" title="Arc : cliquez le départ, l'arrivée puis un point de la courbe (A)">
+        <svg viewBox="0 0 32 32"><path d="M4 26A14 14 0 0 1 28 26" fill="none" stroke="#1f5fbf" stroke-width="2.6"/><path d="M4 26h24" stroke="#1f5fbf" stroke-width="1" stroke-dasharray="2.5 2"/><g fill="#fff" stroke="#1f5fbf" stroke-width="1.4"><rect x="1.5" y="23.5" width="5" height="5"/><rect x="25.5" y="23.5" width="5" height="5"/><circle cx="16" cy="12" r="2.6"/></g></svg>
+        Arc</button>
+    </div>
+    <div class="rstack">
+      <button class="rb sm tool" data-tool="free" title="Main levée : trait ouvert = longueur (m), boucle refermée = surface (m²) (P)">
+        <svg viewBox="0 0 32 32"><path d="M3 27C5 21 8.5 21 9.5 24.5S13.5 28 14.5 23.5 17 19.5 18.5 19.5" fill="none" stroke="#d6409f" stroke-width="2.4" stroke-linecap="round"/><g transform="translate(18.5 19.5) rotate(-45)"><path d="M0 0l6-3.2v6.4z" fill="#f3d9ae" stroke="#7a5a1a" stroke-width="1" stroke-linejoin="round"/><path d="M0 0l2.3-1.2v2.4z" fill="#2b2b2b"/><rect x="6" y="-3.2" width="10" height="6.4" fill="#f5c542" stroke="#8a6d12" stroke-width="1"/><path d="M6 0h10" stroke="#d9a516" stroke-width="1"/><rect x="16" y="-3.2" width="3.6" height="6.4" rx="1.2" fill="#ef8fae" stroke="#9f1239" stroke-width="1"/></g></svg>
+        Main levée</button>
+      <button class="rb sm tool" data-tool="count" title="Compteur (C)">
+        <svg viewBox="0 0 32 32"><g fill="#c0202a"><circle cx="9" cy="9" r="6"/><circle cx="23" cy="9" r="6"/><circle cx="16" cy="22" r="6"/></g><g fill="#fff" font-size="8" font-weight="700" text-anchor="middle" font-family="Segoe UI,sans-serif"><text x="9" y="12">1</text><text x="23" y="12">2</text><text x="16" y="25">3</text></g></svg>
+        Compteur</button>
+      <button class="rb sm" id="newSurfBtn" title="Commencer un nouveau métré : sinon, chaque tracé s'ajoute à la surface (ou à la longueur) en cours (N)">
+        <svg viewBox="0 0 32 32"><rect x="3" y="9" width="19" height="17" fill="#9fd89a" stroke="#1e7a1c" stroke-width="1.5"/><circle cx="23" cy="9" r="7" fill="#2b579a"/><path d="M23 5v8M19 9h8" stroke="#fff" stroke-width="2.2"/></svg>
+        <span id="newSurfLabel">Nouvelle surface</span></button>
+    </div>
   </div><div class="cap">Mesurer</div></div>
 
   <div class="grp"><div class="items">
-    <button class="rb tool" data-tool="voidrect" title="Vide rectangulaire à déduire d'une surface : fenêtre, porte, trémie… (D)">
-      <svg viewBox="0 0 32 32"><rect x="3" y="5" width="26" height="22" fill="#5cc35a" stroke="#1e7a1c" stroke-width="1.5"/><rect x="10" y="10" width="12" height="12" fill="#fff" stroke="#b42318" stroke-width="1.5" stroke-dasharray="3 2"/><path d="M10 16l6-6M10 22l12-12M16 22l6-6" stroke="#b42318" stroke-width="1"/></svg>
-      Vide rectangle</button>
-    <button class="rb tool" data-tool="void" title="Vide de forme libre à déduire d'une surface (clic pour chaque sommet)">
-      <svg viewBox="0 0 32 32"><rect x="3" y="5" width="26" height="22" fill="#5cc35a" stroke="#1e7a1c" stroke-width="1.5"/><path d="M9 21l4-11 10 3-2 9z" fill="#fff" stroke="#b42318" stroke-width="1.5" stroke-dasharray="3 2" stroke-linejoin="round"/><path d="M11 21l7-7M15 22l6-6" stroke="#b42318" stroke-width="1"/></svg>
-      Vide libre</button>
+    <div class="rstack">
+      <button class="rb sm tool" data-tool="voidrect" title="Vide rectangulaire à déduire d'une surface : fenêtre, porte, trémie… (D)">
+        <svg viewBox="0 0 32 32"><rect x="3" y="5" width="26" height="22" fill="#5cc35a" stroke="#1e7a1c" stroke-width="1.5"/><rect x="10" y="10" width="12" height="12" fill="#fff" stroke="#b42318" stroke-width="1.5" stroke-dasharray="3 2"/><path d="M10 16l6-6M10 22l12-12M16 22l6-6" stroke="#b42318" stroke-width="1"/></svg>
+        Vide rectangle</button>
+      <button class="rb sm tool" data-tool="void" title="Vide de forme libre à déduire d'une surface (clic pour chaque sommet)">
+        <svg viewBox="0 0 32 32"><rect x="3" y="5" width="26" height="22" fill="#5cc35a" stroke="#1e7a1c" stroke-width="1.5"/><path d="M9 21l4-11 10 3-2 9z" fill="#fff" stroke="#b42318" stroke-width="1.5" stroke-dasharray="3 2" stroke-linejoin="round"/><path d="M11 21l7-7M15 22l6-6" stroke="#b42318" stroke-width="1"/></svg>
+        Vide libre</button>
+    </div>
   </div><div class="cap">Déductions</div></div>
 
   <div class="grp"><div class="items">
-    <button class="rb tool" data-tool="draw" title="Dessin : crayon, ligne, flèche, rectangle, ellipse (B)">
-      <svg viewBox="0 0 32 32"><path d="M4 25c3-1 5-4 8-3s5 4 9 1" fill="none" stroke="#1f6feb" stroke-width="2.2" stroke-linecap="round"/><rect x="5" y="5" width="9" height="7" rx="1" fill="none" stroke="#e5484d" stroke-width="1.8"/><path d="m27.5 4.5 2 2-11 11-3 1 1-3z" fill="#f5c542" stroke="#8a6d12" stroke-width="1.1" stroke-linejoin="round"/><path d="m16.5 15.5 2 2" stroke="#8a6d12" stroke-width="1.1"/></svg>
-      Dessin</button>
-    <button class="rb tool" data-tool="text" title="Zone de texte : cliquez sur le plan et tapez (T)">
-      <svg viewBox="0 0 32 32"><rect x="3.5" y="6.5" width="25" height="19" rx="2" fill="#fff" stroke="#5f6670" stroke-width="1.4" stroke-dasharray="3 2"/><path d="M10 11h12M16 11v11" stroke="#111827" stroke-width="2.6" stroke-linecap="round"/></svg>
-      Texte</button>
+    <div class="rstack">
+      <button class="rb sm tool" data-tool="draw" title="Dessin : crayon, ligne, flèche, rectangle, ellipse (B)">
+        <svg viewBox="0 0 32 32"><path d="M4 25c3-1 5-4 8-3s5 4 9 1" fill="none" stroke="#1f6feb" stroke-width="2.2" stroke-linecap="round"/><rect x="5" y="5" width="9" height="7" rx="1" fill="none" stroke="#e5484d" stroke-width="1.8"/><path d="m27.5 4.5 2 2-11 11-3 1 1-3z" fill="#f5c542" stroke="#8a6d12" stroke-width="1.1" stroke-linejoin="round"/><path d="m16.5 15.5 2 2" stroke="#8a6d12" stroke-width="1.1"/></svg>
+        Dessin</button>
+      <button class="rb sm tool" data-tool="text" title="Zone de texte : cliquez sur le plan et tapez (T)">
+        <svg viewBox="0 0 32 32"><rect x="3.5" y="6.5" width="25" height="19" rx="2" fill="#fff" stroke="#5f6670" stroke-width="1.4" stroke-dasharray="3 2"/><path d="M10 11h12M16 11v11" stroke="#111827" stroke-width="2.6" stroke-linecap="round"/></svg>
+        Texte</button>
+    </div>
   </div><div class="cap">Annoter</div></div>
 
   <div class="grp"><div class="items">
@@ -989,19 +998,21 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
   </div><div class="cap">Mode opératoire</div></div>
 
   <div class="grp"><div class="items">
-    <button class="rb" id="fit" title="Ajuster à la fenêtre (F)">
-      <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#eef4fc" stroke="#7a8ca5" stroke-width="1.5"/><path d="M16 8v16M8 16h16" stroke="#1f5fbf" stroke-width="1.5"/><path d="m16 6-3 4h6zM16 26l-3-4h6zM6 16l4-3v6zM26 16l-4-3v6z" fill="#1f5fbf"/></svg>
-      Ajuster à la fenêtre</button>
     <div class="rstack">
-      <button class="rb sm" id="zin" title="Zoom avant">
-        <svg viewBox="0 0 32 32"><circle cx="14" cy="14" r="10" fill="#eef4fc" stroke="#7a8ca5" stroke-width="2.5"/><path d="m21 21 8 8" stroke="#555" stroke-width="3.5"/><path d="M14 8v12M8 14h12" stroke="#1f5fbf" stroke-width="3"/></svg>
-        Zoom avant</button>
-      <button class="rb sm" id="zout" title="Zoom arrière">
-        <svg viewBox="0 0 32 32"><circle cx="14" cy="14" r="10" fill="#eef4fc" stroke="#7a8ca5" stroke-width="2.5"/><path d="m21 21 8 8" stroke="#555" stroke-width="3.5"/><path d="M8 14h12" stroke="#1f5fbf" stroke-width="3"/></svg>
-        Zoom arrière</button>
+      <button class="rb sm" id="fit" title="Ajuster à la fenêtre (F)">
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#eef4fc" stroke="#7a8ca5" stroke-width="1.5"/><path d="M16 8v16M8 16h16" stroke="#1f5fbf" stroke-width="1.5"/><path d="m16 6-3 4h6zM16 26l-3-4h6zM6 16l4-3v6zM26 16l-4-3v6z" fill="#1f5fbf"/></svg>
+        Ajuster</button>
       <button class="rb sm" id="z100" title="Taille normale (100 %)">
         <svg viewBox="0 0 32 32"><rect x="3" y="5" width="26" height="22" rx="2" fill="#eef4fc" stroke="#7a8ca5" stroke-width="2"/><text x="16" y="21" font-size="12" font-weight="700" text-anchor="middle" fill="#1f5fbf" font-family="Segoe UI,sans-serif">1:1</text></svg>
         Taille normale</button>
+      <div class="rrow">
+        <button class="rb sm" id="zin" title="Zoom avant">
+          <svg viewBox="0 0 32 32"><circle cx="14" cy="14" r="10" fill="#eef4fc" stroke="#7a8ca5" stroke-width="2.5"/><path d="m21 21 8 8" stroke="#555" stroke-width="3.5"/><path d="M14 8v12M8 14h12" stroke="#1f5fbf" stroke-width="3"/></svg>
+          Zoom avant</button>
+        <button class="rb sm" id="zout" title="Zoom arrière">
+          <svg viewBox="0 0 32 32"><circle cx="14" cy="14" r="10" fill="#eef4fc" stroke="#7a8ca5" stroke-width="2.5"/><path d="m21 21 8 8" stroke="#555" stroke-width="3.5"/><path d="M8 14h12" stroke="#1f5fbf" stroke-width="3"/></svg>
+          Zoom arrière</button>
+      </div>
     </div>
   </div><div class="cap">Affichage</div></div>
 
@@ -1009,18 +1020,22 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
     <button class="rb" id="save" title="Enregistrer le projet de métré">
       <svg viewBox="0 0 32 32"><path d="M4 4h20l4 4v20H4z" fill="#3a7bd5" stroke="#1e4f99"/><rect x="9" y="4" width="13" height="8" fill="#dfe9f7"/><rect x="8" y="17" width="16" height="11" fill="#fff"/></svg>
       Enregistrer</button>
-    <label class="rb" title="Ouvrir un projet de métré enregistré">
-      <svg viewBox="0 0 32 32"><rect x="6" y="3" width="20" height="26" fill="#fff" stroke="#5f6670"/><path d="M16 8v13m-5-5 5 5 5-5" stroke="#1f5fbf" stroke-width="2.4" fill="none"/></svg>
-      Charger projet<input id="load" type="file" accept=".metrix,.json,application/json"></label>
-    <button class="rb" id="csv" title="Exporter le métré vers Excel">
-      <svg viewBox="0 0 32 32"><path d="M6 2h14l6 6v22H6z" fill="#fff" stroke="#888"/><rect x="2" y="10" width="17" height="15" rx="1" fill="#1d7044"/><path d="M6 13l8 9M14 13l-8 9" stroke="#fff" stroke-width="2.2"/></svg>
-      Exporter vers Excel</button>
-    <button class="rb prj-only" id="prjPlans" title="Voir les plans PDF du projet">
-      <svg viewBox="0 0 32 32"><rect x="11" y="2" width="17" height="21" fill="#fff" stroke="#9aa4b2"/><rect x="7.5" y="5" width="17" height="21" fill="#fff" stroke="#8a94a2"/><rect x="4" y="8" width="17" height="21" fill="#fff" stroke="#5f6670"/><rect x="6" y="20" width="13" height="7" rx="1" fill="#c0392b"/><text x="12.5" y="25.6" font-size="5.6" font-weight="700" text-anchor="middle" fill="#fff" font-family="Segoe UI,sans-serif">PDF</text></svg>
-      Plans du projet</button>
-    <button class="rb prj-only" id="prjClose" title="Enregistrer le projet puis revenir à l'écran d'accueil">
-      <svg viewBox="0 0 32 32"><path d="M3 4h17l4 4v17H3z" fill="#3a7bd5" stroke="#1e4f99"/><rect x="7" y="4" width="11" height="7" fill="#dfe9f7"/><rect x="6" y="15" width="14" height="10" fill="#fff"/><circle cx="23.5" cy="23.5" r="7" fill="#c0392b" stroke="#fff" stroke-width="1.2"/><path d="m20.5 20.5 6 6m0-6-6 6" stroke="#fff" stroke-width="2.2"/></svg>
-      Fermer le projet</button>
+    <div class="rstack">
+      <label class="rb sm" title="Ouvrir un projet de métré enregistré">
+        <svg viewBox="0 0 32 32"><rect x="6" y="3" width="20" height="26" fill="#fff" stroke="#5f6670"/><path d="M16 8v13m-5-5 5 5 5-5" stroke="#1f5fbf" stroke-width="2.4" fill="none"/></svg>
+        Charger projet<input id="load" type="file" accept=".metrix,.json,application/json"></label>
+      <button class="rb sm" id="csv" title="Exporter le métré vers Excel">
+        <svg viewBox="0 0 32 32"><path d="M6 2h14l6 6v22H6z" fill="#fff" stroke="#888"/><rect x="2" y="10" width="17" height="15" rx="1" fill="#1d7044"/><path d="M6 13l8 9M14 13l-8 9" stroke="#fff" stroke-width="2.2"/></svg>
+        Export Excel</button>
+    </div>
+    <div class="rstack prj-only">
+      <button class="rb sm" id="prjPlans" title="Voir les plans PDF du projet">
+        <svg viewBox="0 0 32 32"><rect x="11" y="2" width="17" height="21" fill="#fff" stroke="#9aa4b2"/><rect x="7.5" y="5" width="17" height="21" fill="#fff" stroke="#8a94a2"/><rect x="4" y="8" width="17" height="21" fill="#fff" stroke="#5f6670"/><rect x="6" y="20" width="13" height="7" rx="1" fill="#c0392b"/><text x="12.5" y="25.6" font-size="5.6" font-weight="700" text-anchor="middle" fill="#fff" font-family="Segoe UI,sans-serif">PDF</text></svg>
+        Plans du projet</button>
+      <button class="rb sm" id="prjClose" title="Enregistrer le projet puis revenir à l'écran d'accueil">
+        <svg viewBox="0 0 32 32"><path d="M3 4h17l4 4v17H3z" fill="#3a7bd5" stroke="#1e4f99"/><rect x="7" y="4" width="11" height="7" fill="#dfe9f7"/><rect x="6" y="15" width="14" height="10" fill="#fff"/><circle cx="23.5" cy="23.5" r="7" fill="#c0392b" stroke="#fff" stroke-width="1.2"/><path d="m20.5 20.5 6 6m0-6-6 6" stroke="#fff" stroke-width="2.2"/></svg>
+        Fermer le projet</button>
+    </div>
   </div><div class="cap">Projet</div></div>
 </header>
 
@@ -1309,7 +1324,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.23';
+const METRIX_VERSION = '3.24';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -2217,6 +2232,7 @@ addTr([
   ["Stationnement","Parking","Estacionamento","Aparcamiento"],
   ["Réglez l'échelle du plan pour voir le rayon d'action.","Set the plan scale to see the working radius.","Defina a escala da planta para ver o raio de ação.","Ajuste la escala del plano para ver el radio de acción."],
   ["Symbole de mode opératoire : non compté dans le métré. Avec le Pointeur : glissez-le pour le déplacer, tirez un coin pour changer sa taille, la poignée ronde pour le tourner (Maj : par 15°).","Method statement symbol: not counted in the takeoff. With the Pointer: drag it to move it, pull a corner to resize it, the round handle to rotate it (Shift: 15° steps).","Símbolo de modo operatório: não contado na medição. Com o Ponteiro: arraste-o para o mover, puxe um canto para mudar o tamanho e a pega redonda para o rodar (Shift: de 15° em 15°).","Símbolo de modo operativo: no se cuenta en la medición. Con el Puntero: arrástrelo para moverlo, tire de una esquina para cambiar su tamaño y del tirador redondo para girarlo (Mayús: de 15° en 15°)."],
+  ["Export Excel","Excel export","Exportar Excel","Exportar Excel"],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -3055,6 +3071,7 @@ addTr2([
   ["Stationnement","Parkplatz","Parkeren","停车","موقف","Parcheggio","Стоянка"],
   ["Réglez l'échelle du plan pour voir le rayon d'action.","Stellen Sie den Planmaßstab ein, um den Arbeitsradius zu sehen.","Stel de schaal van de tekening in om het werkbereik te zien.","请设置图纸比例以显示作业半径。","اضبط مقياس المخطط لرؤية نصف قطر العمل.","Imposta la scala del disegno per vedere il raggio d'azione.","Задайте масштаб чертежа, чтобы видеть радиус действия."],
   ["Symbole de mode opératoire : non compté dans le métré. Avec le Pointeur : glissez-le pour le déplacer, tirez un coin pour changer sa taille, la poignée ronde pour le tourner (Maj : par 15°).","Symbol des Arbeitsablaufs: wird im Aufmaß nicht gezählt. Mit dem Zeiger: ziehen zum Verschieben, an einer Ecke ziehen für die Größe, am runden Griff zum Drehen (Umschalt: in 15°-Schritten).","Symbool van de werkmethode: telt niet mee in de meting. Met de Aanwijzer: sleep om te verplaatsen, trek aan een hoek om de grootte te wijzigen, aan de ronde greep om te draaien (Shift: per 15°).","施工方案符号：不计入测量。使用指针：拖动可移动，拖动角点可调整大小，拖动圆形手柄可旋转（Shift：按 15°）。","رمز طريقة التنفيذ: لا يُحتسب في القياس. بالمؤشر: اسحبه لتحريكه، واسحب زاوية لتغيير حجمه، والمقبض الدائري لتدويره (Shift: بخطوات 15°).","Simbolo della modalità operativa: non conteggiato nel computo. Con il Puntatore: trascinalo per spostarlo, tira un angolo per cambiarne la dimensione, la maniglia rotonda per ruotarlo (Maiusc: a passi di 15°).","Символ ППР: не учитывается в замерах. Указателем: перетащите, чтобы переместить, потяните за угол, чтобы изменить размер, за круглую ручку — чтобы повернуть (Shift: шаг 15°)."],
+  ["Export Excel","Excel-Export","Excel-export","导出 Excel","تصدير Excel","Esporta Excel","Экспорт в Excel"],
 ]);
 // --- fin des langues ajoutées ---
 
