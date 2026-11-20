@@ -53,9 +53,10 @@
   .rb.active { background:linear-gradient(#ffe8a6,#ffd56a); border-color:#c2a03c; }
   .rb:disabled { opacity:.4; pointer-events:none; }
   .rb input { display:none; }
-  .rstack { display:flex; flex-direction:column; gap:0; padding-top:1px; align-self:stretch; justify-content:space-evenly; }   /* piles de 2 ou 3 petits boutons : réparties sur toute la hauteur */
+  .rstack { display:flex; flex-direction:column; gap:0; padding-top:1px; }
   .rb.sm { flex-direction:row; justify-content:flex-start; gap:5px; height:22px; min-width:0; max-width:none; padding:1px 6px 1px 3px; white-space:nowrap; }
   .rb.sm svg { width:16px; height:16px; }
+  .rb.rb-mid { justify-content:center; }   /* grands boutons à côté de petits boutons : icône et texte centrés en hauteur */
   .rrow { display:flex; gap:2px; }
   .rrow .rb.sm { font-size:0; gap:0; padding:1px 5px; }   /* loupes seules : le texte reste dans l'infobulle */
   .rsep { width:1px; align-self:stretch; margin:6px 3px 4px; background:var(--rline); }
@@ -992,13 +993,13 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
   </div><div class="cap">Annoter</div></div>
 
   <div class="grp"><div class="items">
-    <button class="rb" id="symBtn" title="Mode opératoire : grues, manitous, chariots, échafaudages, nacelles, installations et signalisation de chantier">
+    <button class="rb rb-mid" id="symBtn" title="Mode opératoire : grues, manitous, chariots, échafaudages, nacelles, installations et signalisation de chantier">
       <svg class="sym-ico" viewBox="0 0 32 32"></svg>
       <span>Symboles<span class="dd">▼</span></span></button>
   </div><div class="cap">Mode opératoire</div></div>
 
   <div class="grp"><div class="items">
-    <button class="rb" id="fit" title="Ajuster à la fenêtre (F)">
+    <button class="rb rb-mid" id="fit" title="Ajuster à la fenêtre (F)">
       <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#eef4fc" stroke="#7a8ca5" stroke-width="1.5"/><path d="M16 8v16M8 16h16" stroke="#1f5fbf" stroke-width="1.5"/><path d="m16 6-3 4h6zM16 26l-3-4h6zM6 16l4-3v6zM26 16l-4-3v6z" fill="#1f5fbf"/></svg>
       Ajuster à la fenêtre</button>
     <div class="rstack">
@@ -1015,7 +1016,7 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
   </div><div class="cap">Affichage</div></div>
 
   <div class="grp"><div class="items">
-    <button class="rb" id="save" title="Enregistrer le projet de métré">
+    <button class="rb rb-mid" id="save" title="Enregistrer le projet de métré">
       <svg viewBox="0 0 32 32"><path d="M4 4h20l4 4v20H4z" fill="#3a7bd5" stroke="#1e4f99"/><rect x="9" y="4" width="13" height="8" fill="#dfe9f7"/><rect x="8" y="17" width="16" height="11" fill="#fff"/></svg>
       Enregistrer</button>
     <div class="rstack">
@@ -1322,7 +1323,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.26';
+const METRIX_VERSION = '3.27';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
