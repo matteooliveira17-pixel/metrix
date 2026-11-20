@@ -53,7 +53,7 @@
   .rb.active { background:linear-gradient(#ffe8a6,#ffd56a); border-color:#c2a03c; }
   .rb:disabled { opacity:.4; pointer-events:none; }
   .rb input { display:none; }
-  .rstack { display:flex; flex-direction:column; gap:0; padding-top:1px; }
+  .rstack { display:flex; flex-direction:column; gap:0; padding-top:1px; align-self:stretch; justify-content:space-evenly; }   /* piles de 2 ou 3 petits boutons : réparties sur toute la hauteur */
   .rb.sm { flex-direction:row; justify-content:flex-start; gap:5px; height:22px; min-width:0; max-width:none; padding:1px 6px 1px 3px; white-space:nowrap; }
   .rb.sm svg { width:16px; height:16px; }
   .rrow { display:flex; gap:2px; }
@@ -1322,7 +1322,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.25';
+const METRIX_VERSION = '3.26';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
