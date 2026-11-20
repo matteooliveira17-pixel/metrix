@@ -1029,6 +1029,9 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
   </div><div class="cap">Déductions</div></div>
 
   <div class="grp"><div class="items">
+    <button class="rb rb-mid" id="symBtn" title="Mode opératoire : grues, manitous, chariots, échafaudages, nacelles, installations et signalisation de chantier">
+      <svg class="sym-ico" viewBox="0 0 32 32"></svg>
+      <span>Symboles<span class="dd">▼</span></span></button>
     <div class="rstack">
       <button class="rb sm tool" data-tool="draw" title="Dessin : crayon, ligne, flèche, rectangle, ellipse (B)">
         <svg viewBox="0 0 32 32"><path d="M4 25c3-1 5-4 8-3s5 4 9 1" fill="none" stroke="#1f6feb" stroke-width="2.2" stroke-linecap="round"/><rect x="5" y="5" width="9" height="7" rx="1" fill="none" stroke="#e5484d" stroke-width="1.8"/><path d="m27.5 4.5 2 2-11 11-3 1 1-3z" fill="#f5c542" stroke="#8a6d12" stroke-width="1.1" stroke-linejoin="round"/><path d="m16.5 15.5 2 2" stroke="#8a6d12" stroke-width="1.1"/></svg>
@@ -1038,12 +1041,6 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
         Texte</button>
     </div>
   </div><div class="cap">Annoter</div></div>
-
-  <div class="grp"><div class="items">
-    <button class="rb rb-mid" id="symBtn" title="Mode opératoire : grues, manitous, chariots, échafaudages, nacelles, installations et signalisation de chantier">
-      <svg class="sym-ico" viewBox="0 0 32 32"></svg>
-      <span>Symboles<span class="dd">▼</span></span></button>
-  </div><div class="cap">Mode opératoire</div></div>
 
   <div class="grp"><div class="items">
     <button class="rb rb-mid" id="fit" title="Ajuster à la fenêtre (F)">
@@ -1390,7 +1387,7 @@ let ctx = cv.getContext('2d');   // remplacé un instant par le canevas d'une pa
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.31';
+const METRIX_VERSION = '3.32';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
