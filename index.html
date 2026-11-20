@@ -998,21 +998,19 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
   </div><div class="cap">Mode opératoire</div></div>
 
   <div class="grp"><div class="items">
+    <button class="rb" id="fit" title="Ajuster à la fenêtre (F)">
+      <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#eef4fc" stroke="#7a8ca5" stroke-width="1.5"/><path d="M16 8v16M8 16h16" stroke="#1f5fbf" stroke-width="1.5"/><path d="m16 6-3 4h6zM16 26l-3-4h6zM6 16l4-3v6zM26 16l-4-3v6z" fill="#1f5fbf"/></svg>
+      Ajuster à la fenêtre</button>
     <div class="rstack">
-      <button class="rb sm" id="fit" title="Ajuster à la fenêtre (F)">
-        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#eef4fc" stroke="#7a8ca5" stroke-width="1.5"/><path d="M16 8v16M8 16h16" stroke="#1f5fbf" stroke-width="1.5"/><path d="m16 6-3 4h6zM16 26l-3-4h6zM6 16l4-3v6zM26 16l-4-3v6z" fill="#1f5fbf"/></svg>
-        Ajuster</button>
+      <button class="rb sm" id="zin" title="Zoom avant">
+        <svg viewBox="0 0 32 32"><circle cx="14" cy="14" r="10" fill="#eef4fc" stroke="#7a8ca5" stroke-width="2.5"/><path d="m21 21 8 8" stroke="#555" stroke-width="3.5"/><path d="M14 8v12M8 14h12" stroke="#1f5fbf" stroke-width="3"/></svg>
+        Zoom avant</button>
+      <button class="rb sm" id="zout" title="Zoom arrière">
+        <svg viewBox="0 0 32 32"><circle cx="14" cy="14" r="10" fill="#eef4fc" stroke="#7a8ca5" stroke-width="2.5"/><path d="m21 21 8 8" stroke="#555" stroke-width="3.5"/><path d="M8 14h12" stroke="#1f5fbf" stroke-width="3"/></svg>
+        Zoom arrière</button>
       <button class="rb sm" id="z100" title="Taille normale (100 %)">
         <svg viewBox="0 0 32 32"><rect x="3" y="5" width="26" height="22" rx="2" fill="#eef4fc" stroke="#7a8ca5" stroke-width="2"/><text x="16" y="21" font-size="12" font-weight="700" text-anchor="middle" fill="#1f5fbf" font-family="Segoe UI,sans-serif">1:1</text></svg>
         Taille normale</button>
-      <div class="rrow">
-        <button class="rb sm" id="zin" title="Zoom avant">
-          <svg viewBox="0 0 32 32"><circle cx="14" cy="14" r="10" fill="#eef4fc" stroke="#7a8ca5" stroke-width="2.5"/><path d="m21 21 8 8" stroke="#555" stroke-width="3.5"/><path d="M14 8v12M8 14h12" stroke="#1f5fbf" stroke-width="3"/></svg>
-          Zoom avant</button>
-        <button class="rb sm" id="zout" title="Zoom arrière">
-          <svg viewBox="0 0 32 32"><circle cx="14" cy="14" r="10" fill="#eef4fc" stroke="#7a8ca5" stroke-width="2.5"/><path d="m21 21 8 8" stroke="#555" stroke-width="3.5"/><path d="M8 14h12" stroke="#1f5fbf" stroke-width="3"/></svg>
-          Zoom arrière</button>
-      </div>
     </div>
   </div><div class="cap">Affichage</div></div>
 
@@ -1324,7 +1322,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.24';
+const METRIX_VERSION = '3.25';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
