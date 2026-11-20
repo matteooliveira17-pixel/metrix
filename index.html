@@ -153,6 +153,53 @@
   .status .zoom input { width:110px; }
   .status #zpct { min-width:38px; text-align:right; }
 
+  /* écran d'ouverture : créer un projet, ouvrir un projet, ou travailler sans projet */
+  .start { position:fixed; inset:0; z-index:40; display:flex; box-sizing:border-box; padding:20px; overflow:auto;
+           background:radial-gradient(circle at 50% 30%, #eef3fb 0%, #dfe6f1 60%, #d3dbe8 100%); }
+  .start[hidden] { display:none; }
+  .st-box { box-sizing:border-box; margin:auto; width:min(760px, 100%); background:#fff; border:1px solid #b9c3d2; border-radius:14px; box-shadow:0 18px 50px rgba(20,40,80,.18); padding:26px 28px 24px; }
+  .st-top { text-align:center; margin-bottom:20px; }
+  .st-top b { display:block; font-size:28px; letter-spacing:.4px; color:#1e3f73; }
+  .st-top span { display:block; margin-top:4px; font-size:14px; color:#556477; }
+  .st-opts { display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; }
+  .st-opt { display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center; padding:20px 14px 18px; border:1.5px solid #c9d3e2; border-radius:12px;
+            background:#f8fafd; cursor:pointer; font:inherit; color:#28364a; transition:border-color .15s, background .15s, transform .15s, box-shadow .15s; }
+  .st-opt:hover, .st-opt:focus-visible { border-color:#2b579a; background:#eef4fd; transform:translateY(-2px); box-shadow:0 6px 18px rgba(43,87,154,.15); outline:none; }
+  .st-opt svg { width:52px; height:52px; }
+  .st-opt span { display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .st-opt b { font-size:15px; color:#1e3f73; }
+  .st-opt small { font-size:12px; line-height:1.45; color:#5b6778; }
+  .st-note { margin:16px 4px 0; font-size:12px; color:#7a5b10; background:#fff7e0; border:1px solid #f1d58a; border-radius:8px; padding:8px 10px; }
+  .st-lbl { display:block; font-weight:600; font-size:12.5px; color:#3a4a63; margin:14px 0 6px; }
+  .st-lbl:first-child { margin-top:0; }
+  #stName { width:100%; box-sizing:border-box; font:inherit; font-size:14px; padding:8px 10px; border:1px solid #aab5c5; border-radius:6px; }
+  .st-list { display:flex; flex-direction:column; gap:4px; max-height:240px; overflow:auto; }
+  .st-it { display:flex; align-items:center; gap:9px; padding:6px 8px; border:1px solid #dde3ec; border-radius:6px; background:#f8fafd; font-size:12.5px; }
+  .st-it .ic { flex:none; font-size:9.5px; font-weight:700; color:#fff; background:#c0392b; border-radius:3px; padding:2px 4px; }
+  .st-it .ic.img { background:#2b7a4b; }
+  .st-it .nm { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .st-it small { color:#6b7686; flex:none; }
+  .st-it button { flex:none; border:none; background:none; cursor:pointer; color:#7b8494; font-size:13px; padding:2px 5px; border-radius:4px; }
+  .st-it button:hover { background:#e6ebf2; color:#b42318; }
+  .st-empty { font-size:12.5px; color:#7b8494; padding:4px 2px; }
+  .st-add { margin-top:8px; padding:16px; text-align:center; border:2px dashed #2b579a; border-radius:10px; background:rgba(43,87,154,.04); color:#3a4a63; cursor:pointer; font-size:13px; transition:background .15s; }
+  .st-add:hover, .st-add.drag { background:rgba(43,87,154,.12); }
+  .st-hint { margin:10px 2px 0; font-size:12px; color:#5b6778; }
+  .st-foot { display:flex; justify-content:flex-end; gap:8px; margin-top:18px; }
+  .st-foot .btn { width:auto; min-width:110px; padding:0 14px; height:30px; }
+  .st-foot .btn:disabled { opacity:.5; cursor:default; }
+  @media (max-width:640px) { .start { padding:12px; } .st-box { padding:20px 16px; } .st-opts { grid-template-columns:1fr; } .st-opt { flex-direction:row; text-align:left; padding:14px; } .st-opt svg { width:40px; height:40px; flex:none; } .st-opt span { align-items:flex-start; gap:3px; } }
+  html.dark .start { background:radial-gradient(circle at 50% 30%, #2a2f38 0%, #1d2128 60%, #15181d 100%); }
+  html.dark .st-box { background:#262b33; border-color:#3d4450; box-shadow:0 18px 50px rgba(0,0,0,.5); }
+  html.dark .st-top b, html.dark .st-opt b { color:#cfe0fb; }
+  html.dark .st-top span, html.dark .st-opt small, html.dark .st-hint { color:#a6b1c2; }
+  html.dark .st-opt { background:#2d333c; border-color:#46505e; color:#dfe5ee; }
+  html.dark .st-opt:hover, html.dark .st-opt:focus-visible { background:#323c4b; border-color:#4c86d8; }
+  html.dark .st-lbl, html.dark .st-add { color:#b7c3d6; }
+  html.dark .st-add { border-color:#4c86d8; background:rgba(76,134,216,.06); }
+  html.dark #stName { background:#1f232a; color:#e6e9ee; border-color:#4a5260; }
+  html.dark .st-it { background:#2d333c; border-color:#46505e; }
+  html.dark .st-note { background:#3a3220; border-color:#6b5a2a; color:#e9d39a; }
   /* boîte de dialogue */
   .modal { position:fixed; inset:0; background:rgba(0,0,0,.08); display:flex; align-items:center; justify-content:center; z-index:50; }
   .dlg { background:#fff; border:1px solid #7a8899; box-shadow:0 8px 28px rgba(0,0,0,.3); width:300px; }
@@ -817,9 +864,12 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
   <span class="navbtns"><button id="undoBtn" title="Annuler (Ctrl+Z)" disabled><svg viewBox="0 0 20 20"><path class="ar" d="M7.5 4.5 3.5 8.5l4 4"/><path d="M4 8.5h7.5a4.5 4.5 0 0 1 0 9H9"/></svg></button><button id="redoBtn" title="Rétablir (Ctrl+Maj+Z)" disabled><svg viewBox="0 0 20 20"><path class="ar" d="m12.5 4.5 4 4-4 4"/><path d="M16 8.5H8.5a4.5 4.5 0 0 0 0 9H11"/></svg></button></span>
   <span class="doc"><span id="docName">Métrix</span></span>
   <div class="filemenu" id="fileMenu" hidden>
+    <div id="menuNewPrj">Nouveau projet…</div>
+    <div data-click="#load">Ouvrir un projet…</div>
+    <div data-click="#save">Enregistrer le projet<kbd>Ctrl+S</kbd></div>
+    <div id="menuClosePrj">Fermer le projet</div>
+    <hr>
     <div data-click="#file">Ouvrir un plan…<kbd>Ctrl+O</kbd></div>
-    <div data-click="#load">Ouvrir un projet de métré…</div>
-    <div data-click="#save">Enregistrer le projet</div>
     <hr>
     <div data-click="#csv">Exporter vers Excel (CSV)</div>
     <hr><div id="menuUpdate">Installer une mise à jour…</div>
@@ -914,7 +964,7 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
       Enregistrer</button>
     <label class="rb" title="Ouvrir un projet de métré enregistré">
       <svg viewBox="0 0 32 32"><rect x="6" y="3" width="20" height="26" fill="#fff" stroke="#5f6670"/><path d="M16 8v13m-5-5 5 5 5-5" stroke="#1f5fbf" stroke-width="2.4" fill="none"/></svg>
-      Charger projet<input id="load" type="file" accept=".json,application/json"></label>
+      Charger projet<input id="load" type="file" accept=".metrix,.json,application/json"></label>
     <button class="rb" id="csv" title="Exporter le métré vers Excel">
       <svg viewBox="0 0 32 32"><path d="M6 2h14l6 6v22H6z" fill="#fff" stroke="#888"/><rect x="2" y="10" width="17" height="15" rx="1" fill="#1d7044"/><path d="M6 13l8 9M14 13l-8 9" stroke="#fff" stroke-width="2.2"/></svg>
       Exporter vers Excel</button>
@@ -1126,6 +1176,34 @@ html.dark #ifc3dColBtn.on { background:#2a3a52 !important; color:#cfe0fa !import
   <span class="zoom">Zoom <button id="zminus">−</button><input id="zr" type="range" min="-5" max="4" step="0.01" value="0"><button id="zplus">+</button><span id="zpct">100 %</span></span>
 </footer>
 
+<div id="start" class="start" hidden><div class="st-box">
+  <div class="st-top"><b>Métrix</b><span>Comment voulez-vous travailler ?</span></div>
+  <div id="stHome">
+    <div class="st-opts">
+      <button class="st-opt" id="stNew" type="button">
+        <svg viewBox="0 0 48 48"><path d="M5 12h14l3 4h21v24H5z" fill="#f4c542" stroke="#b8860b" stroke-width="1.5"/><path d="M5 20h38l-3 20H5z" fill="#ffd966" stroke="#b8860b" stroke-width="1.5"/><circle cx="36" cy="34" r="9" fill="#2e9e45"/><path d="M36 29v10M31 34h10" stroke="#fff" stroke-width="2.6"/></svg>
+        <span><b>Créer un projet</b><small>Choisissez un ou plusieurs PDF : ils seront rangés dans le fichier du projet quand vous l'enregistrerez.</small></span></button>
+      <button class="st-opt" id="stOpen" type="button">
+        <svg viewBox="0 0 48 48"><path d="M10 4h20l8 8v32H10z" fill="#fff" stroke="#5f6670" stroke-width="1.5"/><path d="M30 4v8h8" fill="none" stroke="#5f6670" stroke-width="1.5"/><rect x="14" y="20" width="20" height="14" rx="2" fill="#2b579a"/><text x="24" y="30.5" font-size="8" font-weight="700" text-anchor="middle" fill="#fff" font-family="Segoe UI,sans-serif">MTX</text></svg>
+        <span><b>Ouvrir un projet</b><small>Ouvrez un projet Métrix (.metrix), créé sur cet ordinateur ou sur un autre.</small></span></button>
+      <button class="st-opt" id="stFree" type="button">
+        <svg viewBox="0 0 48 48"><path d="M10 4h20l8 8v32H10z" fill="#fff" stroke="#5f6670" stroke-width="1.5"/><path d="M30 4v8h8" fill="none" stroke="#5f6670" stroke-width="1.5"/><rect x="6" y="22" width="22" height="13" rx="2" fill="#c0392b"/><text x="17" y="31.5" font-size="8" font-weight="700" text-anchor="middle" fill="#fff" font-family="Segoe UI,sans-serif">PDF</text></svg>
+        <span><b>Utiliser Métrix sans projet</b><small>Ouvrez simplement vos plans PDF, comme d'habitude.</small></span></button>
+    </div>
+    <p class="st-note" id="stOldMac" hidden>Avec cette version de l'appli Mac, les projets .metrix s'ouvrent en glissant le fichier sur cette fenêtre. Installez la dernière version depuis le site pour pouvoir les choisir directement.</p>
+  </div>
+  <div id="stCreate" hidden>
+    <label class="st-lbl" for="stName">Nom du projet</label>
+    <input id="stName" type="text" placeholder="Exemple : Résidence Les Tilleuls" autocomplete="off">
+    <div class="st-lbl">Plans du projet</div>
+    <div class="st-list" id="stList"></div>
+    <div class="st-add" id="stAdd" role="button" tabindex="0"><b>+ Ajouter des PDF…</b> ou déposez-les ici</div>
+    <input id="stFiles" type="file" multiple accept="application/pdf,image/*" hidden>
+    <p class="st-hint">Les PDF sont rangés dans le fichier du projet (.metrix) quand vous cliquez sur Enregistrer : vous pourrez l'ouvrir sur un autre ordinateur.</p>
+    <div class="st-foot"><button class="btn" id="stBack" type="button">Retour</button><button class="btn def" id="stGo" type="button" disabled>Créer le projet</button></div>
+  </div>
+</div></div>
+
 <div class="modal" id="modal" hidden><div class="dlg">
   <div class="t"><span id="dlgTitle"></span><button id="dlgX">✕</button></div>
   <div id="dlgBody"></div>
@@ -1175,7 +1253,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage');
 const $ = id => document.getElementById(id);
 // version du logiciel : à augmenter à chaque mise à jour (lue aussi par l'appli Mac et le script de mise à jour)
-const METRIX_VERSION = '3.18';
+const METRIX_VERSION = '3.19';
 /* ---------- langues : français (d'origine), anglais, portugais, espagnol ---------- */
 // L'interface est écrite en français. Chaque texte affiché est traduit à la volée :
 //  - textes exacts : DICT ;  - textes avec parties variables {x} (et pluriel {s}) : PATTERNS.
@@ -1954,6 +2032,41 @@ addTr([
   ["Longueur × largeur","Length × width","Comprimento × largura","Longitud × anchura"],
   ["Longueurs et largeurs des éléments","Lengths and widths of the elements","Comprimentos e larguras dos elementos","Longitudes y anchuras de los elementos"],
   ["Longueurs et largeurs","Lengths and widths","Comprimentos e larguras","Longitudes y anchuras"],
+  ["Comment voulez-vous travailler ?","How would you like to work?","Como pretende trabalhar?","¿Cómo quiere trabajar?"],
+  ["Créer un projet","Create a project","Criar um projeto","Crear un proyecto"],
+  ["Choisissez un ou plusieurs PDF : ils seront rangés dans le fichier du projet quand vous l'enregistrerez.","Choose one or more PDFs: they will be stored in the project file when you save it.","Escolha um ou mais PDF: serão guardados no ficheiro do projeto quando o guardar.","Elija uno o varios PDF: se guardarán en el archivo del proyecto cuando lo guarde."],
+  ["Ouvrir un projet","Open a project","Abrir um projeto","Abrir un proyecto"],
+  ["Ouvrez un projet Métrix (.metrix), créé sur cet ordinateur ou sur un autre.","Open a Métrix project (.metrix), created on this computer or on another one.","Abra um projeto Métrix (.metrix), criado neste computador ou noutro.","Abra un proyecto Métrix (.metrix), creado en este ordenador o en otro."],
+  ["Utiliser Métrix sans projet","Use Métrix without a project","Usar o Métrix sem projeto","Usar Métrix sin proyecto"],
+  ["Ouvrez simplement vos plans PDF, comme d'habitude.","Simply open your PDF plans, as usual.","Abra simplesmente as suas plantas PDF, como de costume.","Abra simplemente sus planos PDF, como siempre."],
+  ["Avec cette version de l'appli Mac, les projets .metrix s'ouvrent en glissant le fichier sur cette fenêtre. Installez la dernière version depuis le site pour pouvoir les choisir directement.","With this version of the Mac app, .metrix projects are opened by dragging the file onto this window. Install the latest version from the website to choose them directly.","Com esta versão da aplicação Mac, os projetos .metrix abrem-se arrastando o ficheiro para esta janela. Instale a versão mais recente a partir do site para os poder escolher diretamente.","Con esta versión de la aplicación Mac, los proyectos .metrix se abren arrastrando el archivo a esta ventana. Instale la última versión desde el sitio web para poder elegirlos directamente."],
+  ["Nom du projet","Project name","Nome do projeto","Nombre del proyecto"],
+  ["Exemple : Résidence Les Tilleuls","Example: Linden Court Residence","Exemplo: Residência Os Tílias","Ejemplo: Residencia Los Tilos"],
+  ["Plans du projet","Project plans","Plantas do projeto","Planos del proyecto"],
+  ["+ Ajouter des PDF…","+ Add PDFs…","+ Adicionar PDF…","+ Añadir PDF…"],
+  ["ou déposez-les ici","or drop them here","ou largue-os aqui","o suéltelos aquí"],
+  ["Les PDF sont rangés dans le fichier du projet (.metrix) quand vous cliquez sur Enregistrer : vous pourrez l'ouvrir sur un autre ordinateur.","The PDFs are stored in the project file (.metrix) when you click Save: you can then open it on another computer.","Os PDF são guardados no ficheiro do projeto (.metrix) quando clica em Guardar: poderá abri-lo noutro computador.","Los PDF se guardan en el archivo del proyecto (.metrix) cuando hace clic en Guardar: podrá abrirlo en otro ordenador."],
+  ["Retour","Back","Voltar","Volver"],
+  ["Créer le projet","Create the project","Criar o projeto","Crear el proyecto"],
+  ["Nouveau projet…","New project…","Novo projeto…","Nuevo proyecto…"],
+  ["Ouvrir un projet…","Open a project…","Abrir um projeto…","Abrir un proyecto…"],
+  ["Fermer le projet","Close the project","Fechar o projeto","Cerrar el proyecto"],
+  ["Retirer ce plan","Remove this plan","Retirar esta planta","Quitar este plano"],
+  ["Aucun plan pour l'instant.","No plans yet.","Ainda sem plantas.","Todavía no hay planos."],
+  ["{n} Mo","{n} MB","{n} MB","{n} MB"],
+  ["« {f} » n'est pas un plan PDF ou une image.","“{f}” is not a PDF plan or an image.","« {f} » não é uma planta PDF nem uma imagem.","« {f} » no es un plano PDF ni una imagen."],
+  ["Projet « {n} » créé : pensez à l'enregistrer","Project “{n}” created: remember to save it","Projeto « {n} » criado: lembre-se de o guardar","Proyecto « {n} » creado: recuerde guardarlo"],
+  ["Préparation du fichier du projet…","Preparing the project file…","A preparar o ficheiro do projeto…","Preparando el archivo del proyecto…"],
+  ["Projet enregistré : {n} plan(s) dans le fichier","Project saved: {n} plan(s) in the file","Projeto guardado: {n} planta(s) no ficheiro","Proyecto guardado: {n} plano(s) en el archivo"],
+  ["Enregistrement du projet impossible : {e}","Unable to save the project: {e}","Não foi possível guardar o projeto: {e}","No se puede guardar el proyecto: {e}"],
+  ["Enregistrer en projet","Save as a project","Guardar como projeto","Guardar como proyecto"],
+  ["Les plans ouverts et leurs métrés seront rangés dans un seul fichier projet (.metrix), que vous pourrez ouvrir sur un autre ordinateur.","The open plans and their takeoffs will be stored in a single project file (.metrix), which you can open on another computer.","As plantas abertas e as suas medições serão guardadas num único ficheiro de projeto (.metrix), que poderá abrir noutro computador.","Los planos abiertos y sus mediciones se guardarán en un único archivo de proyecto (.metrix), que podrá abrir en otro ordenador."],
+  ["Nom du projet :","Project name:","Nome do projeto:","Nombre del proyecto:"],
+  ["Donnez un nom au projet.","Give the project a name.","Dê um nome ao projeto.","Dé un nombre al proyecto."],
+  ["Ouverture du projet « {n} »…","Opening the project “{n}”…","A abrir o projeto « {n} »…","Abriendo el proyecto « {n} »…"],
+  ["Le plan « {f} » du projet est illisible.","The plan “{f}” in the project cannot be read.","A planta « {f} » do projeto está ilegível.","El plano « {f} » del proyecto es ilegible."],
+  ["Projet « {n} » ouvert : {k} plan(s)","Project “{n}” opened: {k} plan(s)","Projeto « {n} » aberto: {k} planta(s)","Proyecto « {n} » abierto: {k} plano(s)"],
+  ["Ce fichier contient les métrés d'un seul plan : ouvrez d'abord ce plan, puis chargez le fichier.","This file contains the takeoffs of a single plan: open that plan first, then load the file.","Este ficheiro contém as medições de uma só planta: abra primeiro essa planta e depois carregue o ficheiro.","Este archivo contiene las mediciones de un solo plano: abra primero ese plano y luego cargue el archivo."],
 ]);
 // --- langues ajoutées : allemand, néerlandais, chinois (mandarin), arabe, italien, russe (généré par i18n/construire.rb) ---
 addTr2([
@@ -2663,6 +2776,41 @@ addTr2([
   ["Longueur × largeur","Länge × Breite","Lengte × breedte","长 × 宽","الطول × العرض","Lunghezza × larghezza","Длина × ширина"],
   ["Longueurs et largeurs des éléments","Längen und Breiten der Elemente","Lengtes en breedtes van de elementen","构件的长度和宽度","أطوال وعروض العناصر","Lunghezze e larghezze degli elementi","Длины и ширины элементов"],
   ["Longueurs et largeurs","Längen und Breiten","Lengtes en breedtes","长度和宽度","الأطوال والعروض","Lunghezze e larghezze","Длины и ширины"],
+  ["Comment voulez-vous travailler ?","Wie möchten Sie arbeiten?","Hoe wilt u werken?","您想如何工作？","كيف تريد أن تعمل؟","Come vuoi lavorare?","Как вы хотите работать?"],
+  ["Créer un projet","Projekt erstellen","Project maken","创建项目","إنشاء مشروع","Crea un progetto","Создать проект"],
+  ["Choisissez un ou plusieurs PDF : ils seront rangés dans le fichier du projet quand vous l'enregistrerez.","Wählen Sie eine oder mehrere PDF-Dateien: Sie werden beim Speichern in der Projektdatei abgelegt.","Kies een of meer pdf's: ze worden in het projectbestand opgeslagen wanneer u het opslaat.","选择一个或多个 PDF：保存项目时，它们会存入项目文件。","اختر ملف PDF واحدًا أو أكثر: ستُحفظ داخل ملف المشروع عند حفظه.","Scegli uno o più PDF: verranno salvati nel file del progetto quando lo salvi.","Выберите один или несколько PDF: они будут сохранены в файле проекта при его сохранении."],
+  ["Ouvrir un projet","Projekt öffnen","Project openen","打开项目","فتح مشروع","Apri un progetto","Открыть проект"],
+  ["Ouvrez un projet Métrix (.metrix), créé sur cet ordinateur ou sur un autre.","Öffnen Sie ein Métrix-Projekt (.metrix), das auf diesem oder einem anderen Computer erstellt wurde.","Open een Métrix-project (.metrix), gemaakt op deze of een andere computer.","打开在本机或其他电脑上创建的 Métrix 项目（.metrix）。","افتح مشروع Métrix ‏(.metrix) أُنشئ على هذا الحاسوب أو على حاسوب آخر.","Apri un progetto Métrix (.metrix), creato su questo computer o su un altro.","Откройте проект Métrix (.metrix), созданный на этом или другом компьютере."],
+  ["Utiliser Métrix sans projet","Métrix ohne Projekt verwenden","Métrix zonder project gebruiken","不使用项目，直接使用 Métrix","استخدام Métrix بدون مشروع","Usa Métrix senza progetto","Работать в Métrix без проекта"],
+  ["Ouvrez simplement vos plans PDF, comme d'habitude.","Öffnen Sie einfach Ihre PDF-Pläne, wie gewohnt.","Open gewoon uw pdf-tekeningen, zoals altijd.","像往常一样直接打开 PDF 图纸。","افتح مخططات PDF الخاصة بك ببساطة، كالمعتاد.","Apri semplicemente i tuoi disegni PDF, come al solito.","Просто открывайте PDF-чертежи, как обычно."],
+  ["Avec cette version de l'appli Mac, les projets .metrix s'ouvrent en glissant le fichier sur cette fenêtre. Installez la dernière version depuis le site pour pouvoir les choisir directement.","Mit dieser Version der Mac-App öffnen Sie .metrix-Projekte, indem Sie die Datei auf dieses Fenster ziehen. Installieren Sie die neueste Version von der Website, um sie direkt auswählen zu können.","Met deze versie van de Mac-app opent u .metrix-projecten door het bestand naar dit venster te slepen. Installeer de nieuwste versie via de website om ze direct te kunnen kiezen.","在此版本的 Mac 应用中，请将 .metrix 项目文件拖到此窗口中打开。从网站安装最新版本后即可直接选择。","في هذا الإصدار من تطبيق Mac، تُفتح مشاريع ‎.metrix بسحب الملف إلى هذه النافذة. ثبّت أحدث إصدار من الموقع لتتمكن من اختيارها مباشرة.","Con questa versione dell'app Mac, i progetti .metrix si aprono trascinando il file su questa finestra. Installa l'ultima versione dal sito per poterli scegliere direttamente.","В этой версии приложения для Mac проекты .metrix открываются перетаскиванием файла в это окно. Установите последнюю версию с сайта, чтобы выбирать их напрямую."],
+  ["Nom du projet","Projektname","Projectnaam","项目名称","اسم المشروع","Nome del progetto","Название проекта"],
+  ["Exemple : Résidence Les Tilleuls","Beispiel: Wohnanlage Lindenhof","Voorbeeld: Residentie De Linden","示例：椴树公寓","مثال: مجمّع الزيزفون السكني","Esempio: Residenza I Tigli","Пример: ЖК «Липы»"],
+  ["Plans du projet","Pläne des Projekts","Tekeningen van het project","项目图纸","مخططات المشروع","Disegni del progetto","Чертежи проекта"],
+  ["+ Ajouter des PDF…","+ PDFs hinzufügen…","+ Pdf's toevoegen…","+ 添加 PDF…","+ إضافة ملفات PDF…","+ Aggiungi PDF…","+ Добавить PDF…"],
+  ["ou déposez-les ici","oder hier ablegen","of zet ze hier neer","或拖放到此处","أو أفلتها هنا","oppure trascinali qui","или перетащите их сюда"],
+  ["Les PDF sont rangés dans le fichier du projet (.metrix) quand vous cliquez sur Enregistrer : vous pourrez l'ouvrir sur un autre ordinateur.","Die PDFs werden beim Klick auf Speichern in der Projektdatei (.metrix) abgelegt: Sie können sie dann auf einem anderen Computer öffnen.","De pdf's worden in het projectbestand (.metrix) opgeslagen wanneer u op Opslaan klikt: u kunt het dan op een andere computer openen.","点击“保存”时，PDF 会存入项目文件（.metrix）：之后可在其他电脑上打开。","تُحفظ ملفات PDF في ملف المشروع (.metrix) عند النقر على حفظ: يمكنك بعدها فتحه على حاسوب آخر.","I PDF vengono salvati nel file del progetto (.metrix) quando fai clic su Salva: potrai aprirlo su un altro computer.","PDF сохраняются в файле проекта (.metrix) при нажатии «Сохранить»: его можно будет открыть на другом компьютере."],
+  ["Retour","Zurück","Terug","返回","رجوع","Indietro","Назад"],
+  ["Créer le projet","Projekt erstellen","Project maken","创建项目","إنشاء المشروع","Crea il progetto","Создать проект"],
+  ["Nouveau projet…","Neues Projekt…","Nieuw project…","新建项目…","مشروع جديد…","Nuovo progetto…","Новый проект…"],
+  ["Ouvrir un projet…","Projekt öffnen…","Project openen…","打开项目…","فتح مشروع…","Apri un progetto…","Открыть проект…"],
+  ["Fermer le projet","Projekt schließen","Project sluiten","关闭项目","إغلاق المشروع","Chiudi il progetto","Закрыть проект"],
+  ["Retirer ce plan","Diesen Plan entfernen","Deze tekening verwijderen","移除此图纸","إزالة هذا المخطط","Rimuovi questo disegno","Убрать этот чертёж"],
+  ["Aucun plan pour l'instant.","Noch keine Pläne.","Nog geen tekeningen.","暂无图纸。","لا توجد مخططات بعد.","Nessun disegno per ora.","Пока нет чертежей."],
+  ["{n} Mo","{n} MB","{n} MB","{n} MB","{n} ميغابايت","{n} MB","{n} МБ"],
+  ["« {f} » n'est pas un plan PDF ou une image.","„{f}“ ist weder ein PDF-Plan noch ein Bild.","„{f}” is geen pdf-tekening of afbeelding.","“{f}”不是 PDF 图纸或图片。","«{f}» ليس مخطط PDF ولا صورة.","«{f}» non è un disegno PDF né un'immagine.","«{f}» — не PDF-чертёж и не изображение."],
+  ["Projet « {n} » créé : pensez à l'enregistrer","Projekt „{n}“ erstellt: Denken Sie ans Speichern","Project „{n}” gemaakt: vergeet niet het op te slaan","项目“{n}”已创建：请记得保存","تم إنشاء المشروع «{n}»: لا تنسَ حفظه","Progetto «{n}» creato: ricordati di salvarlo","Проект «{n}» создан: не забудьте сохранить его"],
+  ["Préparation du fichier du projet…","Projektdatei wird vorbereitet…","Projectbestand wordt voorbereid…","正在准备项目文件…","جارٍ تجهيز ملف المشروع…","Preparazione del file del progetto…","Подготовка файла проекта…"],
+  ["Projet enregistré : {n} plan(s) dans le fichier","Projekt gespeichert: {n} Plan/Pläne in der Datei","Project opgeslagen: {n} tekening(en) in het bestand","项目已保存：文件中有 {n} 张图纸","تم حفظ المشروع: {n} مخطط في الملف","Progetto salvato: {n} disegno/i nel file","Проект сохранён: чертежей в файле — {n}"],
+  ["Enregistrement du projet impossible : {e}","Projekt kann nicht gespeichert werden: {e}","Project kan niet worden opgeslagen: {e}","无法保存项目：{e}","تعذّر حفظ المشروع: {e}","Impossibile salvare il progetto: {e}","Не удалось сохранить проект: {e}"],
+  ["Enregistrer en projet","Als Projekt speichern","Opslaan als project","另存为项目","حفظ كمشروع","Salva come progetto","Сохранить как проект"],
+  ["Les plans ouverts et leurs métrés seront rangés dans un seul fichier projet (.metrix), que vous pourrez ouvrir sur un autre ordinateur.","Die geöffneten Pläne und ihre Aufmaße werden in einer einzigen Projektdatei (.metrix) gespeichert, die Sie auf einem anderen Computer öffnen können.","De geopende tekeningen en hun metingen worden opgeslagen in één projectbestand (.metrix), dat u op een andere computer kunt openen.","已打开的图纸及其测量将存入一个项目文件（.metrix），可在其他电脑上打开。","ستُحفظ المخططات المفتوحة وقياساتها في ملف مشروع واحد (.metrix) يمكنك فتحه على حاسوب آخر.","I disegni aperti e le loro misure verranno salvati in un unico file di progetto (.metrix), che potrai aprire su un altro computer.","Открытые чертежи и их замеры будут сохранены в одном файле проекта (.metrix), который можно открыть на другом компьютере."],
+  ["Nom du projet :","Projektname:","Projectnaam:","项目名称：","اسم المشروع:","Nome del progetto:","Название проекта:"],
+  ["Donnez un nom au projet.","Geben Sie dem Projekt einen Namen.","Geef het project een naam.","请为项目命名。","أدخل اسمًا للمشروع.","Dai un nome al progetto.","Укажите название проекта."],
+  ["Ouverture du projet « {n} »…","Projekt „{n}“ wird geöffnet…","Project „{n}” wordt geopend…","正在打开项目“{n}”…","جارٍ فتح المشروع «{n}»…","Apertura del progetto «{n}»…","Открытие проекта «{n}»…"],
+  ["Le plan « {f} » du projet est illisible.","Der Plan „{f}“ im Projekt ist unlesbar.","De tekening „{f}” in het project is onleesbaar.","项目中的图纸“{f}”无法读取。","تعذّرت قراءة المخطط «{f}» في المشروع.","Il disegno «{f}» del progetto è illeggibile.","Чертёж «{f}» в проекте не читается."],
+  ["Projet « {n} » ouvert : {k} plan(s)","Projekt „{n}“ geöffnet: {k} Plan/Pläne","Project „{n}” geopend: {k} tekening(en)","项目“{n}”已打开：{k} 张图纸","تم فتح المشروع «{n}»: {k} مخطط","Progetto «{n}» aperto: {k} disegno/i","Проект «{n}» открыт: чертежей — {k}"],
+  ["Ce fichier contient les métrés d'un seul plan : ouvrez d'abord ce plan, puis chargez le fichier.","Diese Datei enthält die Aufmaße eines einzigen Plans: Öffnen Sie zuerst diesen Plan und laden Sie dann die Datei.","Dit bestand bevat de metingen van één tekening: open eerst die tekening en laad dan het bestand.","此文件只包含一张图纸的测量：请先打开该图纸，再加载此文件。","يحتوي هذا الملف على قياسات مخطط واحد فقط: افتح هذا المخطط أولًا ثم حمّل الملف.","Questo file contiene le misure di un solo disegno: apri prima quel disegno, poi carica il file.","Этот файл содержит замеры одного чертежа: сначала откройте этот чертёж, затем загрузите файл."],
 ]);
 // --- fin des langues ajoutées ---
 
@@ -3062,8 +3210,7 @@ function showDoc(d) {   // affiche l'onglet d (sans sauvegarder l'onglet précé
   for (const k of DOC_FIELDS) st[k] = d[k];
   st.cur = null; st.hover = null; st.erasing = null; st.addZone = null; st.addLine = null; st.addSketch = null;
   $('nav').replaceChildren(d.nav);
-  $('docName').textContent = shortName(d.fileName, 48) + ' — Métrix';
-  $('docName').title = d.fileName;
+  setDocName();
   $('empty').style.display = st.img ? 'none' : 'flex';
   d.nav.querySelectorAll('.thumb').forEach(t => t.classList.toggle('active', +t.dataset.page === st.page));
   renderTabs(); refresh();
@@ -3085,7 +3232,7 @@ function closeDoc(d) {
     else {   // plus aucun plan : retour au cadre « Cliquez ici »
       Object.assign(st, { fileKey: null, fileName: '', isPdf: false, pdf: null, file: null, page: 1, img: null,
         scales: {}, measures: [], nextId: 1, sel: null, undo: [], collapsed: {}, cur: null, hover: null });
-      $('nav').replaceChildren(); $('docName').textContent = 'Métrix'; $('docName').title = ''; $('empty').style.display = 'flex';
+      $('nav').replaceChildren(); setDocName(); $('empty').style.display = 'flex';
       renderTabs(); refresh();
     }
   } else renderTabs();
@@ -6975,7 +7122,9 @@ $('openLeft').onclick = () => { document.body.classList.toggle('show-left'); doc
 $('openRight').onclick = () => { document.body.classList.toggle('show-right'); document.body.classList.remove('show-left'); };
 
 window.addEventListener('keydown', e => {
+  if (!$('start').hidden) return;   // écran d'ouverture affiché
   if (e.key.toLowerCase() === 'o' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); $('file').click(); return; }
+  if (e.key.toLowerCase() === 's' && (e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey) { e.preventDefault(); if ($('modal').hidden) saveProject(); return; }
   if (!$('modal').hidden || /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;
   st.shift = e.shiftKey;
   if (e.code === 'Space') { st.space = true; e.preventDefault(); }
@@ -7095,15 +7244,185 @@ $('csv').onclick = () => {
   const csv = '﻿' + rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(SEP)).join('\r\n');
   download(baseName() + '-metre.csv', csv, 'text/csv');
 };
-$('save').onclick = () => download(baseName() + '-metre.json', JSON.stringify(snapshot(), null, 1), 'application/json');
+$('save').onclick = () => saveProject();
 async function loadProject(f) {
+  let d;
+  try { d = JSON.parse(await f.text()); } catch { return notify('Fichier de projet invalide.'); }
+  if (d && d.format === 'metrix-projet') return openProject(d);
   try {
-    const d = JSON.parse(await f.text()); apply(d);
+    if (!docs.length) return notify('Ce fichier contient les métrés d\'un seul plan : ouvrez d\'abord ce plan, puis chargez le fichier.');
+    apply(d); startHide();
     if (d.fileName && d.fileName !== st.fileName) notify(`Projet chargé. Il a été créé sur le plan « ${d.fileName} » : ouvrez ce plan s'il n'est pas déjà affiché.`);
     persist(); refresh();
   } catch { notify('Fichier de projet invalide.'); }
 }
 $('load').onchange = e => { const f = e.target.files[0]; if (f) loadProject(f); e.target.value = ''; };
+
+/* ---------- projets : plusieurs plans et leurs métrés dans un seul fichier « .metrix » ----------
+   Écran d'ouverture : créer un projet (plusieurs PDF), ouvrir un projet (.metrix, d'un autre ordinateur aussi),
+   ou utiliser Métrix sans projet (comme avant). Le projet = les plans ouverts dans les onglets.
+   À l'enregistrement, chaque plan est rangé dans le fichier (en base64) avec ses échelles, ses métrés et ses ouvrages. */
+let curProject = null;   // { name, created } ou null (sans projet)
+let stFiles = [];        // création : plans choisis [{ file, src }]
+const metrixCaps = () => window.__METRIX_CAPS || [];
+const isPlanFile = f => /\.(pdf|png|jpe?g|tiff?|gif|bmp|webp|heic)$/i.test(f.name) || /^(application\/pdf|image\/)/.test(f.type || '');
+const isProjectFile = f => /\.(metrix|json)$/i.test(f.name);
+function setDocName() {
+  const d = activeDoc, el = $('docName'); if (!el) return;
+  el.textContent = [curProject && curProject.name, d && shortName(d.fileName, 48), 'Métrix'].filter(Boolean).join(' — ');
+  el.title = [curProject && curProject.name, d && d.fileName].filter(Boolean).join(' — ');
+}
+function startShow(panel = 'home') {
+  $('start').hidden = false; $('fileMenu').hidden = true;
+  $('stOldMac').hidden = !(NATIVE && !metrixCaps().includes('metrixFile'));
+  startPanel(panel);
+}
+function startHide() { $('start').hidden = true; }
+function startPanel(p) {
+  $('stHome').hidden = p !== 'home'; $('stCreate').hidden = p !== 'create';
+  if (p === 'create') { renderStList(); setTimeout(() => $('stName').focus(), 0); }
+  else setTimeout(() => $('stNew').focus(), 0);
+}
+function renderStList() {
+  const box = $('stList');
+  box.innerHTML = stFiles.length ? stFiles.map((x, i) => {
+    const pdf = /\.pdf$/i.test(x.file.name);
+    return `<div class="st-it" title="${esc(x.file.name)}"><span class="ic${pdf ? '' : ' img'}">${pdf ? 'PDF' : 'IMG'}</span><span class="nm">${esc(x.file.name)}</span>`
+      + `<small>${fmt(x.file.size / 1048576, 1)} Mo</small><button type="button" data-i="${i}" title="Retirer ce plan">✕</button></div>`;
+  }).join('') : '<div class="st-empty">Aucun plan pour l\'instant.</div>';
+  box.querySelectorAll('button').forEach(b => b.onclick = () => { stFiles.splice(+b.dataset.i, 1); renderStList(); });
+  $('stGo').disabled = !stFiles.length;
+}
+function stAddFile(f, src) {
+  if (!f) return;
+  if (!isPlanFile(f)) return notify(`« ${f.name} » n'est pas un plan PDF ou une image.`);
+  if (stFiles.some(x => x.file.name === f.name && x.file.size === f.size)) return;
+  stFiles.push({ file: f, src: src || null }); renderStList();
+}
+// lecture d'un fichier copié par l'appli Mac dans son dossier temporaire
+function nativeFile(path, name) {
+  return new Promise(resolve => {
+    const x = new XMLHttpRequest(); x.open('GET', fileUrl(path)); x.responseType = 'blob';
+    x.onload = () => resolve(new File([x.response], name, { type: /\.pdf$/i.test(name) ? 'application/pdf' : x.response.type }));
+    x.onerror = x.ontimeout = () => { notify('Impossible de lire le fichier « ' + name + ' ».'); resolve(null); };
+    x.timeout = 60000; x.send();
+  });
+}
+let stPicking = false;
+async function stPick() {
+  if (!NATIVE) return $('stFiles').click();
+  if (stPicking) return; stPicking = true;
+  try {
+    const multi = metrixCaps().includes('multiOpen');   // ancienne appli Mac : un plan à la fois
+    const r = await nativeCall({ cmd: 'open', kind: multi ? 'files' : 'file' });
+    if (r.error) return notify(r.error);
+    for (const x of r.files || (r.path ? [r] : [])) {
+      if (x.error) { notify(x.error); continue; }
+      stAddFile(await nativeFile(x.path, x.name), x.src);
+    }
+  } finally { stPicking = false; }
+}
+function closeAllDocs() { persist(); saveDoc(); for (const d of docs.slice()) closeDoc(d); }
+async function createProject() {
+  if (!stFiles.length) return;
+  const list = stFiles.slice(), name = $('stName').value.trim() || list[0].file.name.replace(/\.[^.]+$/, '');
+  stFiles = [];
+  closeAllDocs();
+  curProject = { name, created: new Date().toISOString() };
+  startHide(); setDocName();
+  for (const x of list) await openFile(x.file, x.src);
+  if (docs[0]) switchDoc(docs[0]);
+  setDocName();
+  toast(`Projet « ${name} » créé : pensez à l'enregistrer`);
+}
+// fichier .metrix : texte JSON, plans en base64
+const b64Of = f => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).replace(/^data:[^,]*,/, '')); r.onerror = () => rej(r.error); r.readAsDataURL(f); });
+function b64Bytes(s) {
+  const out = new Uint8Array(Math.ceil(s.length * 3 / 4)); let o = 0;
+  for (let i = 0; i < s.length; i += 1 << 20) { const bin = atob(s.slice(i, i + (1 << 20))); for (let j = 0; j < bin.length; j++) out[o++] = bin.charCodeAt(j); }
+  return out.subarray(0, o);
+}
+let prjSaving = false;
+async function saveProject() {
+  if (!docs.length) return notify('Ouvrez d\'abord un plan.');
+  if (!curProject) return askProjectName();
+  if (prjSaving) return; prjSaving = true;
+  try {
+    persist(); saveDoc();
+    toast('Préparation du fichier du projet…');
+    const plans = [];
+    for (const d of docs) plans.push({ name: d.fileName, type: d.file.type || (d.isPdf ? 'application/pdf' : ''), size: d.file.size,
+      metres: { fileName: d.fileName, scales: d.scales, measures: d.measures, nextId: d.nextId, ouvrages: library.filter(o => d.measures.some(m => m.ouvrage === o.id)) },
+      data: await b64Of(d.file) });
+    const text = JSON.stringify({ app: 'Métrix', format: 'metrix-projet', version: 1, metrix: METRIX_VERSION, name: curProject.name,
+      created: curProject.created, saved: new Date().toISOString(), active: Math.max(0, docs.indexOf(activeDoc)), plans });
+    const name = (curProject.name.replace(/[\\/:*?"<>|]+/g, '-').trim() || 'Projet') + '.metrix';
+    if (NATIVE) {
+      const r = await nativeCall({ cmd: 'save', name, text });
+      if (r.ok) toast(`Projet enregistré : ${plans.length} plan(s) dans le fichier`); else if (r.msg) notify(r.msg);
+    } else { download(name, new Blob([text], { type: 'application/octet-stream' }), 'application/octet-stream'); toast(`Projet enregistré : ${plans.length} plan(s) dans le fichier`); }
+  } catch (e) { notify('Enregistrement du projet impossible : ' + (e.message || e)); }
+  finally { prjSaving = false; }
+}
+function askProjectName() {
+  dialog('Enregistrer en projet', `<p style="margin:14px 16px 8px;text-align:left">Les plans ouverts et leurs métrés seront rangés dans un seul fichier projet (.metrix), que vous pourrez ouvrir sur un autre ordinateur.</p>
+    <div class="row" style="margin:0 16px 12px"><label for="pjName">Nom du projet :</label><input id="pjName" style="flex:1" value="${esc(baseName())}"></div>`, () => {
+      const n = $('pjName').value.trim(); if (!n) { notify('Donnez un nom au projet.'); return false; }
+      curProject = { name: n, created: new Date().toISOString() }; setDocName(); setTimeout(saveProject, 0);
+    });
+}
+async function openProject(p) {
+  if (!Array.isArray(p.plans) || !p.plans.length) return notify('Fichier de projet invalide.');
+  startHide(); closeAllDocs();
+  curProject = { name: p.name || 'Projet', created: p.created || null }; setDocName();
+  toast(`Ouverture du projet « ${curProject.name} »…`);
+  for (const pl of p.plans) {
+    let f;
+    try { f = new File([b64Bytes(pl.data || '')], pl.name || 'plan.pdf', { type: pl.type || '' }); }
+    catch { notify(`Le plan « ${pl.name} » du projet est illisible.`); continue; }
+    // les métrés du projet remplacent ceux gardés sur cet ordinateur pour ce plan
+    if (pl.metres) try { localStorage.setItem('metre:' + f.name + ':' + f.size, JSON.stringify(pl.metres)); } catch {}
+    await openFile(f, null);
+  }
+  const a = docs[p.active] || docs[0]; if (a) switchDoc(a);
+  setDocName();
+  if (docs.length) toast(`Projet « ${curProject.name} » ouvert : ${docs.length} plan(s)`);
+}
+function closeProject() {
+  closeAllDocs(); curProject = null; setDocName(); startShow();
+}
+// fichiers déposés : projet (.metrix) ou plans
+function dropFiles(list) {
+  const fs = [...(list || [])]; if (!fs.length) return;
+  const prj = fs.find(isProjectFile); if (prj) return loadProject(prj);
+  (async () => { for (const f of fs) await openFile(f); })();
+}
+$('stNew').onclick = () => { stFiles = docs.map(d => ({ file: d.file, src: null })); $('stName').value = ''; startPanel('create'); };
+$('stOpen').onclick = () => $('load').click();
+$('stFree').onclick = () => { curProject = null; setDocName(); startHide(); };
+$('stBack').onclick = () => startPanel('home');
+$('stGo').onclick = createProject;
+$('stAdd').onclick = stPick;
+$('stAdd').onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); stPick(); } };
+$('stName').onkeydown = e => { if (e.key === 'Enter' && !$('stGo').disabled) createProject(); };
+$('stFiles').onchange = e => { [...e.target.files].forEach(f => stAddFile(f)); e.target.value = ''; };
+$('menuNewPrj').onclick = () => { startShow(); $('stNew').click(); };
+$('menuClosePrj').onclick = closeProject;
+{ // glisser-déposer sur l'écran d'ouverture : plans (création) ou fichier projet
+  const S = $('start'), A = $('stAdd');
+  ['dragenter', 'dragover'].forEach(t => S.addEventListener(t, e => { e.preventDefault(); A.classList.add('drag'); }));
+  S.addEventListener('dragleave', e => { if (e.target === S) A.classList.remove('drag'); });
+  S.addEventListener('drop', e => {
+    e.preventDefault(); A.classList.remove('drag');
+    const fs = [...e.dataTransfer.files], prj = fs.find(isProjectFile);
+    if (prj && $('stCreate').hidden) return loadProject(prj);
+    const plans = fs.filter(isPlanFile); if (!plans.length) return;
+    if ($('stCreate').hidden) { stFiles = []; $('stName').value = ''; startPanel('create'); }
+    plans.forEach(f => stAddFile(f));
+  });
+}
+if (IS_TOUCH) $('load').removeAttribute('accept');   // iPhone / iPad : sinon les fichiers .metrix restent grisés
+startShow();
 
 /* ---------- mise à jour par fichier ---------- */
 // Un seul fichier « Metrix-mise-a-jour-X.cmd » sert aux deux systèmes :
@@ -7248,7 +7567,7 @@ document.querySelectorAll('[data-click]').forEach(d => d.onclick = () => documen
 // glisser-déposer
 ['dragenter','dragover'].forEach(t => stage.addEventListener(t, e => { e.preventDefault(); $('empty').classList.add('drag'); $('empty').style.display = 'flex'; }));
 ['dragleave','drop'].forEach(t => stage.addEventListener(t, e => { e.preventDefault(); $('empty').classList.remove('drag'); if (st.img) $('empty').style.display = 'none'; }));
-stage.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) openFile(f); });
+stage.addEventListener('drop', e => dropFiles(e.dataTransfer.files));
 // clic dans le cadre en pointillés (aucun plan ouvert) : choisir un plan, sans surligner le texte
 $('empty').addEventListener('mousedown', e => { if (e.detail > 1) e.preventDefault(); });   // empêche la sélection au 2e clic
 $('empty').addEventListener('click', () => { window.getSelection()?.removeAllRanges(); if (!st.img) $('file').click(); });
